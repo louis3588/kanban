@@ -10,8 +10,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="64f5ffe2-33fc-495e-970f-0a9dae342dde" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.dockerignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Models/Board.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Models/TaskItem.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Models/User.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Models/Workspace.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Models/WorkspaceMember.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.kanbanBackend/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.kanbanBackend/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kanbanBackend.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/kanbanBackend.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net8.0/kanbanBackend.AssemblyInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net8.0/kanbanBackend.AssemblyInfo.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net8.0/kanbanBackend.AssemblyInfoInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net8.0/kanbanBackend.AssemblyInfoInputs.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net8.0/kanbanBackend.assets.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net8.0/kanbanBackend.assets.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net8.0/kanbanBackend.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net8.0/kanbanBackend.csproj.AssemblyReference.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/kanbanBackend.csproj.nuget.dgspec.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/kanbanBackend.csproj.nuget.dgspec.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/kanbanBackend.csproj.nuget.g.props" beforeDir="false" afterPath="$PROJECT_DIR$/obj/kanbanBackend.csproj.nuget.g.props" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/kanbanBackend.csproj.nuget.g.targets" beforeDir="false" afterPath="$PROJECT_DIR$/obj/kanbanBackend.csproj.nuget.g.targets" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/project.assets.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.assets.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/project.nuget.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.nuget.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/project.packagespec.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.packagespec.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/rider.project.model.nuget.info" beforeDir="false" afterPath="$PROJECT_DIR$/obj/rider.project.model.nuget.info" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/rider.project.restore.info" beforeDir="false" afterPath="$PROJECT_DIR$/obj/rider.project.restore.info" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -129,6 +146,7 @@
       <option name="presentableId" value="Default" />
       <updated>1788950712343</updated>
       <workItem from="1788950713985" duration="340000" />
+      <workItem from="1788951088267" duration="1979000" />
     </task>
     <servers />
   </component>
