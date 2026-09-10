@@ -1,0 +1,13 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=68bd0072_002D7bd9_002D498b_002Dbdbf_002D50b6a5bb194e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Test1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.UnitTest1.Test1&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=b8ddee98_002Dbc53_002D4e1a_002D9538_002D69d919d70e5e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="UnitTest1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.UnitTest1&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.KanbanDbContextTests.DBContext_CanBeCreated&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.KanbanDbContextTests.CanCreateUser&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
