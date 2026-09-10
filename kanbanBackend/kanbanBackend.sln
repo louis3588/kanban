@@ -1,6 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kanbanBackend", "kanbanBackend.csproj", "{696646E2-2014-4983-98D4-2F9D00AB4653}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kanbanBackend.Tests", "kanbanBackend.Tests\kanbanBackend.Tests.csproj", "{BDDF1E33-3D85-453E-9C4A-8823D8C596D5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +15,9 @@ Global
 		{696646E2-2014-4983-98D4-2F9D00AB4653}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{696646E2-2014-4983-98D4-2F9D00AB4653}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{696646E2-2014-4983-98D4-2F9D00AB4653}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDDF1E33-3D85-453E-9C4A-8823D8C596D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDDF1E33-3D85-453E-9C4A-8823D8C596D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDDF1E33-3D85-453E-9C4A-8823D8C596D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDDF1E33-3D85-453E-9C4A-8823D8C596D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
