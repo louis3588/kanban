@@ -36,7 +36,7 @@ jobs:
         run: dotnet test --no-build --configuration Release
 
   frontend:
-    name: Frontend - Expo Build
+    name: Frontend - Test and Build
     runs-on: ubuntu-latest
 
     defaults:
@@ -56,6 +56,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Test
+        run: npm test -- --runInBand
 
       - name: Build Expo web application
         run: npx expo export --platform web
