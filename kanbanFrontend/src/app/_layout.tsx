@@ -1,5 +1,21 @@
 import { Stack } from "expo-router";
 
 export default function RootLayout() {
-  return <Stack />;
+  return (
+      <Stack>
+        <Stack.Screen
+            name="(auth)"
+            options={{
+              headerShown: false,
+            }}
+        />
+
+        <Stack.Screen
+            name="(dashbaord)"
+            options={{
+              headerShown: false,
+            }}
+        />
+      </Stack>
+  );
 }
