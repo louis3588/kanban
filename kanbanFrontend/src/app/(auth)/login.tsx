@@ -14,6 +14,10 @@ export default function Login(){
     const [isLoading, setIsLoading] = useState(false);
     const[error, setError] = useState("");
 
+    const goToRegister = () => {
+      router.replace("/(auth)/register")
+    }
+
 
     //TODO: User should be able to sign in with email instead
     const handleLogin = async () => {
@@ -69,6 +73,8 @@ export default function Login(){
             />
 
             {error !== "" && ( <Text style={styles.error}> {error} </Text> )}
+
+            <Text onPress={() => goToRegister()}>Dont have an account? Go to the register page</Text>
 
             <Button
                 title={isLoading ? "Logging in..." : "Login"}

@@ -1,9 +1,9 @@
 
 
-const BASE_URL = process.env.API_URL;
+let BASE_URL = process.env.API_URL;
 
 if(!BASE_URL){
-    throw new Error("API endpoint is not configured");
+    BASE_URL = "http://localhost:5000/api"
 }
 
 type LoginRequest = {
