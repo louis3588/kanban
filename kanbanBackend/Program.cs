@@ -1,8 +1,10 @@
 using System.Text;
 using DotNetEnv;
 using kanbanBackend.Data;
+using kanbanBackend.Models;
 using kanbanBackend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -31,7 +33,8 @@ builder.Services.AddDbContext<KanbanDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<JwtService>();
-
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddControllers();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
