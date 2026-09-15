@@ -28,7 +28,7 @@ public class KanbanDbContext : DbContext
 
             entity.Property(u => u.Username)
                 .IsRequired()
-                .HasMaxLength(50);
+                .HasMaxLength(49);
 
             entity.Property(u => u.Email)
                 .IsRequired()
@@ -36,6 +36,17 @@ public class KanbanDbContext : DbContext
 
             entity.Property(u => u.PasswordHash)
                 .IsRequired();
+
+            entity.Property(u => u.FirstName)
+                .IsRequired();
+
+            entity.Property(u => u.LastName)
+                .IsRequired();
+
+            entity.Property(u => u.ProfileImage);
+
+            entity.Property(u => u.Bio)
+                .HasMaxLength(500);
 
             entity.HasIndex(u => u.Username)
                 .IsUnique();

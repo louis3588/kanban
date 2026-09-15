@@ -42,6 +42,8 @@ public class AuthService
         var user = new User
         {
             Username = request.Username,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
             Email = request.Email,
         };
         
@@ -52,6 +54,8 @@ public class AuthService
         {
             Token = _jwtService.GenerateToken(user),
             UserId = user.Id,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
             Username = user.Username,
             Email = user.Email
         };
@@ -76,6 +80,8 @@ public class AuthService
         {
             Token = _jwtService.GenerateToken(user),
             UserId = user.Id,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
             Username = user.Username,
             Email = user.Email
         };

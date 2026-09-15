@@ -12,7 +12,7 @@ using Microsoft.OpenApi.Models;
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
-
+var jwtSecret = Environment.GetEnvironmentVariable("JWTSECRET");
 var connectionString =
     $"Host={Environment.GetEnvironmentVariable("PGHOST")};" +
     $"Database={Environment.GetEnvironmentVariable("PGDATABASE")};" +
@@ -21,9 +21,9 @@ var connectionString =
     $"SSL Mode={Environment.GetEnvironmentVariable("PGSSLMODE")};" +
     $"Channel Binding={Environment.GetEnvironmentVariable("PGCHANNELBINDING")}";
 
-var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
 
-if (!string.IsNullOrEmpty(jwtSecret))
+
+if (string.IsNullOrEmpty(jwtSecret))
 {
     throw new InvalidOperationException(
         "JWT_SECRET environment variable is not configured.");
@@ -37,6 +37,7 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CurrentUserService>();
 builder.Services.AddScoped<WorkspaceAuthService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

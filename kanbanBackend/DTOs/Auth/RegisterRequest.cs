@@ -5,8 +5,14 @@ namespace kanbanBackend.DTOs.Auth;
 public class RegisterRequest
 {
     [Required]
-    [MaxLength(50)] 
+    [MaxLength(49)] 
     public string Username { get; set; } = string.Empty;
+    
+    [Required]
+    public string FirstName { get; set; } = string.Empty;
+    
+    [Required]
+    public string LastName { get; set; } = string.Empty;
     
     [Required]
     [EmailAddress]

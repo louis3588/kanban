@@ -15,7 +15,7 @@ public class JwtService
     public JwtService(IConfiguration configuration)
     {
         _configuration = configuration;
-        _jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
+        _jwtSecret = Environment.GetEnvironmentVariable("JWTSECRET")
             ?? throw new InvalidOperationException("JWT_SECRET environment variable is not configured");
     }
 
