@@ -1,6 +1,7 @@
 using System.Text;
 using DotNetEnv;
 using kanbanBackend.Data;
+using kanbanBackend.Hubs;
 using kanbanBackend.Models;
 using kanbanBackend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -31,12 +32,13 @@ if (string.IsNullOrEmpty(jwtSecret))
 
 builder.Services.AddDbContext<KanbanDbContext>(options =>
     options.UseNpgsql(connectionString));
-
+builder.Services.AddSignalR();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CurrentUserService>();
 builder.Services.AddScoped<WorkspaceAuthService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 
@@ -59,6 +61,21 @@ builder.Services
 
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
             ClockSkew = TimeSpan.Zero
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/board"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -83,11 +100,11 @@ app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "KanbanBackend v1");
 });
-
 app.UseHttpsRedirection();
 app.UseExceptionHandler();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<BoardHub>("/hubs/board");
 
 app.Run();
