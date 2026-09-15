@@ -16,14 +16,19 @@ export default function RegisterScreen() {
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [usernameFocus, setUsernameFocus] = useState(false);
 
   const passwordLengthValid =
-    password.length >= 8 && password.length <= 64;
+    password.length >= 8 && password.length <= 48;
+
+  const usernameLengthValid = username.length >= 5 && username.length < 50
 
   const passwordUppercaseValid = /[A-Z]/.test(password);
 
@@ -38,6 +43,8 @@ export default function RegisterScreen() {
 
   const formValid =
     username.length > 0 &&
+    firstName.length > 0 &&
+    lastName.length > 0 &&
     emailValid &&
     passwordLengthValid &&
     passwordUppercaseValid &&
@@ -48,6 +55,43 @@ export default function RegisterScreen() {
     setError("");
 
     if (!formValid) {
+      switch (true) {
+        case username.length === 0:
+          setError("Please enter a username.");
+          break;
+
+        case !usernameLengthValid:
+          setError("Username must be between 5 and 48 characters.");
+          break;
+
+        case firstName.length === 0:
+          setError("Please enter your first name.");
+          break;
+
+        case lastName.length === 0:
+          setError("Please enter your last name.");
+          break;
+
+        case !emailValid:
+          setError("Please enter a valid email address.");
+          break;
+
+        case !passwordLengthValid:
+          setError("Password must be between 8 and 64 characters.");
+          break;
+
+        case !passwordUppercaseValid:
+          setError("Password must contain at least one uppercase letter.");
+          break;
+
+        case !passwordNumberValid:
+          setError("Password must contain at least one number.");
+          break;
+
+        case !passwordsMatch:
+          setError("Passwords do not match.");
+          break;
+      }
       return;
     }
 
@@ -56,6 +100,8 @@ export default function RegisterScreen() {
 
       const response = await registerApi(
         username,
+        firstName,
+        lastName,
         email,
         password
       );
@@ -63,6 +109,8 @@ export default function RegisterScreen() {
       login(response.token, {
         id: response.userId,
         username: response.username,
+        firstName: response.firstName,
+        lastName: response.lastName,
         email: response.email,
       });
 
@@ -84,10 +132,13 @@ export default function RegisterScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Create an account</Text>
 
+      <Text style={styles.label}>Username:</Text>
       <TextInput
         style={styles.input}
         placeholder="Username"
         value={username}
+        onFocus={() => setUsernameFocus(true)}
+        onBlur={() => setUsernameFocus(false)}
         onChangeText={(text) => {
           setUsername(text);
           setError("");
@@ -95,6 +146,45 @@ export default function RegisterScreen() {
         autoCapitalize="none"
       />
 
+      {usernameFocus && (
+          <View style={styles.requirements}>
+            <Text
+              style={
+                usernameLengthValid
+                  ? styles.validRequirement
+                  : styles.invalidRequirement
+              }
+            >
+              ● 5-48 characters
+            </Text>
+          </View>
+      )}
+
+      <Text style={styles.label}>First Name:</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="First Name"
+        value={firstName}
+        onChangeText={(text) => {
+          setFirstName(text)
+          setError("")
+        }}
+        autoCapitalize="words"
+      />
+
+      <Text style={styles.label}>Last Name</Text>
+      <TextInput
+          style={styles.input}
+          placeholder="Last Name"
+          value={lastName}
+          onChangeText={(text) => {
+            setLastName(text)
+            setError("")
+          }}
+          autoCapitalize="words"
+      />
+
+      <Text style={styles.label}>Email</Text>
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -107,6 +197,7 @@ export default function RegisterScreen() {
         keyboardType="email-address"
       />
 
+      <Text style={styles.label}>Password</Text>
       <TextInput
         style={styles.input}
         placeholder="Password"
@@ -163,6 +254,7 @@ export default function RegisterScreen() {
         </View>
       )}
 
+      <Text style={styles.label}>Confirm Password</Text>
       <TextInput
         style={styles.input}
         placeholder="Confirm password"
@@ -187,7 +279,7 @@ export default function RegisterScreen() {
             : "Register"
         }
         onPress={handleRegister}
-        disabled={!formValid || isLoading}
+        disabled={!isLoading}
       />
     </View>
   );
@@ -203,6 +295,12 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: "bold",
     marginBottom: 24,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#2d2d2d",
+    marginBottom: 6
   },
   input: {
     borderWidth: 1,

@@ -14,12 +14,16 @@ type LoginRequest = {
 type AuthResponse = {
     token: string;
     userId: number;
+    firstName: string;
+    lastName: string;
     username: string;
     email: string;
 };
 
 type RegisterRequest = {
     username: string;
+    firstName: string;
+    lastName: string;
     email: string;
     password: string;
 }
@@ -52,11 +56,13 @@ export async function loginClient(
 
 export async function registerClient(
     username: string,
+    firstName: string,
+    lastName: string,
     email: string,
     password: string
 ): Promise<AuthResponse> {
     const request: RegisterRequest = {
-        username, email, password
+        username, firstName, lastName, email, password
     };
 
     const response = await fetch(`${BASE_URL}/auth/register`, {
