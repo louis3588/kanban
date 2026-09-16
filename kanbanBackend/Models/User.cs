@@ -12,7 +12,7 @@ public class User
     
     public string FirstName { get; set; } = string.Empty;
     
-    public string LastName { get; set; } = string.Empty;
+    public string? LastName { get; set; }
     
     public string? ProfileImage { get; set; }
     
@@ -20,8 +20,12 @@ public class User
     
     public bool IsEmailVerified { get; set; } = false;
 
+    public string? EmailConfirmationTokenHash { get; set; }
+    
+    public DateTime? EmailConfirmationTokenExpiration { get; set; }
+    
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
+    
     public ICollection<WorkspaceMember> WorkspaceMemberships { get; set; }
         = new List<WorkspaceMember>();
 

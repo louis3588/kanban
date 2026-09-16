@@ -40,13 +40,19 @@ public class KanbanDbContext : DbContext
             entity.Property(u => u.FirstName)
                 .IsRequired();
 
-            entity.Property(u => u.LastName)
-                .IsRequired();
+            entity.Property(u => u.LastName);
 
             entity.Property(u => u.ProfileImage);
 
             entity.Property(u => u.Bio)
                 .HasMaxLength(500);
+            
+            entity.Property(u => u.IsEmailVerified)
+                .IsRequired()
+                .HasDefaultValue(false);
+
+            entity.Property(u => u.EmailConfirmationTokenHash)
+                .HasMaxLength(64);
 
             entity.HasIndex(u => u.Username)
                 .IsUnique();
