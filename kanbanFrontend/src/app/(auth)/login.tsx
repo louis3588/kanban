@@ -36,7 +36,7 @@ export default function Login(){
                 id: response.userId,
                 username: response.username,
                 firstName: response.firstName,
-                lastName: response.lastName,
+                lastName: response.lastName || null,
                 email: response.email
             });
 

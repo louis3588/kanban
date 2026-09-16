@@ -15,7 +15,7 @@ type AuthResponse = {
     token: string;
     userId: number;
     firstName: string;
-    lastName: string;
+    lastName: string | null;
     username: string;
     email: string;
 };
@@ -23,7 +23,7 @@ type AuthResponse = {
 type RegisterRequest = {
     username: string;
     firstName: string;
-    lastName: string;
+    lastName: string | null;
     email: string;
     password: string;
 }
@@ -62,7 +62,7 @@ export async function registerClient(
     password: string
 ): Promise<AuthResponse> {
     const request: RegisterRequest = {
-        username, firstName, lastName, email, password
+        username, firstName, lastName: lastName || null, email, password
     };
 
     const response = await fetch(`${BASE_URL}/auth/register`, {

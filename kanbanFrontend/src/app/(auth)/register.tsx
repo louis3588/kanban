@@ -44,7 +44,6 @@ export default function RegisterScreen() {
   const formValid =
     username.length > 0 &&
     firstName.length > 0 &&
-    lastName.length > 0 &&
     emailValid &&
     passwordLengthValid &&
     passwordUppercaseValid &&
@@ -66,10 +65,6 @@ export default function RegisterScreen() {
 
         case firstName.length === 0:
           setError("Please enter your first name.");
-          break;
-
-        case lastName.length === 0:
-          setError("Please enter your last name.");
           break;
 
         case !emailValid:
