@@ -37,6 +37,8 @@ builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CurrentUserService>();
 builder.Services.AddScoped<WorkspaceAuthService>();
+builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<EmailConfirmationService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddHttpContextAccessor();
