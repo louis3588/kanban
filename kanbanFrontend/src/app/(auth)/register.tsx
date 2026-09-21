@@ -101,15 +101,13 @@ export default function RegisterScreen() {
         password
       );
 
-      login(response.token, {
-        id: response.userId,
-        username: response.username,
-        firstName: response.firstName,
-        lastName: response.lastName,
-        email: response.email,
-      });
 
-      router.replace("/(app)/workspaces");
+        router.replace({
+            pathname: "/(auth)/confirm-email",
+            params: {
+                email: response.email,
+            },
+        });
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
