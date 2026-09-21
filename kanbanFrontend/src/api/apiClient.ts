@@ -3,7 +3,7 @@
 let BASE_URL = process.env.API_URL;
 
 if(!BASE_URL){
-    BASE_URL = "http://localhost:5000/api"
+    BASE_URL = "https://localhost:7293/api"
 }
 
 type LoginRequest = {
@@ -43,7 +43,7 @@ export async function loginClient(
       username, password
     };
 
-    const response = await fetch(`${BASE_URL}/auth/login`, {
+    const response = await fetch(`${BASE_URL}/Auth/login`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -72,7 +72,7 @@ export async function registerClient(
         username, firstName, lastName: lastName || null, email, password
     };
 
-    const response = await fetch(`${BASE_URL}/auth/register`, {
+    const response = await fetch(`${BASE_URL}/Auth/register`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

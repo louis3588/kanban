@@ -92,12 +92,7 @@ public class AuthService
         
         if (!user.IsEmailVerified)
         {
-            return new RegistrationResponse
-            {
-                UserId = user.Id,
-                Email = user.Email,
-                Message = "Please confirm your email before logging in."
-            };
+            return null;
         }
 
         return new AuthResponse

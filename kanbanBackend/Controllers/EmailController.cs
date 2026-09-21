@@ -22,7 +22,7 @@ public class EmailController : ControllerBase
 
     }
 
-    
+    [HttpPost("confirm")]
     public async Task<ActionResult<AuthResponse>> Confirm(int userId, string token)
     {
         var response = await _confirmationService.ConfirmEmailAsync(userId, token);
