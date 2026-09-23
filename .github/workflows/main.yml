@@ -58,6 +58,8 @@ jobs:
         run: npm ci
 
       - name: Test
+        env:
+          JWTSECRET: ${{ secrets.JWT_SECRET }}
         run: npm test -- --runInBand
 
       - name: Build Expo web application
