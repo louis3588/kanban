@@ -1,5 +1,6 @@
 using kanbanBackend.DTOs.Auth;
 using kanbanBackend.Services;
+using kanbanBackend.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace kanbanBackend.Controllers;
@@ -9,9 +10,9 @@ namespace kanbanBackend.Controllers;
 public class AuthController : ControllerBase
 {
     
-    private readonly AuthService _authService;
+    private readonly IAuthInterface _authService;
 
-    public AuthController(AuthService authService)
+    public AuthController(IAuthInterface authService)
     {
         _authService = authService;
     }

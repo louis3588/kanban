@@ -4,6 +4,7 @@ using kanbanBackend.Data;
 using kanbanBackend.Hubs;
 using kanbanBackend.Models;
 using kanbanBackend.Services;
+using kanbanBackend.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -32,12 +33,12 @@ if (string.IsNullOrEmpty(jwtSecret))
 builder.Services.AddDbContext<KanbanDbContext>(options =>
     options.UseNpgsql(connectionString));
 builder.Services.AddSignalR();
-builder.Services.AddScoped<JwtService>();
-builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<IJwtInterface, JwtService>();
+builder.Services.AddScoped<IAuthInterface, AuthService>();
 builder.Services.AddScoped<CurrentUserService>();
 builder.Services.AddScoped<WorkspaceAuthService>();
-builder.Services.AddScoped<EmailService>();
-builder.Services.AddScoped<EmailConfirmationService>();
+builder.Services.AddScoped<IEmailInterface, EmailService>();
+builder.Services.AddScoped<IEmailConfirmationInterface, EmailConfirmationService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddHttpContextAccessor();
