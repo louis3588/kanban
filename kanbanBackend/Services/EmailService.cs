@@ -1,10 +1,11 @@
+using kanbanBackend.Services.Interfaces;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
 
 namespace kanbanBackend.Services;
 
-public class EmailService
+public class EmailService :  IEmailInterface
 {
     private readonly string _email;
     private readonly string _password;
