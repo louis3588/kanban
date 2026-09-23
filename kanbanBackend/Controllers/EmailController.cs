@@ -2,7 +2,7 @@ using kanbanBackend.Data;
 using kanbanBackend.DTOs.Auth;
 using kanbanBackend.Models;
 using kanbanBackend.Services;
-
+using kanbanBackend.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace kanbanBackend.Controllers;
@@ -11,21 +11,20 @@ namespace kanbanBackend.Controllers;
 [Route("api/email-confirmation")]
 public class EmailController : ControllerBase
 {
-    private readonly EmailConfirmationService _confirmationService;
-    private readonly JwtService _jwtService;
+    private readonly IEmailConfirmationInterface _confirmationInterface;
+    private readonly IJwtInterface _jwtInterface;
 
 
-    public EmailController(EmailConfirmationService confirmationService, JwtService jwtService)
+    public EmailController(IEmailConfirmationInterface confirmationInterface, IJwtInterface jwtInterface)
     {
-        _confirmationService = confirmationService;
-        _jwtService = jwtService;
-
+        _confirmationInterface = confirmationInterface;
+        _jwtInterface = jwtInterface;
     }
 
     [HttpPost("confirm")]
     public async Task<ActionResult<AuthResponse>> Confirm(int userId, string token)
     {
-        var response = await _confirmationService.ConfirmEmailAsync(userId, token);
+        var response = await _confirmationInterface.ConfirmEmailAsync(userId, token);
         if (!response.IsSuccess)
         {
             return BadRequest(new
@@ -37,7 +36,7 @@ public class EmailController : ControllerBase
         User user = response.Value;
         return Ok(new AuthResponse
         {
-            Token = _jwtService.GenerateToken(user),
+            Token = _jwtInterface.GenerateToken(user),
             UserId = user.Id,
             Username = user.Username,
             Email = user.Email,

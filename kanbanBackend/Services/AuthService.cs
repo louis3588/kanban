@@ -1,12 +1,13 @@
 using kanbanBackend.Data;
 using kanbanBackend.DTOs.Auth;
 using kanbanBackend.Models;
+using kanbanBackend.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace kanbanBackend.Services;
 
-public class AuthService
+public class AuthService : IAuthInterface
 {
     private readonly KanbanDbContext _context;
     private readonly IPasswordHasher<User> _passwordHasher;

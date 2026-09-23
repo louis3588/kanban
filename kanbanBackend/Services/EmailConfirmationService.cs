@@ -2,12 +2,13 @@ using System.Security.Cryptography;
 using System.Text;
 using kanbanBackend.Data;
 using kanbanBackend.Models;
+using kanbanBackend.Services.Interfaces;
 using kanbanBackend.Util;
 using Microsoft.EntityFrameworkCore;
 
 namespace kanbanBackend.Services;
 
-public class EmailConfirmationService
+public class EmailConfirmationService : IEmailConfirmationInterface
 {
     private readonly KanbanDbContext _context;
 
