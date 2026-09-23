@@ -11,15 +11,19 @@ public class AuthService
     private readonly KanbanDbContext _context;
     private readonly IPasswordHasher<User> _passwordHasher;
     private readonly JwtService _jwtService;
+    private readonly EmailService _emailService;
+    private readonly EmailConfirmationService _emailConfirmationService;
 
-    public AuthService(KanbanDbContext context, IPasswordHasher<User> passwordHasher, JwtService jwtService)
+    public AuthService(KanbanDbContext context, IPasswordHasher<User> passwordHasher, JwtService jwtService, EmailService emailService, EmailConfirmationService emailConfirmationService)
     {
         _context = context;
         _passwordHasher = passwordHasher;
         _jwtService = jwtService;
+        _emailService = emailService;
+        _emailConfirmationService = emailConfirmationService;
     }
 
-    public async Task<AuthResponse> RegisterUser(RegisterRequest request)
+    public async Task<RegistrationResponse> RegisterUser(RegisterRequest request)
     {
         var emailExists = await _context.Users
             .AnyAsync(u => u.Email == request.Email);
@@ -42,22 +46,36 @@ public class AuthService
         var user = new User
         {
             Username = request.Username,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
             Email = request.Email,
+            IsEmailVerified = false,
         };
         
         user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
-        return new AuthResponse
+        
+        var token = await _emailConfirmationService.GenerateEmailConfirmationTokenAsync(user);
+        var frontendUrl = Environment.GetEnvironmentVariable("FRONTENDURL")
+            ?? throw new InvalidOperationException("Frontend URL is missing");
+        
+        var confirmationUrl = $"{frontendUrl}/email-confirmed" +
+                              $"?userId={user.Id}" +
+                              $"&token={Uri.EscapeDataString(token)}";
+        
+        await _emailService.SendEmailConfirmationAsync(user.Email, confirmationUrl, firstName: user.FirstName);
+
+        return new RegistrationResponse
         {
-            Token = _jwtService.GenerateToken(user),
             UserId = user.Id,
-            Username = user.Username,
-            Email = user.Email
+            Email = user.Email,
+            Message =
+                $"Thank you for signing up {user.FirstName}! We have sent you a link to confirm your email address."
         };
     }
 
-    public async Task<AuthResponse> Login(LoginRequest request)
+    public async Task<CredentialResponse?> Login(LoginRequest request)
     {
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Username == request.Username);
@@ -71,11 +89,18 @@ public class AuthService
         {
             return null;
         }
+        
+        if (!user.IsEmailVerified)
+        {
+            return null;
+        }
 
         return new AuthResponse
         {
             Token = _jwtService.GenerateToken(user),
             UserId = user.Id,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
             Username = user.Username,
             Email = user.Email
         };

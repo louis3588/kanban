@@ -34,7 +34,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<AuthResponse?>> Login(LoginRequest loginRequest)
+    public async Task<ActionResult<CredentialResponse?>> Login(LoginRequest loginRequest)
     {
         var response = await _authService.Login(loginRequest);
         if (response is null)

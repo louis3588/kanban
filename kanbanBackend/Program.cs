@@ -1,6 +1,7 @@
 using System.Text;
 using DotNetEnv;
 using kanbanBackend.Data;
+using kanbanBackend.Hubs;
 using kanbanBackend.Models;
 using kanbanBackend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,7 +13,7 @@ using Microsoft.OpenApi.Models;
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
-
+var jwtSecret = Environment.GetEnvironmentVariable("JWTSECRET");
 var connectionString =
     $"Host={Environment.GetEnvironmentVariable("PGHOST")};" +
     $"Database={Environment.GetEnvironmentVariable("PGDATABASE")};" +
@@ -21,24 +22,40 @@ var connectionString =
     $"SSL Mode={Environment.GetEnvironmentVariable("PGSSLMODE")};" +
     $"Channel Binding={Environment.GetEnvironmentVariable("PGCHANNELBINDING")}";
 
-var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
 
-if (!string.IsNullOrEmpty(jwtSecret))
+
+if (string.IsNullOrEmpty(jwtSecret))
 {
     throw new InvalidOperationException(
         "JWT_SECRET environment variable is not configured.");
 }
-
 builder.Services.AddDbContext<KanbanDbContext>(options =>
     options.UseNpgsql(connectionString));
-
+builder.Services.AddSignalR();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<CurrentUserService>();
+builder.Services.AddScoped<WorkspaceAuthService>();
+builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<EmailConfirmationService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:8081", "http://localhost:19006")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -56,6 +73,21 @@ builder.Services
 
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
             ClockSkew = TimeSpan.Zero
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/board"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -80,11 +112,12 @@ app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "KanbanBackend v1");
 });
-
 app.UseHttpsRedirection();
 app.UseExceptionHandler();
+app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<BoardHub>("/hubs/board");
 
 app.Run();

@@ -9,9 +9,23 @@ public class User
     public string Email { get; set; } = string.Empty;
 
     public string PasswordHash { get; set; } = string.Empty;
+    
+    public string FirstName { get; set; } = string.Empty;
+    
+    public string? LastName { get; set; }
+    
+    public string? ProfileImage { get; set; }
+    
+    public string? Bio { get; set; }
+    
+    public bool IsEmailVerified { get; set; } = false;
 
+    public string? EmailConfirmationTokenHash { get; set; }
+    
+    public DateTime? EmailConfirmationTokenExpiration { get; set; }
+    
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
+    
     public ICollection<WorkspaceMember> WorkspaceMemberships { get; set; }
         = new List<WorkspaceMember>();
 

@@ -16,6 +16,10 @@ export default function AuthLayout(){
                     title: "Register"
                 }}
             />
+            <Stack.Screen
+                name="confirm-email"
+                options={{ title: "Confirm your email" }}
+            />
         </Stack>
     )
 }

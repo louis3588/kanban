@@ -3,7 +3,7 @@
 let BASE_URL = process.env.API_URL;
 
 if(!BASE_URL){
-    BASE_URL = "http://localhost:5000/api"
+    BASE_URL = "https://localhost:7293/api"
 }
 
 type LoginRequest = {
@@ -11,18 +11,29 @@ type LoginRequest = {
     password: string;
 };
 
-type AuthResponse = {
-    token: string;
-    userId: number;
-    username: string;
-    email: string;
-};
-
 type RegisterRequest = {
     username: string;
+    firstName: string;
+    lastName: string | null;
     email: string;
     password: string;
 }
+
+export type CredentialsResponse = {
+    userId: string;
+    email: string;
+};
+
+export type AuthResponse = CredentialsResponse & {
+    token: string;
+    firstName: string;
+    lastName: string | null;
+    username: string;
+};
+
+export type RegisterResponse = CredentialsResponse & {
+    message: string;
+};
 
 export async function loginClient(
     username: string,
@@ -32,7 +43,7 @@ export async function loginClient(
       username, password
     };
 
-    const response = await fetch(`${BASE_URL}/auth/login`, {
+    const response = await fetch(`${BASE_URL}/Auth/login`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -52,14 +63,16 @@ export async function loginClient(
 
 export async function registerClient(
     username: string,
+    firstName: string,
+    lastName: string,
     email: string,
     password: string
-): Promise<AuthResponse> {
+): Promise<RegisterResponse> {
     const request: RegisterRequest = {
-        username, email, password
+        username, firstName, lastName: lastName || null, email, password
     };
 
-    const response = await fetch(`${BASE_URL}/auth/register`, {
+    const response = await fetch(`${BASE_URL}/Auth/register`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -74,6 +87,27 @@ export async function registerClient(
         }
 
         throw new Error("Something went wrong while creating your account");
+    }
+
+    return response.json();
+}
+
+export async function confirmEmail(userId: number, token: string) : Promise<AuthResponse>{
+    const response = await fetch(
+        `${BASE_URL}/email-confirmation/confirm` +
+        `?userId=${userId}&token=${encodeURIComponent(token)}`,
+        {
+            method: "POST",
+        }
+    );
+
+    if (!response.ok) {
+        const errorResponse = await response.json();
+
+        throw new Error(
+            errorResponse.message ??
+            "The email confirmation link is invalid or has expired."
+        );
     }
 
     return response.json();

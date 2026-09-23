@@ -35,6 +35,8 @@ export default function Login(){
             login(response.token, {
                 id: response.userId,
                 username: response.username,
+                firstName: response.firstName,
+                lastName: response.lastName || null,
                 email: response.email
             });
 
@@ -56,6 +58,7 @@ export default function Login(){
                 Login
             </Text>
 
+            <Text style={styles.label}>Username:</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Username"
@@ -64,6 +67,7 @@ export default function Login(){
                 autoCapitalize="none"
             />
 
+            <Text style={styles.label} >Password:</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Password"
@@ -95,6 +99,12 @@ const styles = StyleSheet.create({
         fontSize: 32,
         fontWeight: "bold",
         marginBottom: 24,
+    },
+    label: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: "#2d2d2d",
+        marginBottom: 6
     },
     input: {
         borderWidth: 1,
