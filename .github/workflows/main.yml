@@ -33,7 +33,10 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Test
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: dotnet test --no-build --configuration Release
+
 
   frontend:
     name: Frontend - Test and Build
@@ -64,3 +67,36 @@ jobs:
 
       - name: Build Expo web application
         run: npx expo export --platform web
+
+
+  docker:
+    name: Docker - Build and Push Backend
+    runs-on: ubuntu-latest
+
+    needs:
+      - backend
+      - frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Remove existing local image
+        run: |
+          docker image rm ${{ secrets.DOCKERHUB_USERNAME }}/kanbanbackend:latest || true
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/kanbanbackend:latest \
+            ./kanbanBackend
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/kanbanbackend:latest
