@@ -16,7 +16,7 @@ public class TokenServiceTests
 
     private static JwtService CreateJwtService()
     {
-        Environment.SetEnvironmentVariable("JWT_SECRET", TestSecret);
+        Environment.SetEnvironmentVariable("JWTSECRET", TestSecret);
 
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
