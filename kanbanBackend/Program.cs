@@ -29,7 +29,6 @@ if (string.IsNullOrEmpty(jwtSecret))
     throw new InvalidOperationException(
         "JWT_SECRET environment variable is not configured.");
 }
-
 builder.Services.AddDbContext<KanbanDbContext>(options =>
     options.UseNpgsql(connectionString));
 builder.Services.AddSignalR();
