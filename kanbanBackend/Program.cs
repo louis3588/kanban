@@ -116,7 +116,7 @@ app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "KanbanBackend v1");
 });
-app.UseHttpsRedirection();
+
 app.UseExceptionHandler();
 app.UseCors("Frontend");
 app.UseAuthentication();
