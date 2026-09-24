@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
-namespace kanbanBackend.Services;
+namespace kanbanBackend.Services.Auth;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {

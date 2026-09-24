@@ -1,9 +1,8 @@
 
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text;
 using kanbanBackend.Models;
-using kanbanBackend.Services;
+using kanbanBackend.Services.Auth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 

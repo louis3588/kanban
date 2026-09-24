@@ -1,10 +1,10 @@
 using kanbanBackend.Data;
 using kanbanBackend.Models;
-using kanbanBackend.Services.Interfaces;
+using kanbanBackend.Services.Auth.Interfaces;
 using kanbanBackend.Util;
 using Microsoft.EntityFrameworkCore;
 
-namespace kanbanBackend.Services;
+namespace kanbanBackend.Services.Auth;
 
 public class UserDetailsService : IUserDetailsInterface
 {

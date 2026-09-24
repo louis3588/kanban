@@ -1,11 +1,11 @@
 using kanbanBackend.Data;
 using kanbanBackend.DTOs.Auth;
 using kanbanBackend.Models;
-using kanbanBackend.Services.Interfaces;
+using kanbanBackend.Services.Auth.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace kanbanBackend.Services;
+namespace kanbanBackend.Services.Auth;
 
 public class AuthService : IAuthInterface
 {

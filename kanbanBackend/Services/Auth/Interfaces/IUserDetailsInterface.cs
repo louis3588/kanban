@@ -1,7 +1,7 @@
 using kanbanBackend.Models;
 using kanbanBackend.Util;
 
-namespace kanbanBackend.Services.Interfaces;
+namespace kanbanBackend.Services.Auth.Interfaces;
 
 public interface IUserDetailsInterface
 {

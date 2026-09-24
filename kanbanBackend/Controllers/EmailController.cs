@@ -1,8 +1,7 @@
-using kanbanBackend.Data;
+
 using kanbanBackend.DTOs.Auth;
 using kanbanBackend.Models;
-using kanbanBackend.Services;
-using kanbanBackend.Services.Interfaces;
+using kanbanBackend.Services.Auth.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace kanbanBackend.Controllers;

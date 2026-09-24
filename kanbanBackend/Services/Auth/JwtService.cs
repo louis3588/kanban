@@ -2,11 +2,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using kanbanBackend.Models;
-using kanbanBackend.Services.Interfaces;
+using kanbanBackend.Services.Auth.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
-namespace kanbanBackend.Services;
+namespace kanbanBackend.Services.Auth;
 
 public class JwtService : IJwtInterface
 {
