@@ -1,7 +1,7 @@
 using kanbanBackend.Controllers;
 using kanbanBackend.DTOs.Auth;
 using kanbanBackend.Models;
-using kanbanBackend.Services.Interfaces;
+using kanbanBackend.Services.Auth.Interfaces;
 using kanbanBackend.Util;
 
 namespace kanbanBackend.Tests.Services;

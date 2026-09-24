@@ -1,7 +1,7 @@
 using kanbanBackend.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace kanbanBackend.Services;
+namespace kanbanBackend.Services.Auth;
 
 public class WorkspaceAuthService
 {

@@ -2,11 +2,11 @@ using System.Security.Cryptography;
 using System.Text;
 using kanbanBackend.Data;
 using kanbanBackend.Models;
-using kanbanBackend.Services.Interfaces;
+using kanbanBackend.Services.Auth.Interfaces;
 using kanbanBackend.Util;
 using Microsoft.EntityFrameworkCore;
 
-namespace kanbanBackend.Services;
+namespace kanbanBackend.Services.Auth;
 
 public class EmailConfirmationService : IEmailConfirmationInterface
 {
@@ -35,7 +35,6 @@ public class EmailConfirmationService : IEmailConfirmationInterface
         var user = await _context
             .Users
             .FirstOrDefaultAsync(u => u.Id == userId);
-
         if (user == null)
         {
             return ModelResult<User>.Failure($"User with id {userId} not found");

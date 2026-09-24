@@ -3,8 +3,9 @@ using DotNetEnv;
 using kanbanBackend.Data;
 using kanbanBackend.Hubs;
 using kanbanBackend.Models;
-using kanbanBackend.Services;
-using kanbanBackend.Services.Interfaces;
+using kanbanBackend.Services.Auth;
+using kanbanBackend.Services.Auth.Interfaces;
+using kanbanBackend.Services.Dashboard;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -35,7 +36,9 @@ builder.Services.AddDbContext<KanbanDbContext>(options =>
 builder.Services.AddSignalR();
 builder.Services.AddScoped<IJwtInterface, JwtService>();
 builder.Services.AddScoped<IAuthInterface, AuthService>();
+builder.Services.AddScoped<IUserDetailsInterface, UserDetailsService>();
 builder.Services.AddScoped<CurrentUserService>();
+builder.Services.AddScoped<WorkspaceService>();
 builder.Services.AddScoped<WorkspaceAuthService>();
 builder.Services.AddScoped<IEmailInterface, EmailService>();
 builder.Services.AddScoped<IEmailConfirmationInterface, EmailConfirmationService>();
@@ -113,7 +116,7 @@ app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "KanbanBackend v1");
 });
-app.UseHttpsRedirection();
+
 app.UseExceptionHandler();
 app.UseCors("Frontend");
 app.UseAuthentication();

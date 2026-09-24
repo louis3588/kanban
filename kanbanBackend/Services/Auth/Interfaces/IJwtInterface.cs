@@ -1,6 +1,6 @@
 using kanbanBackend.Models;
 
-namespace kanbanBackend.Services.Interfaces;
+namespace kanbanBackend.Services.Auth.Interfaces;
 
 public interface IJwtInterface
 {

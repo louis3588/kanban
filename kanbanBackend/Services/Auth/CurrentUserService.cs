@@ -1,6 +1,6 @@
 using Microsoft.IdentityModel.JsonWebTokens;
 
-namespace kanbanBackend.Services;
+namespace kanbanBackend.Services.Auth;
 
 public class CurrentUserService
 {
@@ -31,6 +31,17 @@ public class CurrentUserService
             return _httpContextAccessor.HttpContext?
                 .User
                 .FindFirst(JwtRegisteredClaimNames.UniqueName)?
+                .Value;
+        }
+    }
+
+    public string? Email
+    {
+        get
+        {
+            return _httpContextAccessor.HttpContext?
+                .User
+                .FindFirst(JwtRegisteredClaimNames.Email)?
                 .Value;
         }
     }

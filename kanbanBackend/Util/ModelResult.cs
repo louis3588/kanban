@@ -3,10 +3,10 @@ namespace kanbanBackend.Util;
 public class ModelResult<T>
 {
     public bool IsSuccess { get; }
-    public T Value { get; }
+    public T? Value { get; }
     public string? ErrorMessage { get; }
 
-    private ModelResult(bool isSuccess, T value, string? errorMessage = null)
+    private ModelResult(bool isSuccess, T? value, string? errorMessage = null)
     {
         IsSuccess = isSuccess;
         Value = value;

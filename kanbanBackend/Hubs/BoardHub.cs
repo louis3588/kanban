@@ -1,51 +1,58 @@
-using kanbanBackend.Data;
+using kanbanBackend.DTOs.Dashboard;
+using kanbanBackend.Services.Dashboard;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace kanbanBackend.Hubs;
 
 [Authorize]
 public class BoardHub : Hub
 {
-    
-    private readonly KanbanDbContext _context;
+    private readonly WorkspaceService _workspaceService;
 
-    public BoardHub(KanbanDbContext context)
+    public BoardHub(
+        WorkspaceService workspaceService)
     {
-        _context = context;
+        _workspaceService = workspaceService;
     }
     
-    private static string GetBoardGroupName(int boardId) {
-        return $"board-{boardId}";
+    public async Task<WorkspaceResponse> CreateWorkspace(string name){
+        var result = await _workspaceService.CreateWorkspaceAsync(name);
+
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
+
+        return result.Value!;
     }
 
-    public async Task JoinBoard(int boardId)
+    public async Task<List<WorkspaceResponse>> GetWorkspaces()
     {
-        var userIdClaim = Context.User?
-            .FindFirst(JwtRegisteredClaimNames.Sub);
-
-        if (userIdClaim is null || !int.TryParse(userIdClaim.Value, out var userId))
+        var result = await _workspaceService.GetWorkspacesAsync();
+        if (!result.IsSuccess)
         {
-            throw new HubException("User could not be identified");
+            throw new HubException(result.ErrorMessage);
         }
-        
-        var hasAccess = await _context.Boards
-            .Where(b => b.Id == boardId)
-            .SelectMany(board => board.Workspace.Members)
-            .AnyAsync(member => member.UserId == userId);
 
-        if (!hasAccess)
-        {
-            throw new HubException($"User {userId} does not have access to board {boardId}");
-        }
-        
-        await Groups.AddToGroupAsync(Context.ConnectionId, GetBoardGroupName(boardId));
+        return result.Value!;
     }
 
-    public async Task LeaveBoard(int boardId)
+    public async Task<WorkspaceResponse> UpdateWorkspaceName(int workspaceId, string name)
     {
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, GetBoardGroupName(boardId));
+        var result = await _workspaceService.UpdateWorkspaceNameAsync(workspaceId, name);
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
+
+        return result.Value!;
+    }
+
+    public async Task<bool> DeleteWorkspace(int workspaceId)
+    {
+        var result = await _workspaceService.DeleteWorkspaceAsync(workspaceId);
+        return result.IsSuccess;
     }
 }
