@@ -1,6 +1,6 @@
-using kanbanBackend.Data;
-using kanbanBackend.Services.Auth;
-using Microsoft.EntityFrameworkCore;
+using kanbanBackend.DTOs.Dashboard;
+using kanbanBackend.Services.Dashboard;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
@@ -9,68 +9,50 @@ namespace kanbanBackend.Hubs;
 [Authorize]
 public class BoardHub : Hub
 {
-    private readonly CurrentUserService _currentUser;
-    private readonly WorkspaceAuthService _workspaceAuthorisation;
-    private readonly KanbanDbContext _context;
+    private readonly WorkspaceService _workspaceService;
 
     public BoardHub(
-        CurrentUserService currentUser,
-        WorkspaceAuthService workspaceAuthorisation,
-        KanbanDbContext context)
+        WorkspaceService workspaceService)
     {
-        _currentUser = currentUser;
-        _workspaceAuthorisation = workspaceAuthorisation;
-        _context = context;
+        _workspaceService = workspaceService;
     }
     
-    private static string GetBoardGroupName(int boardId)
-    {
-        return $"board-{boardId}";
-    }
+    public async Task<WorkspaceResponse> CreateWorkspace(string name){
+        var result = await _workspaceService.CreateWorkspaceAsync(name);
 
-    public async Task JoinBoard(int boardId)
-    {
-        var userId = _currentUser.UserId();
-
-        if (userId is null)
+        if (!result.IsSuccess)
         {
-            throw new HubException(
-                "User could not be identified.");
+            throw new HubException(result.ErrorMessage);
         }
 
-        var workspaceId = await _context.Boards
-            .Where(board => board.Id == boardId)
-            .Select(board => (int?)board.WorkspaceId)
-            .FirstOrDefaultAsync();
-
-        if (workspaceId is null)
-        {
-            throw new HubException(
-                "Board could not be found.");
-        }
-
-        var hasAccess =
-            await _workspaceAuthorisation.IsMemberAsync(
-                userId.Value,
-                workspaceId.Value);
-
-        if (!hasAccess)
-        {
-            throw new HubException(
-                "You do not have access to this board.");
-        }
-
-        await Groups.AddToGroupAsync(
-            Context.ConnectionId,
-            GetBoardGroupName(boardId));
+        return result.Value!;
     }
 
-
-    public async Task LeaveBoard(int boardId)
+    public async Task<List<WorkspaceResponse>> GetWorkspaces()
     {
-        await Groups.RemoveFromGroupAsync(
-            Context.ConnectionId,
-            GetBoardGroupName(boardId));
+        var result = await _workspaceService.GetWorkspacesAsync();
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
+
+        return result.Value!;
     }
-    
+
+    public async Task<WorkspaceResponse> UpdateWorkspaceName(int workspaceId, string name)
+    {
+        var result = await _workspaceService.UpdateWorkspaceNameAsync(workspaceId, name);
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
+
+        return result.Value!;
+    }
+
+    public async Task<bool> DeleteWorkspace(int workspaceId)
+    {
+        var result = await _workspaceService.DeleteWorkspaceAsync(workspaceId);
+        return result.IsSuccess;
+    }
 }
