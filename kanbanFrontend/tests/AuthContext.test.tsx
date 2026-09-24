@@ -4,7 +4,7 @@ import { describe, expect, test } from "@jest/globals";
 import {
     AuthProvider,
     useAuth,
-} from "@/app/context/AuthContext";
+} from "@/context/AuthContext";
 
 function TestComponent() {
     const {

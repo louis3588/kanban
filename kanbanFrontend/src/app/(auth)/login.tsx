@@ -1,7 +1,7 @@
 // noinspection TypeScriptValidateTypes
 
 import {View, Text, StyleSheet, TextInput, Button} from "react-native";
-import {useAuth} from "@/app/context/AuthContext";
+import {useAuth} from "@/context/AuthContext";
 import {useState} from "react";
 import {loginClient} from "@/api/apiClient";
 import {router} from "expo-router";

@@ -9,7 +9,7 @@ import {
 import { router } from "expo-router";
 
 import { registerClient as registerApi } from "../../api/apiClient";
-import {useAuth} from "@/app/context/AuthContext";
+import {useAuth} from "@/context/AuthContext";
 
 export default function RegisterScreen() {
   const { login } = useAuth();
