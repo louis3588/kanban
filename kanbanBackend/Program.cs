@@ -35,6 +35,7 @@ builder.Services.AddDbContext<KanbanDbContext>(options =>
 builder.Services.AddSignalR();
 builder.Services.AddScoped<IJwtInterface, JwtService>();
 builder.Services.AddScoped<IAuthInterface, AuthService>();
+builder.Services.AddScoped<IUserDetailsInterface, UserDetailsService>();
 builder.Services.AddScoped<CurrentUserService>();
 builder.Services.AddScoped<WorkspaceAuthService>();
 builder.Services.AddScoped<IEmailInterface, EmailService>();

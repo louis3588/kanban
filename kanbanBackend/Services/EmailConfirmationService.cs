@@ -35,7 +35,6 @@ public class EmailConfirmationService : IEmailConfirmationInterface
         var user = await _context
             .Users
             .FirstOrDefaultAsync(u => u.Id == userId);
-
         if (user == null)
         {
             return ModelResult<User>.Failure($"User with id {userId} not found");

@@ -12,10 +12,11 @@ public class AuthService : IAuthInterface
     private readonly KanbanDbContext _context;
     private readonly IPasswordHasher<User> _passwordHasher;
     private readonly JwtService _jwtService;
-    private readonly EmailService _emailService;
-    private readonly EmailConfirmationService _emailConfirmationService;
+    private readonly IEmailInterface _emailService;
+    private readonly IEmailConfirmationInterface _emailConfirmationService;
 
-    public AuthService(KanbanDbContext context, IPasswordHasher<User> passwordHasher, JwtService jwtService, EmailService emailService, EmailConfirmationService emailConfirmationService)
+    public AuthService(KanbanDbContext context, IPasswordHasher<User> passwordHasher, JwtService jwtService,
+        IEmailInterface emailService, IEmailConfirmationInterface emailConfirmationService)
     {
         _context = context;
         _passwordHasher = passwordHasher;
