@@ -108,7 +108,7 @@ export default function EmailConfirmedScreen() {
             <Button
                 title="Skip for now"
                 onPress={() =>
-                    router.replace("/(app)/workspaces")
+                    router.replace("/(dashboard)/workspaces")
                 }
             />
         </View>
