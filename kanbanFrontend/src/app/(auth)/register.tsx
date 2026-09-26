@@ -11,7 +11,7 @@ import { registerClient as registerApi } from "../../api/apiClient";
 import {useAuth} from "@/context/AuthContext";
 
 export default function RegisterScreen() {
-    const {login} = useAuth();
+
 
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
@@ -25,7 +25,7 @@ export default function RegisterScreen() {
     const [usernameFocus, setUsernameFocus] = useState(false);
 
     const passwordLengthValid =
-        password.length >= 8 && password.length <= 48;
+        password.length >= 8 && password.length <= 64;
 
     const usernameLengthValid = username.length >= 5 && username.length < 50
 
