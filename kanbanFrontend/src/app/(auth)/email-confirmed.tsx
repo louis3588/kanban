@@ -9,7 +9,7 @@ import {
 import { router, useLocalSearchParams } from "expo-router";
 
 import { confirmEmail } from "@/api/apiClient";
-import { useAuth} from "@/app/context/AuthContext";
+import { useAuth} from "@/context/AuthContext";
 
 export default function EmailConfirmedScreen() {
     const { login } = useAuth();
@@ -108,7 +108,7 @@ export default function EmailConfirmedScreen() {
             <Button
                 title="Skip for now"
                 onPress={() =>
-                    router.replace("/(app)/workspaces")
+                    router.replace("/(dashboard)/workspaces")
                 }
             />
         </View>
