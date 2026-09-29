@@ -1,4 +1,7 @@
 using kanbanBackend.DTOs.Dashboard;
+using kanbanBackend.DTOs.Profile;
+using kanbanBackend.Services.Auth;
+using kanbanBackend.Services.Auth.Interfaces;
 using kanbanBackend.Services.Dashboard;
 
 using Microsoft.AspNetCore.Authorization;
@@ -10,11 +13,13 @@ namespace kanbanBackend.Hubs;
 public class BoardHub : Hub
 {
     private readonly WorkspaceService _workspaceService;
+    private readonly IUserDetailsInterface _userDetailsService;
 
     public BoardHub(
-        WorkspaceService workspaceService)
+        WorkspaceService workspaceService, IUserDetailsInterface userDetailsService)
     {
         _workspaceService = workspaceService;
+        _userDetailsService = userDetailsService;
     }
     
     public async Task<WorkspaceResponse> CreateWorkspace(string name){
@@ -54,5 +59,33 @@ public class BoardHub : Hub
     {
         var result = await _workspaceService.DeleteWorkspaceAsync(workspaceId);
         return result.IsSuccess;
+    }
+
+    public async Task<UserProfileResponse> GetUserProfile(int userId)
+    {
+        var result = await _userDetailsService.GetProfile(userId);
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
+
+        return result.Value!;
+    }
+
+    public async Task<UserProfileResponse> EditProfile(UserProfile profile)
+    {
+        var result = await _userDetailsService.EditProfile(
+            firstName: profile.FirstName,
+            profileImage: profile.ProfileImage,
+            lastName: profile.LastName,
+            bio: profile.Bio
+        );
+
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
+
+        return result.Value!;
     }
 }
