@@ -1,23 +1,24 @@
 import { router } from "expo-router";
-import { Pressable, ScrollView, Text, View } from "react-native";
-
+import { Pressable, ScrollView, Text, View, } from "react-native";
+import {useAssets} from "expo-asset";
+import { Image } from 'expo-image';
 
 export default function LandingPage() {
+    const [assets, error] = useAssets([
+        require("../../../assets/images/app-header.png")
+    ])
+
     return (
         <ScrollView className="flex-1 bg-[#8f7257]">
             <View className="px-6 pb-12 pt-16">
 
                 <View className="flex-row items-center justify-between">
                     <View className="flex-row items-center gap-3">
-                        <View className="h-10 w-10 items-center justify-center rounded-xl bg-[#f3e7d0]">
+                        {assets ? <Image source={assets[0]} style={{width: 250, height: 100}} /> :
                             <Text className="text-lg font-bold text-[#4b3828]">
-                                K
+                                Kanban
                             </Text>
-                        </View>
-
-                        <Text className="text-2xl font-bold text-[#fff5e6]">
-                            Kanban
-                        </Text>
+                        }
                     </View>
 
                     <Pressable
