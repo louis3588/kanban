@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import {useAuth} from "@/context/AuthContext";
 import {useState} from "react";
-import {loginClient} from "@/api/apiClient";
+import {loginClient} from "@/client/api/apiClient";
 import {router} from "expo-router";
 
 export default function Login() {

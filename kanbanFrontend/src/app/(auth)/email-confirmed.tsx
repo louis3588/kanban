@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 
-import { confirmEmail } from "@/api/apiClient";
+import { confirmEmail } from "@/client/api/apiClient";
 import { useAuth} from "@/context/AuthContext";
 
 export default function EmailConfirmedScreen() {

@@ -5,7 +5,7 @@ import RegisterScreen from "../src/app/(auth)/register";
 import {AuthProvider, useAuth} from "@/context/AuthContext";
 import {describe, expect} from "@jest/globals";
 
-import {registerClient} from "@/api/apiClient";
+import {registerClient} from "@/client/api/apiClient";
 
 
 const mockLogin = jest.fn();
@@ -16,7 +16,7 @@ jest.mock("expo-router", () => ({
     },
 }));
 
-jest.mock("../src/api/apiClient", () => ({
+jest.mock("@/client/api/apiClient", () => ({
     registerClient: jest.fn(),
 }));
 
