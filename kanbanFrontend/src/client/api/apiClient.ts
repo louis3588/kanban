@@ -1,6 +1,4 @@
-
-
-let BASE_URL = process.env.API_URL;
+let BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
 if(!BASE_URL){
     BASE_URL = "https://localhost:7293"

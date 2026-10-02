@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
-    Button,
+    Button, Pressable,
     StyleSheet,
     Text,
     View,
@@ -10,6 +10,7 @@ import { router, useLocalSearchParams } from "expo-router";
 
 import { confirmEmail } from "@/client/api/apiClient";
 import { useAuth} from "@/context/AuthContext";
+import CreateProfile from "../../components/profile/CreateProfile";
 
 export default function EmailConfirmedScreen() {
     const { login } = useAuth();
@@ -21,6 +22,11 @@ export default function EmailConfirmedScreen() {
 
     const [error, setError] = useState("");
     const [confirmed, setConfirmed] = useState(false);
+    const [showCreateProfile, setShowCreateProfile] = useState(false);
+
+    const skipProfileCreation = () => {
+        router.replace("/(dashboard)/workspaces")
+    }
 
     useEffect(() => {
         const confirm = async () => {
@@ -60,76 +66,99 @@ export default function EmailConfirmedScreen() {
 
     if (!confirmed && !error) {
         return (
-            <View style={styles.container}>
-                <ActivityIndicator />
+            <View className="flex-1 items-center justify-center bg-theme-background px-6">
+                <View className="w-full max-w-md items-center rounded-2xl border border-theme-border bg-theme-surfaceLight p-8">
+                    <ActivityIndicator
+                        size="large"
+                        color="#5c4633"
+                    />
 
-                <Text style={styles.message}>
-                    Confirming your email...
-                </Text>
+                    <Text className="mt-5 text-center text-base text-theme-text">
+                        Confirming your email...
+                    </Text>
+                </View>
             </View>
         );
     }
 
     if (error) {
         return (
-            <View style={styles.container}>
-                <Text style={styles.title}>
-                    Email confirmation failed
-                </Text>
+            <View className="flex-1 items-center justify-center bg-theme-background px-6">
+                <View className="w-full max-w-lg rounded-2xl border border-theme-border bg-theme-surfaceLight p-8">
+                    <Text className="text-center text-3xl font-bold text-theme-text">
+                        Email confirmation failed
+                    </Text>
 
-                <Text style={styles.message}>
-                    {error}
-                </Text>
+                    <Text className="mt-4 text-center text-base leading-6 text-theme-textMuted">
+                        {error}
+                    </Text>
 
-                <Button
-                    title="Back to login"
-                    onPress={() => router.replace("/login")}
-                />
+                    <Pressable
+                        onPress={() => router.replace("/(auth)/login")}
+                        className="mt-7 min-h-12 items-center justify-center rounded-xl bg-theme-primary px-5"
+                    >
+                        <Text className="font-bold text-theme-textLight">
+                            Back to login
+                        </Text>
+                    </Pressable>
+                </View>
             </View>
         );
     }
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>
-                Your email has been confirmed
-            </Text>
+        <View className="flex-1 items-center justify-center bg-theme-background px-6">
+            <View className="w-full max-w-lg rounded-2xl border border-theme-border bg-theme-surfaceLight p-8">
+                <View className="items-center">
+                    <View className="h-16 w-16 items-center justify-center rounded-full bg-theme-success">
+                        <Text className="text-2xl font-bold text-theme-textLight">
+                            ✓
+                        </Text>
+                    </View>
 
-            <Text style={styles.message}>
-                Your account is ready. You can set up your profile now,
-                or skip this step and do it later.
-            </Text>
+                    <Text className="mt-6 text-center text-3xl font-bold text-theme-text">
+                        Your email has been confirmed
+                    </Text>
 
-            <Button
-                title="Set up profile"
-                //TODO: Set up profile page
-            />
+                    <Text className="mt-4 text-center text-base leading-6 text-theme-textMuted">
+                        Your account is ready. You can set up your profile
+                        now, or skip this step and do it later.
+                    </Text>
+                </View>
 
-            <Button
-                title="Skip for now"
-                onPress={() =>
-                    router.replace("/(dashboard)/workspaces")
-                }
-            />
+                <View className="mt-8">
+                    <Pressable
+                        onPress={() => setShowCreateProfile(true)}
+                        className="min-h-12 items-center justify-center rounded-xl bg-theme-primary px-5"
+                    >
+                        <Text className="font-bold text-theme-textLight">
+                            Set up profile
+                        </Text>
+                    </Pressable>
+
+                    <Pressable
+                        onPress={skipProfileCreation}
+                        className="mt-2 min-h-12 items-center justify-center rounded-xl px-5"
+                    >
+                        <Text className="font-semibold text-theme-textMuted">
+                            Skip for now
+                        </Text>
+                    </Pressable>
+                </View>
+            </View>
+
+            {showCreateProfile && (
+                <CreateProfile
+                    onComplete={() => {
+                        setShowCreateProfile(false);
+                        router.replace("/(dashboard)/workspaces");
+                    }}
+                    onSkip={() => {
+                        setShowCreateProfile(false);
+                        skipProfileCreation();
+                    }}
+                />
+            )}
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        padding: 24,
-    },
-
-    title: {
-        fontSize: 28,
-        fontWeight: "bold",
-        marginBottom: 16,
-    },
-
-    message: {
-        fontSize: 16,
-        marginBottom: 24,
-    },
-});
