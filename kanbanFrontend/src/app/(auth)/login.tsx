@@ -13,6 +13,8 @@ import {useAuth} from "@/context/AuthContext";
 import {useState} from "react";
 import {loginClient} from "@/client/api/apiClient";
 import {router} from "expo-router";
+import {Image} from "expo-image";
+import {width} from "@expo/ui/jetpack-compose/modifiers";
 
 export default function Login() {
     const {login} = useAuth();
@@ -75,10 +77,9 @@ export default function Login() {
                         className="w-full max-w-[480px] rounded-3xl border border-theme-border bg-theme-surfaceLight p-8 shadow-2xl">
 
                         <View className="mb-8 items-center">
-                            <View className="mb-4 h-14 w-14 items-center justify-center rounded-2xl bg-theme-primary">
-                                <Text className="text-2xl font-bold text-theme-textLight">
-                                    K
-                                </Text>
+                            <View className="flex-row items-center justify-between rounded-2xl border border-[#bda78f] bg-theme-accent px-6 py-1">
+                                <Image source={{ uri: "https://res.cloudinary.com/dm7vciols/image/upload/v1791052476/app-header_ufbjml.png"}}
+                                       style={{width: 200, height: 80}}/>
                             </View>
 
                             <Text className="text-center text-3xl font-bold tracking-tight text-theme-primaryDark">

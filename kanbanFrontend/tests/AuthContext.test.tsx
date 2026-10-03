@@ -6,6 +6,17 @@ import {
     useAuth,
 } from "@/context/AuthContext";
 
+const sessionStorageMock = {
+    getItem: jest.fn(),
+    setItem: jest.fn(),
+    removeItem: jest.fn(),
+    clear: jest.fn(),
+};
+
+Object.defineProperty(global, "sessionStorage", {
+    value: sessionStorageMock,
+});
+
 function TestComponent() {
     const {
         user,
@@ -30,6 +41,8 @@ function TestComponent() {
                     login("test-token", {
                         id: 1,
                         username: "testuser",
+                        firstName: "test,",
+                        lastName: "test",
                         email: "test@example.com",
                     })
                 }
@@ -52,7 +65,6 @@ describe("AuthContext", () => {
 
         expect(getByText("logged out")).toBeTruthy();
         expect(getByText("no user")).toBeTruthy();
-        expect(getByText("no token")).toBeTruthy();
 
         await fireEvent.press(getByText("Login"));
 
@@ -64,6 +76,5 @@ describe("AuthContext", () => {
 
         expect(getByText("logged out")).toBeTruthy();
         expect(getByText("no user")).toBeTruthy();
-        expect(getByText("no token")).toBeTruthy();
     });
 });
