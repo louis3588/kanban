@@ -75,6 +75,7 @@ public class BoardHub : Hub
     public async Task<UserProfileResponse> EditProfile(UserProfile profile)
     {
         var result = await _userDetailsService.EditProfile(
+            userId: profile.UserId,
             firstName: profile.FirstName,
             profileImage: profile.ProfileImage,
             lastName: profile.LastName,

@@ -8,6 +8,6 @@ public interface IUserDetailsInterface
 {
         Task<ModelResult<UserProfileResponse>> GetProfile(int userId);
         
-        Task<ModelResult<UserProfileResponse>> EditProfile(string firstName = "",
-        string profileImage = "", string lastName = "", string bio = "");
+        Task<ModelResult<UserProfileResponse>> EditProfile(string? firstName = "",
+        string? profileImage = "", string? lastName = "", string? bio = "", int? userId = null);
 }

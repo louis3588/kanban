@@ -55,13 +55,16 @@ public class UserDetailsService : IUserDetailsInterface
     }
 
     public async Task<ModelResult<UserProfileResponse>> EditProfile(string? firstName = null,
-        string? profileImage = null, string? lastName = null, string? bio = null)
+        string? profileImage = null, string? lastName = null, string? bio = null, int? userId = null)
     {
         var userNotFound = ModelResult<UserProfileResponse>.Failure("User not found");
-        var userId = _currentUser.UserId();
         if (userId == null)
         {
-            return userNotFound;
+            userId = _currentUser.UserId();
+            if (userId == null)
+            {
+                return userNotFound;
+            }
         }
         
         var fetchedUser = await GetUser(userId.Value);
