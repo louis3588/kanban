@@ -79,12 +79,8 @@ export async function registerClient(
     });
 
     if(!response.ok){
-        if(response.status === 409){
-            const errorResponse = await response.json();
-            throw new Error(errorResponse.message);
-        }
-
-        throw new Error("Something went wrong while creating your account");
+        const errorResponse = await response.json();
+        throw new Error(errorResponse.message);
     }
 
     return response.json();

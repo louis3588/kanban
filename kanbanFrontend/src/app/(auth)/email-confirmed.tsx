@@ -10,6 +10,7 @@ import { router, useLocalSearchParams } from "expo-router";
 
 import { confirmEmail } from "@/client/api/apiClient";
 import { useAuth} from "@/context/AuthContext";
+// @ts-ignore
 import CreateProfile from "../../components/profile/CreateProfile";
 
 export default function EmailConfirmedScreen() {
@@ -42,7 +43,7 @@ export default function EmailConfirmedScreen() {
                 );
 
                 login(response.token, {
-                    id: response.userId,
+                    id: Number(response.userId),
                     username: response.username,
                     firstName: response.firstName,
                     lastName: response.lastName || null,

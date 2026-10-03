@@ -8,7 +8,6 @@ import {
 import { router } from "expo-router";
 
 import { registerClient as registerApi } from "@/client/api/apiClient";
-import {useAuth} from "@/context/AuthContext";
 
 export default function RegisterScreen() {
 
@@ -108,13 +107,7 @@ export default function RegisterScreen() {
                 },
             });
         } catch (error) {
-            if (error instanceof Error) {
-                setError(error.message);
-            } else {
-                setError(
-                    "Something went wrong while creating your account."
-                );
-            }
+            setError(error.message)
         } finally {
             setIsLoading(false);
         }

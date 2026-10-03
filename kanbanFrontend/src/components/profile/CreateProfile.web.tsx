@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
-import { useAuth } from "@/context/AuthContext";
+import { useAuth, jsonToUser } from "@/context/AuthContext";
 import { editUserProfile } from "@/client/signalr/profileClient";
 import { uploadProfileImage } from "@/client/api/cloudinaryClient";
 
@@ -25,7 +25,9 @@ export default function CreateProfile({
                                           onComplete,
                                           onSkip,
                                       }: CreateProfileProps) {
-    const { token } = useAuth();
+    const token = sessionStorage.getItem("token");
+    const userJson = sessionStorage.getItem("user")!;
+    const user = jsonToUser(userJson);
 
     const [profileImage, setProfileImage] = useState<string | null>(null);
     const [bio, setBio] = useState("");
@@ -74,6 +76,7 @@ export default function CreateProfile({
             }
 
             await editUserProfile(token, {
+                userId: user.id,
                 profileImage: cloudinaryUrl,
                 bio: bio.trim(),
             });

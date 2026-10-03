@@ -41,7 +41,7 @@ export default function Login() {
 
             const response = await loginClient(username, password);
             login(response.token, {
-                id: response.userId,
+                id: Number.parseInt(response.userId),
                 username: response.username,
                 firstName: response.firstName,
                 lastName: response.lastName || null,
