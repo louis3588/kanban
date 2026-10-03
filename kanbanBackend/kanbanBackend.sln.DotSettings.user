@@ -21,5 +21,6 @@
     &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.EmailServiceTests.Confirm_ReturnsOk_WhenEmailConfirmationSucceeds&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.AuthControllerTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.WorkspaceServiceTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.UserDetailsServiceTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

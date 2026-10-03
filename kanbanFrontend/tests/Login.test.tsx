@@ -2,7 +2,7 @@ import React from "react";
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 
 import Login from "../src/app/(auth)/login";
-import { loginClient } from "@/api/apiClient";
+import { loginClient } from "@/client/api/apiClient";
 import { useAuth } from "@/context/AuthContext";
 import {router} from "expo-router";
 
@@ -14,7 +14,7 @@ jest.mock("expo-router", () => ({
         replace: jest.fn(),
     },
 }));
-jest.mock("../src/api/apiClient", () => ({
+jest.mock("@/client/api/apiClient", () => ({
     loginClient: jest.fn(),
 }));
 

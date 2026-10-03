@@ -1,4 +1,5 @@
 using kanbanBackend.Data;
+using kanbanBackend.DTOs.Profile;
 using kanbanBackend.Models;
 using kanbanBackend.Services.Auth.Interfaces;
 using kanbanBackend.Util;
@@ -10,14 +11,15 @@ public class UserDetailsService : IUserDetailsInterface
 {
     
     private readonly KanbanDbContext _context;
+    private readonly CurrentUserService _currentUser;
     
-    public UserDetailsService(KanbanDbContext context)
+    public UserDetailsService(KanbanDbContext context,  CurrentUserService currentUser)
     {
         _context = context;
+        _currentUser = currentUser;
     }
 
-    public async Task<ModelResult<User>> EditProfile(int userId, string firstName = "",
-        string profileImage = "", string lastName = "", string bio = "")
+    private async Task<ModelResult<User>> GetUser(int userId)
     {
         var user = await _context
             .Users
@@ -27,10 +29,55 @@ public class UserDetailsService : IUserDetailsInterface
         {
             return ModelResult<User>.Failure("User not found");
         }
+        return ModelResult<User>.Success(user);
+    }
+
+    public async Task<ModelResult<UserProfileResponse>> GetProfile(int userId)
+    {
+        var potentialUser = await GetUser(userId);
+        if (!potentialUser.IsSuccess)
+        {
+            return ModelResult<UserProfileResponse>.Failure("User not found");
+        }
+
+        var user = potentialUser.Value!;
+        var response = new UserProfileResponse
+        {
+            Username = user.Username,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email,
+            ProfileImage = user.ProfileImage,
+            Bio = user.Bio,
+        };
+
+        return ModelResult<UserProfileResponse>.Success(response);
+    }
+
+    public async Task<ModelResult<UserProfileResponse>> EditProfile(string? firstName = null,
+        string? profileImage = null, string? lastName = null, string? bio = null, int? userId = null)
+    {
+        var userNotFound = ModelResult<UserProfileResponse>.Failure("User not found");
+        if (userId == null)
+        {
+            userId = _currentUser.UserId();
+            if (userId == null)
+            {
+                return userNotFound;
+            }
+        }
+        
+        var fetchedUser = await GetUser(userId.Value);
+        if (!fetchedUser.IsSuccess)
+        {
+            return userNotFound;
+        }
+        
+        var user = fetchedUser.Value!;
 
         if (!user.IsEmailVerified)
         {
-            return ModelResult<User>.Failure("Cannot edit profile if not verified");
+            return ModelResult<UserProfileResponse>.Failure("Cannot edit profile if not verified");
         }
 
         if (!String.IsNullOrEmpty(firstName))
@@ -54,6 +101,18 @@ public class UserDetailsService : IUserDetailsInterface
         }
         
         await _context.SaveChangesAsync();
-        return ModelResult<User>.Success(user);
+
+        var response = new UserProfileResponse
+        {
+            UserId = user.Id,
+            Username = user.Username,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email,
+            ProfileImage = user.ProfileImage,
+            Bio = user.Bio,
+        };
+
+        return ModelResult<UserProfileResponse>.Success(response);
     }
 }

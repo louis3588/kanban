@@ -9,6 +9,14 @@ type User = {
     email: string;
 };
 
+export const userToJson = (user: User): string => {
+    return JSON.stringify(user);
+};
+
+export const jsonToUser = (json: string): User => {
+    return JSON.parse(json) as User;
+};
+
 type AuthContextType = {
     user: User | null;
     token: string | null;
@@ -34,15 +42,17 @@ export function useAuth(): AuthContextType {
 
 export function AuthProvider({children}: AuthProviderProps){
     const [user, setUser] = useState<User | null>(null);
-    const [token, setToken] = useState<string, null>(null);
+    const [token, setToken] = useState<string>("");
 
     const login = (newToken: string, newUser: User) => {
         setToken(newToken);
+        sessionStorage.setItem("token", newToken);
         setUser(newUser);
+        sessionStorage.setItem("user", userToJson(newUser));
     }
 
     const logout = () => {
-        setToken(null);
+        setToken("");
         setUser(null);
     }
 
