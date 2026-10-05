@@ -1,4 +1,5 @@
 using kanbanBackend.Data;
+using kanbanBackend.DTOs.Profile;
 using kanbanBackend.Models;
 using kanbanBackend.Services.Auth.Interfaces;
 using kanbanBackend.Util;
@@ -34,7 +35,7 @@ public class EmailService :  IEmailInterface
         _passwordHasher =  passwordHasher;
     }
 
-    public async Task<ModelResult<bool>> UpdatePassword(int userId, string password)
+    public async Task<ModelResult<UserProfileResponse>> UpdatePassword(int userId, string password)
     {
         var user = await _dbContext
             .Users
@@ -42,17 +43,30 @@ public class EmailService :  IEmailInterface
 
         if (user == null)
         {
-            return ModelResult<bool>.Failure("User not found");
+            return ModelResult<UserProfileResponse>.Failure("User not found");
         }
         
         if (!user.IsEmailVerified)
         {
-            return ModelResult<bool>.Failure("Email not verified");
+            return ModelResult<UserProfileResponse>.Failure("Email not verified");
         }
         
         user.PasswordHash = _passwordHasher.HashPassword(user, password);
+        user.EmailConfirmationTokenExpiration = null;
+        user.EmailConfirmationTokenHash = null;
         await _dbContext.SaveChangesAsync();
-        return ModelResult<bool>.Success(true);
+
+        var result = new UserProfileResponse
+        {
+            UserId = userId,
+            Username = user.Username,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Bio = user.Bio,
+            ProfileImage = user.ProfileImage,
+        };
+        return ModelResult<UserProfileResponse>.Success(result);
     }
     
     public async Task<ModelResult<bool>> PasswordReset(string email)

@@ -1,5 +1,5 @@
 using kanbanBackend.DTOs.Auth;
-using kanbanBackend.Models;
+using kanbanBackend.DTOs.Profile;
 using kanbanBackend.Services.Auth.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,7 +23,7 @@ public class EmailController : ControllerBase
     }
 
     [HttpPost("reset-password")]
-    public async Task<ActionResult<bool>> ResetPassword(int user, string password)
+    public async Task<ActionResult<UserProfileResponse>> ResetPassword(int user, string password)
     {
         var response = await _emailInterface.UpdatePassword(user, password);
         if (!response.IsSuccess)
@@ -33,20 +33,13 @@ public class EmailController : ControllerBase
                 message = response.ErrorMessage
             });
         }
-        return Ok(true);
+        return Ok(response.Value!);
     }
     
     [HttpPost("password-reset")]
     public async Task<ActionResult<bool>> SendPasswordResetEmail(string email)
     {
-        var emailed = await _emailInterface.PasswordReset(email);
-        if (!emailed.IsSuccess)
-        {
-            return BadRequest(new
-            {
-                message = emailed.ErrorMessage
-            });
-        }
+        await _emailInterface.PasswordReset(email);
         return Ok(true);
     }
 
