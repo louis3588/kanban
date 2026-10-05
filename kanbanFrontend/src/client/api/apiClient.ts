@@ -5,7 +5,7 @@ if(!BASE_URL){
 }
 
 type LoginRequest = {
-    username: string;
+    identifier: string;
     password: string;
 };
 
@@ -34,11 +34,11 @@ export type RegisterResponse = CredentialsResponse & {
 };
 
 export async function loginClient(
-    username: string,
+    identifier: string,
     password: string
 ) : Promise<AuthResponse> {
     const request: LoginRequest = {
-      username, password
+        identifier, password
     };
 
     const response = await fetch(`${BASE_URL}/api/Auth/login`, {

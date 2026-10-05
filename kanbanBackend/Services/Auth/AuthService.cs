@@ -80,7 +80,8 @@ public class AuthService : IAuthInterface
     public async Task<CredentialResponse?> Login(LoginRequest request)
     {
         var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Username == request.Username);
+            .FirstOrDefaultAsync(u => u.Username == request.Identifier ||
+                                      u.Email.ToLower() == request.Identifier.ToLower());
         
         if(user is null){
             return null;

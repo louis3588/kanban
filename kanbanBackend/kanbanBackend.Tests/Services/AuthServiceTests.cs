@@ -85,7 +85,7 @@ public class AuthControllerTests
 
         var request = new LoginRequest
         {
-            Username = "testuser",
+            Identifier = "testuser",
             Password = "Password123!"
         };
 
@@ -119,7 +119,7 @@ public class AuthControllerTests
 
         var request = new LoginRequest
         {
-            Username = "testuser",
+            Identifier = "testuser",
             Password = "wrongpassword"
         };
 
