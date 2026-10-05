@@ -8,6 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "build:web": "expo export --platform web",
     "lint": "expo lint",
     "test": "jest"
   },
@@ -25,6 +26,7 @@
     "expo-image": "~57.0.5",
     "expo-image-picker": "~57.0.20",
     "expo-linking": "~57.0.10",
+    "expo-modules-core": "~57.0.20",
     "expo-router": "~57.0.21",
     "expo-splash-screen": "~57.0.9",
     "expo-status-bar": "~57.0.1",
@@ -41,7 +43,7 @@
     "react-native-screens": "~4.26.0",
     "react-native-svg": "^15.15.5",
     "react-native-web": "~0.21.0",
-    "react-native-worklets": "0.10.1"
+    "react-native-worklets": "^0.10.4"
   },
   "devDependencies": {
     "@testing-library/react-native": "^14.0.1",
