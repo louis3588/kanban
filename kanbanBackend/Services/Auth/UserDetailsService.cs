@@ -53,6 +53,7 @@ public class UserDetailsService : IUserDetailsInterface
 
         return ModelResult<UserProfileResponse>.Success(response);
     }
+    
 
     public async Task<ModelResult<UserProfileResponse>> EditProfile(string? firstName = null,
         string? profileImage = null, string? lastName = null, string? bio = null, int? userId = null)

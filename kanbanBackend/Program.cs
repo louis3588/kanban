@@ -55,7 +55,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Frontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:8081", "http://localhost:19006")
+            .WithOrigins("http://localhost:8081", "http://localhost:19006", "https://kanban-d6zv.onrender.com")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();

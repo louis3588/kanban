@@ -1,4 +1,3 @@
-
 using kanbanBackend.DTOs.Auth;
 using kanbanBackend.Models;
 using kanbanBackend.Services.Auth.Interfaces;
@@ -12,12 +11,43 @@ public class EmailController : ControllerBase
 {
     private readonly IEmailConfirmationInterface _confirmationInterface;
     private readonly IJwtInterface _jwtInterface;
+    private readonly IEmailInterface _emailInterface;
 
 
-    public EmailController(IEmailConfirmationInterface confirmationInterface, IJwtInterface jwtInterface)
+
+    public EmailController(IEmailConfirmationInterface confirmationInterface, IJwtInterface jwtInterface, IEmailInterface emailInterface)
     {
         _confirmationInterface = confirmationInterface;
         _jwtInterface = jwtInterface;
+        _emailInterface = emailInterface;
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<ActionResult<bool>> ResetPassword(int user, string password)
+    {
+        var response = await _emailInterface.UpdatePassword(user, password);
+        if (!response.IsSuccess)
+        {
+            return BadRequest(new
+            {
+                message = response.ErrorMessage
+            });
+        }
+        return Ok(true);
+    }
+    
+    [HttpPost("password-reset")]
+    public async Task<ActionResult<bool>> SendPasswordResetEmail(string email)
+    {
+        var emailed = await _emailInterface.PasswordReset(email);
+        if (!emailed.IsSuccess)
+        {
+            return BadRequest(new
+            {
+                message = emailed.ErrorMessage
+            });
+        }
+        return Ok(true);
     }
 
     [HttpPost("confirm")]
@@ -32,7 +62,7 @@ public class EmailController : ControllerBase
             });
         }
 
-        User user = response.Value;
+        var user = response.Value!;
         return Ok(new AuthResponse
         {
             Token = _jwtInterface.GenerateToken(user),
