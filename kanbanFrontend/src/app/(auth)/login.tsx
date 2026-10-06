@@ -28,6 +28,11 @@ export default function Login() {
         router.replace("/(auth)/register")
     }
 
+    const goToForgotPassword = () => {
+        router.replace({
+            pathname: "/(auth)/forgot-password",
+        });
+    };
 
     const handleLogin = async () => {
         setError("")
@@ -115,6 +120,14 @@ export default function Login() {
                             onChangeText={setPassword}
                             secureTextEntry
                         />
+
+                        <View className="mb-5 items-end">
+                            <Pressable onPress={goToForgotPassword}>
+                                <Text className="text-sm font-semibold text-theme-primary">
+                                    Forgot your password?
+                                </Text>
+                            </Pressable>
+                        </View>
 
                         {error !== "" && (
                             <View className="mb-5 rounded-xl border border-[#d5aaa3] bg-[#f5dfdb] px-4 py-3">
