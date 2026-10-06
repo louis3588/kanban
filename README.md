@@ -8,7 +8,7 @@ Kanban provides a simple workspace for creating boards, organising tasks into co
 
 **Live application:** https://kanban-d6zv.onrender.com
 
-> **Note:** The backend runs on a small Render instance and may need a short period to wake up after inactivity. The application sends a background request when public pages are opened so the server can begin starting while the site is being viewed.
+> **Note:** The backend runs on a small Render instance and may need 1 minute to wake up after inactivity. The application sends a background request when public pages are opened so the server can begin starting while the site is being viewed.
 
 ---
 
