@@ -1,3 +1,5 @@
+import {UserProfileResponse} from "@/client/signalr/profileClient";
+
 let BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
 if(!BASE_URL){
@@ -5,7 +7,7 @@ if(!BASE_URL){
 }
 
 type LoginRequest = {
-    username: string;
+    identifier: string;
     password: string;
 };
 
@@ -34,11 +36,11 @@ export type RegisterResponse = CredentialsResponse & {
 };
 
 export async function loginClient(
-    username: string,
+    identifier: string,
     password: string
 ) : Promise<AuthResponse> {
     const request: LoginRequest = {
-      username, password
+        identifier, password
     };
 
     const response = await fetch(`${BASE_URL}/api/Auth/login`, {
@@ -107,3 +109,51 @@ export async function confirmEmail(userId: number, token: string) : Promise<Auth
     return response.json();
 }
 
+export const passwordResetApi = async (email: string): Promise<boolean> => {
+    const response = await fetch(
+        `${BASE_URL}/api/email-confirmation/password-reset?email=${encodeURIComponent(email)}`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data?.message || "Something went wrong. Please try again."
+        );
+    }
+
+    return data;
+};
+
+export const resetPasswordApi = async (
+    user: number,
+    password: string
+): Promise<UserProfileResponse> => {
+    const response = await fetch(
+        `${BASE_URL}/api/email-confirmation/reset-password` +
+        `?user=${user}` +
+        `&password=${encodeURIComponent(password)}`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data?.message || "Unable to reset your password."
+        );
+    }
+
+    return data as UserProfileResponse;
+};

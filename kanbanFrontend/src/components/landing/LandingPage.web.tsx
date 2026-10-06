@@ -4,9 +4,6 @@ import {useAssets} from "expo-asset";
 import { Image } from 'expo-image';
 
 export default function LandingPage() {
-    const [assets, error] = useAssets([
-        require("../../../assets/images/app-header.png")
-    ])
 
     return (
         <ScrollView
@@ -17,11 +14,8 @@ export default function LandingPage() {
                 <View className="flex-row items-center justify-between rounded-2xl border border-[#bda78f] bg-[#9b7d61]/80 px-6 py-4">
                     <View className="flex-row items-center gap-3">
                         <View className="flex-row items-center gap-3">
-                            {assets ? <Image source={assets[0]} style={{width: 200, height: 80}} /> :
-                                <Text className="text-lg font-bold text-[#4b3828]">
-                                    Kanban
-                                </Text>
-                            }
+                            <Image source={{ uri: "https://res.cloudinary.com/dm7vciols/image/upload/v1791052476/app-header_ufbjml.png"}}
+                                   style={{width: 200, height: 80}}/>
                         </View>
                     </View>
 
