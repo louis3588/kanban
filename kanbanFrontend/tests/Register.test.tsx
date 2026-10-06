@@ -35,6 +35,7 @@ describe("Register", () => {
     beforeEach(() => {
         jest.clearAllMocks();
 
+        // @ts-ignore
         mockedUseAuth.mockReturnValue({
             login: mockLogin,
         } as ReturnType<typeof useAuth>);
@@ -314,6 +315,7 @@ describe("Register", () => {
     });
 
     it("calls registerApi with the completed form", async () => {
+        // @ts-ignore
         mockedRegisterApi.mockResolvedValue({
             email: "louis@example.com",
         });
@@ -369,6 +371,7 @@ describe("Register", () => {
     });
 
     it("navigates to email confirmation after successful registration", async () => {
+        // @ts-ignore
         mockedRegisterApi.mockResolvedValue({
             email: "louis@example.com",
         });
