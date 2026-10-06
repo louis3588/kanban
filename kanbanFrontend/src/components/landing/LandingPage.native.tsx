@@ -1,6 +1,5 @@
 import { router } from "expo-router";
 import { Pressable, ScrollView, Text, View, } from "react-native";
-import {useAssets} from "expo-asset";
 import { Image } from 'expo-image';
 
 export default function LandingPage() {

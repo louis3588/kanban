@@ -24,6 +24,8 @@ export type CredentialsResponse = {
     email: string;
 };
 
+export const healthCheck = `${BASE_URL}/api/health`;
+
 export type AuthResponse = CredentialsResponse & {
     token: string;
     firstName: string;
