@@ -12,6 +12,7 @@ public class KanbanDbContext : DbContext
     
     public DbSet<User> Users => Set<User>();
     public DbSet<Board> Boards => Set<Board>();
+    public DbSet<ExternalLogin> ExternalLogins => Set<ExternalLogin>();
     public DbSet<Workspace> Workspaces => Set<Workspace>();
     public DbSet<WorkspaceMember> WorkspaceMembers => Set<WorkspaceMember>();
     public DbSet<BoardColumn> BoardColumns => Set<BoardColumn>();
@@ -109,6 +110,17 @@ public class KanbanDbContext : DbContext
                 .HasForeignKey(b => b.WorkspaceId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+        
+        //External Login
+        modelBuilder.Entity<ExternalLogin>()
+            .HasOne(e => e.User)
+            .WithMany()
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ExternalLogin>()
+            .HasIndex(e => new { e.Provider, e.ProviderUserId })
+            .IsUnique();
         
         //Board Column
         modelBuilder.Entity<BoardColumn>(entity =>

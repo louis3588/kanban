@@ -9,6 +9,7 @@ using kanbanBackend.Services.Dashboard;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -94,6 +95,22 @@ builder.Services
                 return Task.CompletedTask;
             }
         };
+    })
+    .AddCookie("GoogleExternal")
+    .AddOpenIdConnect("Google", options =>
+    {
+        options.Authority = "https://accounts.google.com";
+        options.ClientId = Environment.GetEnvironmentVariable("GOOGLEAUTHID");
+        options.ClientSecret = Environment.GetEnvironmentVariable("GOOGLEAUTHSECRET");
+        options.ResponseType = OpenIdConnectResponseType.Code;
+        options.UsePkce = true;
+        options.CallbackPath = "/api/auth/google/callback";
+        options.SaveTokens = false;
+        
+        options.Scope.Clear();
+        options.Scope.Add("openid");
+        options.Scope.Add("profile");
+        options.Scope.Add("email");
     });
 
 builder.Services.AddAuthorization();

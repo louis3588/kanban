@@ -1,7 +1,9 @@
 using kanbanBackend.Data;
 using kanbanBackend.DTOs.Auth;
 using kanbanBackend.Models;
+using kanbanBackend.Models.Enum;
 using kanbanBackend.Services.Auth.Interfaces;
+using kanbanBackend.Util;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -107,5 +109,89 @@ public class AuthService : IAuthInterface
             Username = user.Username,
             Email = user.Email
         };
+    }
+
+    public async Task<ModelResult<AuthResponse>> RegisterGoogleUser(
+        string googleUserId, string email, string? firstName, string? lastName,
+        string? profilePicture)
+    {
+        var existingUser = await _context.ExternalLogins
+            .Include(e => e.User)
+            .FirstOrDefaultAsync(e =>
+                e.Provider == ExternalLoginProvider.Google &&
+                e.ProviderUserId == googleUserId);
+        
+        if (existingUser is not null)
+        {
+            var user = existingUser.User;
+            var response =  new AuthResponse
+            {
+                Token = _jwtService.GenerateToken(user),
+                UserId = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+            };
+            return ModelResult<AuthResponse>.Success(response);
+        }
+        
+        var emailExists = await _context.Users
+            .AnyAsync(u => u.Email.ToLower() == email.ToLower());
+
+        if (emailExists)
+        {
+            return ModelResult<AuthResponse>.Failure("An account with this email already exists. Please sign in " +
+                                                     "using your existing account and link your Google account.");
+        }
+        
+        var username = email.Split('@')[0];
+
+        var usernameExists = true;
+
+        while (usernameExists)
+        {
+            usernameExists = await _context.Users
+                .AnyAsync(u => u.Username.ToLower() == username.ToLower());
+
+            if (usernameExists)
+            {
+                username = $"{email.Split('@')[0]}{Random.Shared.Next(1000, 9999)}";
+            }
+        }
+        
+        var newUser = new User
+        {
+            Username = username,
+            Email = email,
+            FirstName = string.IsNullOrWhiteSpace(firstName)
+                ? "User"
+                : firstName,
+            LastName = lastName,
+            ProfileImage = profilePicture,
+            IsEmailVerified = true,
+            PasswordHash = string.Empty
+        };
+
+        _context.Users.Add(newUser);
+        await _context.SaveChangesAsync();
+        
+        var externalLogin = new ExternalLogin
+        {
+            UserId = newUser.Id,
+            Provider = ExternalLoginProvider.Google,
+            ProviderUserId = googleUserId
+        };
+        _context.ExternalLogins.Add(externalLogin);
+        await _context.SaveChangesAsync();
+
+        var newUserResponse = new AuthResponse
+        {
+            Token = _jwtService.GenerateToken(newUser),
+            UserId = newUser.Id,
+            FirstName = newUser.FirstName,
+            LastName = newUser.LastName,
+            Email = newUser.Email,
+        };
+        return ModelResult<AuthResponse>.Success(newUserResponse);
     }
 }
