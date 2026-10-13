@@ -11,4 +11,6 @@ public interface IAuthInterface
     Task<ModelResult<AuthResponse>> RegisterGoogleUser(
         string googleUserId, string email, string? firstName, string? lastName,
         string? profilePicture);
+
+    Task<ModelResult<AuthResponse>> AuthenticatedUserResponse(int userId);
 }

@@ -1,4 +1,5 @@
 using kanbanBackend.DTOs.Auth;
+using kanbanBackend.Services.Auth;
 using kanbanBackend.Services.Auth.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -12,10 +13,12 @@ public class AuthController : ControllerBase
 {
     
     private readonly IAuthInterface _authService;
+    private readonly IGoogleTicketInterface _googleTicketService;
 
-    public AuthController(IAuthInterface authService)
+    public AuthController(IAuthInterface authService, IGoogleTicketInterface googleLoginTicketService)
     {
         _authService = authService;
+        _googleTicketService = googleLoginTicketService;
     }
 
     [HttpPost("register")]
@@ -58,6 +61,29 @@ public class AuthController : ControllerBase
             },
             "Google"
         );
+    }
+
+    [AllowAnonymous]
+    [HttpPost("google/exchange")]
+    public async Task<ActionResult<AuthResponse>> ExchangeGoogleLogin(ExternalLoginExchangeRequest request)
+    {
+        try
+        {
+            var userId = _googleTicketService.ValidateTicket(request.Ticket);
+            var response = await _authService.AuthenticatedUserResponse(userId);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(new
+                {
+                    message = response.ErrorMessage
+                });
+            }
+            return Ok(response.Value!);
+        }
+        catch (InvalidOperationException e)
+        {
+            return Unauthorized(new { message = e.Message });
+        }
     }
     
     [AllowAnonymous]
@@ -108,7 +134,15 @@ public class AuthController : ControllerBase
                 });
             }
 
-            return Ok(response.Value!);
+            var user = response.Value!;
+            var ticket = _googleTicketService.CreateTicket(user.UserId);
+            var frontendRedirect =
+                Environment.GetEnvironmentVariable("GOOGLEFRONTENDREDIRECT")
+                ?? throw new InvalidOperationException("Google frontend redirect is missing.");
+            var redirectUrl = $"{frontendRedirect}?ticket={Uri.EscapeDataString(ticket)}";
+            
+
+            return Redirect(redirectUrl);
         }
         catch (InvalidOperationException e)
         {

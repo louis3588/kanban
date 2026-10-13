@@ -111,6 +111,27 @@ public class AuthService : IAuthInterface
         };
     }
 
+    public async Task<ModelResult<AuthResponse>> AuthenticatedUserResponse(int userId)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user is null)
+        {
+            return ModelResult<AuthResponse>.Failure("User not found");
+        }
+        var response =  new AuthResponse
+        {
+            Token = _jwtService.GenerateToken(user),
+            UserId = user.Id,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Username = user.Username,
+            Email = user.Email
+        };
+        return ModelResult<AuthResponse>.Success(response);
+    }
+
     public async Task<ModelResult<AuthResponse>> RegisterGoogleUser(
         string googleUserId, string email, string? firstName, string? lastName,
         string? profilePicture)

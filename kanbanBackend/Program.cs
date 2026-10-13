@@ -44,7 +44,8 @@ builder.Services.AddScoped<WorkspaceAuthService>();
 builder.Services.AddScoped<IEmailInterface, EmailService>();
 builder.Services.AddScoped<IEmailConfirmationInterface, EmailConfirmationService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-
+builder.Services.AddDataProtection();
+builder.Services.AddScoped<IGoogleTicketInterface, GoogleLoginTicketService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 
