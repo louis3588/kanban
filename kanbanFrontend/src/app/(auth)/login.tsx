@@ -7,14 +7,14 @@ import {
     Pressable,
     Platform,
     ScrollView,
-    KeyboardAvoidingView
+    KeyboardAvoidingView, ActivityIndicator
 } from "react-native";
 import {useAuth} from "@/context/AuthContext";
 import {useState} from "react";
-import {loginClient} from "@/client/api/apiClient";
+import {loginClient, googleLoginUrl, googleLoginClient} from "@/client/api/apiClient";
 import {router} from "expo-router";
 import {Image} from "expo-image";
-import {width} from "@expo/ui/jetpack-compose/modifiers";
+import GoogleAuthButton from "@/components/GoogleAuthButton";
 
 export default function Login() {
     const {login} = useAuth();
@@ -94,6 +94,8 @@ export default function Login() {
                                 Log in to continue to your workspace.
                             </Text>
                         </View>
+
+                       <GoogleAuthButton isLogin={true} onError={setError}/>
 
                         <Text className="mb-2 text-sm font-bold text-theme-text">
                             Email/Username

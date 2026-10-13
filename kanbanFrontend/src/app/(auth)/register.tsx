@@ -6,9 +6,9 @@ import {
     View,
 } from "react-native";
 import { router } from "expo-router";
-
 import { registerClient as registerApi } from "@/client/api/apiClient";
 import {Image} from "expo-image";
+import GoogleAuthButton from "@/components/GoogleAuthButton";
 
 export default function RegisterScreen() {
 
@@ -144,11 +144,9 @@ export default function RegisterScreen() {
                             <Text className="text-center text-3xl font-bold tracking-tight text-theme-primaryDark">
                                 Create an account
                             </Text>
-
-                            <Text className="mt-2 text-center text-base text-theme-textMuted">
-                                Set up your account and create your first workspace.
-                            </Text>
                         </View>
+
+                        <GoogleAuthButton isLogin={false} onError={setError}/>
                         
                         <Text className="mb-2 text-sm font-bold text-theme-text">
                             Username

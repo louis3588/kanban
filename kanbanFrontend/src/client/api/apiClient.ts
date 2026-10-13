@@ -62,6 +62,25 @@ export async function loginClient(
 
     return response.json();
 }
+export const googleLoginUrl = `${BASE_URL}/api/Auth/google`;
+
+export async function googleLoginClient(ticket: string): Promise<AuthResponse> {
+    const response = await fetch(`${googleLoginUrl}/exchange`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ ticket })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(
+            data?.message ?? "Unable to complete Google sign-in."
+        );
+    }
+
+    return data as AuthResponse;
+}
 
 export async function registerClient(
     username: string,
