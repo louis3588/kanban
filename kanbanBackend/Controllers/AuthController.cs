@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using kanbanBackend.DTOs.Auth;
+using kanbanBackend.Models.Enum;
 using kanbanBackend.Services.Auth;
 using kanbanBackend.Services.Auth.Interfaces;
 using Microsoft.AspNetCore.Authentication;
@@ -133,13 +134,13 @@ public class AuthController : ControllerBase
 
         try
         {
-            var response = await _authService.RegisterGoogleUser(
+            var response = await _authService.RegisterExternalUser(
                 googleId,
                 email,
                 firstName,
                 lastName,
-                profilePicture
-            );
+                profilePicture,
+                ExternalLoginProvider.Google);
             if (!response.IsSuccess)
             {
                 return BadRequest(new
@@ -177,4 +178,111 @@ public class AuthController : ControllerBase
             });
         }
     }
+    
+    
+    [AllowAnonymous]
+[HttpGet("github")]
+public IActionResult GitHubLogin([FromQuery] string? platform)
+{
+    var redirectUri = "/api/Auth/github/complete";
+
+    if (platform == "web")
+    {
+        redirectUri += "?platform=web";
+    }
+
+    return Challenge(
+        new AuthenticationProperties
+        {
+            RedirectUri = redirectUri
+        },
+        "GitHub");
+}
+
+[AllowAnonymous]
+[HttpGet("github/complete")]
+public async Task<IActionResult> GitHubComplete(
+    [FromQuery] string? platform)
+{
+    var result = await HttpContext.AuthenticateAsync("GitHubExternal");
+
+    if (!result.Succeeded || result.Principal is null)
+    {
+        return Unauthorized("GitHub authentication failed.");
+    }
+
+    var principal = result.Principal;
+
+    var githubUserId = principal
+        .FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)
+        ?.Value;
+
+    var accessToken = result.Properties?.GetTokenValue("access_token");
+
+    if (string.IsNullOrWhiteSpace(githubUserId) ||
+        string.IsNullOrWhiteSpace(accessToken))
+    {
+        return Unauthorized("GitHub identity or access token is missing.");
+    }
+
+    var emailResponse = await _authService.ParseVerifiedGitHubEmail(accessToken);
+    if (!emailResponse.IsSuccess)
+    {
+        return BadRequest(
+            $"We could not connect to GitHub with these credentials, error code {emailResponse.ErrorMessage}");
+    }
+
+    var email = emailResponse.Value!;
+    if (string.IsNullOrWhiteSpace(email))
+    {
+        return BadRequest(
+            "Your GitHub account must have a primary, verified email address.");
+    }
+
+    var displayName = principal
+        .FindFirst(System.Security.Claims.ClaimTypes.Name)
+        ?.Value;
+
+    var nameParts = displayName?
+        .Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+
+    var firstName = nameParts?.FirstOrDefault();
+    var lastName = nameParts?.Skip(1).FirstOrDefault();
+
+    var profilePicture = principal.FindFirst("picture")?.Value;
+
+    var userResult = await _authService.RegisterExternalUser(
+        githubUserId,
+        email,
+        firstName,
+        lastName,
+        profilePicture,
+        ExternalLoginProvider.GitHub);
+
+    if (!userResult.IsSuccess)
+    {
+        throw new InvalidOperationException(userResult.ErrorMessage);
+    }
+
+    var user = userResult.Value!;
+    var ticket = _googleTicketService.CreateTicket(user.UserId);
+
+    var encodedTicket = Uri.EscapeDataString(ticket);
+
+    if (platform == "web")
+    {
+        var frontendUrl = Environment.GetEnvironmentVariable("FRONTENDURL")
+            ?? throw new InvalidOperationException("Frontend URL is missing.");
+
+        return Redirect(
+            $"{frontendUrl}/(auth)/github?ticket={encodedTicket}");
+    }
+
+    var frontendRedirect = Environment.GetEnvironmentVariable(
+        "GITHUBFRONTENDREDIRECT")
+        ?? throw new InvalidOperationException(
+            "GitHub frontend redirect URL is missing.");
+
+    return Redirect($"{frontendRedirect}?ticket={encodedTicket}");
+}
 }

@@ -1,4 +1,7 @@
+using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using DotNetEnv;
 using kanbanBackend.Data;
 using kanbanBackend.Hubs;
@@ -45,6 +48,7 @@ builder.Services.AddScoped<WorkspaceAuthService>();
 builder.Services.AddScoped<IEmailInterface, EmailService>();
 builder.Services.AddScoped<IEmailConfirmationInterface, EmailConfirmationService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddHttpClient();
 builder.Services.AddDataProtection();
 builder.Services.AddScoped<IGoogleTicketInterface, GoogleLoginTicketService>();
 builder.Services.AddHttpContextAccessor();
@@ -115,6 +119,59 @@ builder.Services
         options.Scope.Add("profile");
         options.Scope.Add("email");
         
+    })
+    .AddCookie("GitHubExternal")
+    .AddOAuth("GitHub", options =>
+    {
+        options.ClientId = Environment.GetEnvironmentVariable("GITHUBAUTHID")
+                           ?? throw new InvalidOperationException("GITHUBAUTHID is missing.");
+
+        options.ClientSecret = Environment.GetEnvironmentVariable("GITHUBAUTHSECRET")
+                               ?? throw new InvalidOperationException("GITHUBAUTHSECRET is missing.");
+        options.SignInScheme = "GitHubExternal";
+        options.CallbackPath = "/api/auth/github/callback";
+        options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
+        options.TokenEndpoint = "https://github.com/login/oauth/access_token";
+        options.UserInformationEndpoint = "https://api.github.com/user";
+        options.SaveTokens = true;
+        
+        options.Scope.Add("read:user");
+        options.Scope.Add("user:email");
+        options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+        options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+        options.ClaimActions.MapJsonKey("github_login", "login");
+        options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+        options.ClaimActions.MapJsonKey("picture", "avatar_url");
+
+        options.Events.OnCreatingTicket = async context =>
+        {
+            using var request = new HttpRequestMessage(
+                HttpMethod.Get,
+                context.Options.UserInformationEndpoint);
+
+            request.Headers.Authorization =
+                new AuthenticationHeaderValue(
+                    "Bearer", context.AccessToken);
+
+            request.Headers.Accept.Add(
+                new MediaTypeWithQualityHeaderValue(
+                    "application/vnd.github+json"));
+
+            request.Headers.UserAgent.ParseAdd("Kanban");
+
+            using var response = await context.Backchannel.SendAsync(
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                context.HttpContext.RequestAborted);
+
+            response.EnsureSuccessStatusCode();
+
+            using var user = JsonDocument.Parse(
+                await response.Content.ReadAsStringAsync(
+                    context.HttpContext.RequestAborted));
+
+            context.RunClaimActions(user.RootElement);
+        };
     });
 
 builder.Services.AddAuthorization();

@@ -16,15 +16,17 @@ public class AuthService : IAuthInterface
     private readonly IJwtInterface _jwtService;
     private readonly IEmailInterface _emailService;
     private readonly IEmailConfirmationInterface _emailConfirmationService;
+    private readonly IHttpClientFactory _httpClientFactory;
 
     public AuthService(KanbanDbContext context, IPasswordHasher<User> passwordHasher, IJwtInterface jwtService,
-        IEmailInterface emailService, IEmailConfirmationInterface emailConfirmationService)
+        IEmailInterface emailService, IEmailConfirmationInterface emailConfirmationService, IHttpClientFactory  httpClientFactory)
     {
         _context = context;
         _passwordHasher = passwordHasher;
         _jwtService = jwtService;
         _emailService = emailService;
         _emailConfirmationService = emailConfirmationService;
+        _httpClientFactory = httpClientFactory;
     }
 
     public async Task<RegistrationResponse> RegisterUser(RegisterRequest request)
@@ -77,6 +79,42 @@ public class AuthService : IAuthInterface
             Message =
                 $"Thank you for signing up {user.FirstName}! We have sent you a link to confirm your email address."
         };
+    }
+
+    public async Task<ModelResult<string>> ParseVerifiedGitHubEmail(string accessToken)
+    {
+        var client = _httpClientFactory.CreateClient();
+        
+        using var request = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/user/emails");
+        request.Headers
+            .Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+        request.Headers.Accept.ParseAdd("application/vnd.github+json");
+        request.Headers.UserAgent.ParseAdd("Kanban");
+
+        using var response = await client.SendAsync(request);
+        var failCode = ModelResult<string>.Failure(response.StatusCode.ToString());
+        if (!response.IsSuccessStatusCode)
+        {
+            return failCode;
+        }
+        
+        using var document = System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        foreach (var emailEntry in document.RootElement.EnumerateArray())
+        {
+            var isPrimary = emailEntry.TryGetProperty(
+                "primary", out var primary) && primary.GetBoolean();
+
+            var isVerified = emailEntry.TryGetProperty(
+                "verified", out var verified) && verified.GetBoolean();
+
+            if (isPrimary && isVerified &&
+                emailEntry.TryGetProperty("email", out var email))
+            {
+                return ModelResult<string>.Success(email.GetString()!);
+            }
+        }
+
+        return failCode;
     }
 
     public async Task<CredentialResponse?> Login(LoginRequest request)
@@ -132,15 +170,15 @@ public class AuthService : IAuthInterface
         return ModelResult<AuthResponse>.Success(response);
     }
 
-    public async Task<ModelResult<AuthResponse>> RegisterGoogleUser(
-        string googleUserId, string email, string? firstName, string? lastName,
-        string? profilePicture)
+    public async Task<ModelResult<AuthResponse>> RegisterExternalUser(
+        string externalUserId, string email, string? firstName, string? lastName,
+        string? profilePicture, ExternalLoginProvider provider)
     {
         var existingUser = await _context.ExternalLogins
             .Include(e => e.User)
             .FirstOrDefaultAsync(e =>
-                e.Provider == ExternalLoginProvider.Google &&
-                e.ProviderUserId == googleUserId);
+                e.Provider == provider &&
+                e.ProviderUserId == externalUserId);
         
         if (existingUser is not null)
         {
@@ -163,8 +201,8 @@ public class AuthService : IAuthInterface
             var linkExternalLogin = new ExternalLogin
             {
                 UserId = unlinkedUser.Id,
-                Provider = ExternalLoginProvider.Google,
-                ProviderUserId = googleUserId,
+                Provider = provider,
+                ProviderUserId = externalUserId,
                 User =  unlinkedUser
             };
             if (string.IsNullOrEmpty(unlinkedUser.ProfileImage) && !string.IsNullOrEmpty(profilePicture))
@@ -220,8 +258,8 @@ public class AuthService : IAuthInterface
         var externalLogin = new ExternalLogin
         {
             UserId = newUser.Id,
-            Provider = ExternalLoginProvider.Google,
-            ProviderUserId = googleUserId,
+            Provider = provider,
+            ProviderUserId = externalUserId,
             User = newUser
         };
         _context.ExternalLogins.Add(externalLogin);
