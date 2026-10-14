@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
     ActivityIndicator,
-    Image,
+    Image, Platform,
     Pressable,
     Text,
     View
@@ -29,6 +29,11 @@ export default function GoogleAuthButton({
 
     const handleGoogleLogin = async () => {
         onError("");
+
+        if(Platform.OS === "web") {
+            window.location.assign(`${googleLoginUrl}?platform=web`);
+            return;
+        }
 
         try {
             setIsGoogleLoading(true);

@@ -6,6 +6,7 @@ using kanbanBackend.Models;
 using kanbanBackend.Services.Auth;
 using kanbanBackend.Services.Auth.Interfaces;
 using kanbanBackend.Services.Dashboard;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -103,6 +104,7 @@ builder.Services
         options.Authority = "https://accounts.google.com";
         options.ClientId = Environment.GetEnvironmentVariable("GOOGLEAUTHID");
         options.ClientSecret = Environment.GetEnvironmentVariable("GOOGLEAUTHSECRET");
+        options.SignInScheme = "GoogleExternal";
         options.ResponseType = OpenIdConnectResponseType.Code;
         options.UsePkce = true;
         options.CallbackPath = "/api/auth/google/callback";
@@ -112,6 +114,7 @@ builder.Services
         options.Scope.Add("openid");
         options.Scope.Add("profile");
         options.Scope.Add("email");
+        
     });
 
 builder.Services.AddAuthorization();

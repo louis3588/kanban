@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using kanbanBackend.DTOs.Auth;
 using kanbanBackend.Services.Auth;
 using kanbanBackend.Services.Auth.Interfaces;
@@ -49,15 +50,18 @@ public class AuthController : ControllerBase
         
         return Ok(response);
     }
-    
     [AllowAnonymous]
     [HttpGet("google")]
-    public IActionResult GoogleLogin()
+    public IActionResult GoogleLogin([FromQuery] string? platform)
     {
+        var isWeb = platform == "web";
+
         return Challenge(
             new AuthenticationProperties
             {
-                RedirectUri = "/api/auth/google/complete"
+                RedirectUri = isWeb
+                    ? "/api/auth/google/complete?platform=web"
+                    : "/api/auth/google/complete"
             },
             "Google"
         );
@@ -99,13 +103,23 @@ public class AuthController : ControllerBase
                 message = "Google authentication failed."
             });
         }
-
         var principal = result.Principal;
+        var googleId =
+            principal.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? principal.FindFirst("sub")?.Value;
 
-        var googleId = principal.FindFirst("sub")?.Value;
-        var email = principal.FindFirst("email")?.Value;
-        var firstName = principal.FindFirst("given_name")?.Value;
-        var lastName = principal.FindFirst("family_name")?.Value;
+        var email =
+            principal.FindFirst(ClaimTypes.Email)?.Value
+            ?? principal.FindFirst("email")?.Value;
+
+        var firstName =
+            principal.FindFirst(ClaimTypes.GivenName)?.Value
+            ?? principal.FindFirst("given_name")?.Value;
+
+        var lastName =
+            principal.FindFirst(ClaimTypes.Surname)?.Value
+            ?? principal.FindFirst("family_name")?.Value;
+
         var profilePicture = principal.FindFirst("picture")?.Value;
 
         if (string.IsNullOrWhiteSpace(googleId) ||
@@ -136,11 +150,22 @@ public class AuthController : ControllerBase
 
             var user = response.Value!;
             var ticket = _googleTicketService.CreateTicket(user.UserId);
-            var frontendRedirect =
-                Environment.GetEnvironmentVariable("GOOGLEFRONTENDREDIRECT")
-                ?? throw new InvalidOperationException("Google frontend redirect is missing.");
-            var redirectUrl = $"{frontendRedirect}?ticket={Uri.EscapeDataString(ticket)}";
-            
+            var isWeb = Request.Query["platform"] == "web";
+            var frontendUrl = Environment.GetEnvironmentVariable("FRONTENDURL");
+            var webRedirect = $"{frontendUrl}/(auth)/google";
+            var frontendRedirect = isWeb
+                ? webRedirect
+                : Environment.GetEnvironmentVariable("GOOGLEFRONTENDREDIRECT");
+
+            if (string.IsNullOrWhiteSpace(frontendRedirect))
+            {
+                throw new InvalidOperationException(
+                    "Google frontend redirect is missing."
+                );
+            }
+
+            var redirectUrl =
+                $"{frontendRedirect}?ticket={Uri.EscapeDataString(ticket)}";
 
             return Redirect(redirectUrl);
         }

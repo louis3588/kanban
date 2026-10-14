@@ -155,14 +155,35 @@ public class AuthService : IAuthInterface
             };
             return ModelResult<AuthResponse>.Success(response);
         }
-        
-        var emailExists = await _context.Users
-            .AnyAsync(u => u.Email.ToLower() == email.ToLower());
-
-        if (emailExists)
+        var unlinkedUser = await _context.Users
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+        if (unlinkedUser is not null)
         {
-            return ModelResult<AuthResponse>.Failure("An account with this email already exists. Please sign in " +
-                                                     "using your existing account and link your Google account.");
+            //links existing users with their Google id
+            var linkExternalLogin = new ExternalLogin
+            {
+                UserId = unlinkedUser.Id,
+                Provider = ExternalLoginProvider.Google,
+                ProviderUserId = googleUserId,
+                User =  unlinkedUser
+            };
+            if (string.IsNullOrEmpty(unlinkedUser.ProfileImage) && !string.IsNullOrEmpty(profilePicture))
+            {
+                unlinkedUser.ProfileImage = profilePicture;
+                await _context.SaveChangesAsync();
+            }
+            
+            _context.ExternalLogins.Add(linkExternalLogin);
+            await _context.SaveChangesAsync();
+            var linkedUserResponse = new AuthResponse
+            {
+                Token = _jwtService.GenerateToken(unlinkedUser),
+                UserId = unlinkedUser.Id,
+                FirstName = unlinkedUser.FirstName,
+                LastName = unlinkedUser.LastName,
+                Email = unlinkedUser.Email,
+            };
+            return ModelResult<AuthResponse>.Success(linkedUserResponse);
         }
         
         var username = email.Split('@')[0];
@@ -200,7 +221,8 @@ public class AuthService : IAuthInterface
         {
             UserId = newUser.Id,
             Provider = ExternalLoginProvider.Google,
-            ProviderUserId = googleUserId
+            ProviderUserId = googleUserId,
+            User = newUser
         };
         _context.ExternalLogins.Add(externalLogin);
         await _context.SaveChangesAsync();
