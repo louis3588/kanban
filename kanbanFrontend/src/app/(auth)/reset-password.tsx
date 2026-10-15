@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import {router, useLocalSearchParams} from "expo-router";
 
-import Alert from "@/components/Alert";
+import Alert from "@/components/ui/Alert";
 import {resetPasswordApi} from "@/client/api/apiClient";
 
 export default function ResetPasswordScreen() {

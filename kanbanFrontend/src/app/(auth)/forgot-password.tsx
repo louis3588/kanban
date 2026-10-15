@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import {router} from "expo-router";
 
-import Alert from "@/components/Alert";
+import Alert from "@/components/ui/Alert";
 import {passwordResetApi} from "@/client/api/apiClient";
 import {Image} from "expo-image";
 

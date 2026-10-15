@@ -1,7 +1,9 @@
+
 import { useState } from "react";
 import {
     ActivityIndicator,
-    Image, Platform,
+    Image,
+    Platform,
     Pressable,
     Text,
     View
@@ -11,37 +13,41 @@ import * as Linking from "expo-linking";
 import { router } from "expo-router";
 
 import { useAuth } from "@/context/AuthContext";
-import { googleLoginUrl, googleLoginClient } from "@/client/api/apiClient";
+import {
+    githubLoginUrl,
+    githubLoginClient
+} from "@/client/api/apiClient";
+import { SvgUri } from "react-native-svg";
 
-type GoogleAuthButtonProps = {
+type GitHubAuthButtonProps = {
     isLogin: boolean;
     isLoading?: boolean;
     onError: (message: string) => void;
 };
 
-export default function GoogleAuthButton({
-    isLogin,
-    isLoading = false,
-    onError
-}: GoogleAuthButtonProps) {
+export default function GitHubAuthButton({
+                                             isLogin,
+                                             isLoading = false,
+                                             onError
+                                         }: GitHubAuthButtonProps) {
     const { login } = useAuth();
-    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+    const [isGitHubLoading, setIsGitHubLoading] = useState(false);
 
-    const handleGoogleLogin = async () => {
+    const handleGitHubLogin = async () => {
         onError("");
 
-        if(Platform.OS === "web") {
-            window.location.assign(`${googleLoginUrl}?platform=web`);
+        if (Platform.OS === "web") {
+            window.location.assign(`${githubLoginUrl}?platform=web`);
             return;
         }
 
         try {
-            setIsGoogleLoading(true);
+            setIsGitHubLoading(true);
 
-            const redirectUrl = "kanbanfrontend://auth/google";
+            const redirectUrl = "kanbanfrontend://auth/github";
 
             const result = await WebBrowser.openAuthSessionAsync(
-                googleLoginUrl,
+                githubLoginUrl,
                 redirectUrl
             );
 
@@ -53,7 +59,7 @@ export default function GoogleAuthButton({
                     return;
                 }
 
-                throw new Error("Google sign-in did not complete.");
+                throw new Error("GitHub sign-in did not complete.");
             }
 
             const parsedUrl = Linking.parse(result.url);
@@ -61,11 +67,11 @@ export default function GoogleAuthButton({
 
             if (typeof ticket !== "string" || !ticket) {
                 throw new Error(
-                    "Google sign-in did not return a valid login ticket."
+                    "GitHub sign-in did not return a valid login ticket."
                 );
             }
 
-            const response = await googleLoginClient(ticket);
+            const response = await githubLoginClient(ticket);
 
             login(response.token, {
                 id: Number.parseInt(response.userId, 10),
@@ -80,36 +86,35 @@ export default function GoogleAuthButton({
             onError(
                 e instanceof Error
                     ? e.message
-                    : "Something went wrong while signing in with Google."
+                    : "Something went wrong while signing in with GitHub."
             );
         } finally {
-            setIsGoogleLoading(false);
+            setIsGitHubLoading(false);
         }
     };
 
     return (
         <>
             <Pressable
-                onPress={handleGoogleLogin}
-                disabled={isLoading || isGoogleLoading}
+                onPress={handleGitHubLogin}
+                disabled={isLoading || isGitHubLoading}
                 style={({ pressed }) => [
                     { opacity: pressed ? 0.8 : 1 }
                 ]}
                 className="mb-5 w-[100%] flex-row items-center justify-center rounded-xl border border-theme-border bg-theme-surface px-[5%] py-4 shadow-sm"
             >
-                {isGoogleLoading ? (
+                {isGitHubLoading ? (
                     <ActivityIndicator
                         size="small"
                         className="py-0.5"
                     />
                 ) : (
                     <View className="w-[100%] flex-row items-center justify-center">
-                        <Image
-                            source={{
-                                uri: "https://freepngimg.com/thumb/google/66904-logo-now-google-plus-home-free-png-hq.png"
-                            }}
+                        <SvgUri
+                            uri="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg"
                             style={{
                                 width: "8%",
+                                height: "auto",
                                 aspectRatio: 1
                             }}
                             className="mr-[4%]"
@@ -117,24 +122,13 @@ export default function GoogleAuthButton({
 
                         <Text className="text-center font-medium text-theme-text text-base">
                             {isLogin
-                                ? "Continue with Google"
-                                : "Register with Google"}
+                                ? "Continue with GitHub"
+                                : "Register with GitHub"}
                         </Text>
                     </View>
                 )}
             </Pressable>
 
-            <View className="mb-5 flex-row items-center">
-                <View className="h-px flex-1 bg-theme-border" />
-
-                <Text className="mx-4 text-sm text-theme-textMuted">
-                    {isLogin
-                        ? "Or sign in with email"
-                        : "Or register with email"}
-                </Text>
-
-                <View className="h-px flex-1 bg-theme-border" />
-            </View>
         </>
     );
 }

@@ -70,6 +70,7 @@ public class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("google/exchange")]
+    [HttpPost("github/exchange")]
     public async Task<ActionResult<AuthResponse>> ExchangeGoogleLogin(ExternalLoginExchangeRequest request)
     {
         try
@@ -179,7 +180,6 @@ public class AuthController : ControllerBase
         }
     }
     
-    
     [AllowAnonymous]
 [HttpGet("github")]
 public IActionResult GitHubLogin([FromQuery] string? platform)
@@ -199,90 +199,90 @@ public IActionResult GitHubLogin([FromQuery] string? platform)
         "GitHub");
 }
 
-[AllowAnonymous]
-[HttpGet("github/complete")]
-public async Task<IActionResult> GitHubComplete(
-    [FromQuery] string? platform)
-{
-    var result = await HttpContext.AuthenticateAsync("GitHubExternal");
-
-    if (!result.Succeeded || result.Principal is null)
+    [AllowAnonymous]
+    [HttpGet("github/complete")]
+    public async Task<IActionResult> GitHubComplete(
+        [FromQuery] string? platform)
     {
-        return Unauthorized("GitHub authentication failed.");
+        var result = await HttpContext.AuthenticateAsync("GitHubExternal");
+
+        if (!result.Succeeded || result.Principal is null)
+        {
+            return Unauthorized("GitHub authentication failed.");
+        }
+
+        var principal = result.Principal;
+
+        var githubUserId = principal
+            .FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)
+            ?.Value;
+
+        var accessToken = result.Properties?.GetTokenValue("access_token");
+
+        if (string.IsNullOrWhiteSpace(githubUserId) ||
+            string.IsNullOrWhiteSpace(accessToken))
+        {
+            return Unauthorized("GitHub identity or access token is missing.");
+        }
+
+        var emailResponse = await _authService.ParseVerifiedGitHubEmail(accessToken);
+        if (!emailResponse.IsSuccess)
+        {
+            return BadRequest(
+                $"We could not connect to GitHub with these credentials, error code {emailResponse.ErrorMessage}");
+        }
+
+        var email = emailResponse.Value!;
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return BadRequest(
+                "Your GitHub account must have a primary, verified email address.");
+        }
+
+        var displayName = principal
+            .FindFirst(System.Security.Claims.ClaimTypes.Name)
+            ?.Value;
+
+        var nameParts = displayName?
+            .Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+
+        var firstName = nameParts?.FirstOrDefault();
+        var lastName = nameParts?.Skip(1).FirstOrDefault();
+
+        var profilePicture = principal.FindFirst("picture")?.Value;
+
+        var userResult = await _authService.RegisterExternalUser(
+            githubUserId,
+            email,
+            firstName,
+            lastName,
+            profilePicture,
+            ExternalLoginProvider.GitHub);
+
+        if (!userResult.IsSuccess)
+        {
+            throw new InvalidOperationException(userResult.ErrorMessage);
+        }
+
+        var user = userResult.Value!;
+        var ticket = _googleTicketService.CreateTicket(user.UserId);
+
+        var encodedTicket = Uri.EscapeDataString(ticket);
+
+        if (platform == "web")
+        {
+            var frontendUrl = Environment.GetEnvironmentVariable("FRONTENDURL")
+                ?? throw new InvalidOperationException("Frontend URL is missing.");
+
+            return Redirect(
+                $"{frontendUrl}/(auth)/github?ticket={encodedTicket}");
+        }
+
+        var frontendRedirect = Environment.GetEnvironmentVariable(
+            "GITHUBFRONTENDREDIRECT")
+            ?? throw new InvalidOperationException(
+                "GitHub frontend redirect URL is missing.");
+
+        return Redirect($"{frontendRedirect}?ticket={encodedTicket}");
     }
-
-    var principal = result.Principal;
-
-    var githubUserId = principal
-        .FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)
-        ?.Value;
-
-    var accessToken = result.Properties?.GetTokenValue("access_token");
-
-    if (string.IsNullOrWhiteSpace(githubUserId) ||
-        string.IsNullOrWhiteSpace(accessToken))
-    {
-        return Unauthorized("GitHub identity or access token is missing.");
-    }
-
-    var emailResponse = await _authService.ParseVerifiedGitHubEmail(accessToken);
-    if (!emailResponse.IsSuccess)
-    {
-        return BadRequest(
-            $"We could not connect to GitHub with these credentials, error code {emailResponse.ErrorMessage}");
-    }
-
-    var email = emailResponse.Value!;
-    if (string.IsNullOrWhiteSpace(email))
-    {
-        return BadRequest(
-            "Your GitHub account must have a primary, verified email address.");
-    }
-
-    var displayName = principal
-        .FindFirst(System.Security.Claims.ClaimTypes.Name)
-        ?.Value;
-
-    var nameParts = displayName?
-        .Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
-
-    var firstName = nameParts?.FirstOrDefault();
-    var lastName = nameParts?.Skip(1).FirstOrDefault();
-
-    var profilePicture = principal.FindFirst("picture")?.Value;
-
-    var userResult = await _authService.RegisterExternalUser(
-        githubUserId,
-        email,
-        firstName,
-        lastName,
-        profilePicture,
-        ExternalLoginProvider.GitHub);
-
-    if (!userResult.IsSuccess)
-    {
-        throw new InvalidOperationException(userResult.ErrorMessage);
-    }
-
-    var user = userResult.Value!;
-    var ticket = _googleTicketService.CreateTicket(user.UserId);
-
-    var encodedTicket = Uri.EscapeDataString(ticket);
-
-    if (platform == "web")
-    {
-        var frontendUrl = Environment.GetEnvironmentVariable("FRONTENDURL")
-            ?? throw new InvalidOperationException("Frontend URL is missing.");
-
-        return Redirect(
-            $"{frontendUrl}/(auth)/github?ticket={encodedTicket}");
-    }
-
-    var frontendRedirect = Environment.GetEnvironmentVariable(
-        "GITHUBFRONTENDREDIRECT")
-        ?? throw new InvalidOperationException(
-            "GitHub frontend redirect URL is missing.");
-
-    return Redirect($"{frontendRedirect}?ticket={encodedTicket}");
-}
 }
