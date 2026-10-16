@@ -6,6 +6,7 @@ using DotNetEnv;
 using kanbanBackend.Data;
 using kanbanBackend.Hubs;
 using kanbanBackend.Models;
+using kanbanBackend.Services;
 using kanbanBackend.Services.Auth;
 using kanbanBackend.Services.Auth.Interfaces;
 using kanbanBackend.Services.Dashboard;
@@ -47,6 +48,7 @@ builder.Services.AddScoped<WorkspaceService>();
 builder.Services.AddScoped<WorkspaceAuthService>();
 builder.Services.AddScoped<IEmailInterface, EmailService>();
 builder.Services.AddScoped<IEmailConfirmationInterface, EmailConfirmationService>();
+builder.Services.AddSingleton<IEmailTemplateUtil, EmailTemplateUtil>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddHttpClient();
 builder.Services.AddDataProtection();
@@ -113,12 +115,12 @@ builder.Services
         options.UsePkce = true;
         options.CallbackPath = "/api/auth/google/callback";
         options.SaveTokens = false;
-        
+
         options.Scope.Clear();
         options.Scope.Add("openid");
         options.Scope.Add("profile");
         options.Scope.Add("email");
-        
+
     })
     .AddCookie("GitHubExternal")
     .AddOAuth("GitHub", options =>
@@ -134,7 +136,7 @@ builder.Services
         options.TokenEndpoint = "https://github.com/login/oauth/access_token";
         options.UserInformationEndpoint = "https://api.github.com/user";
         options.SaveTokens = true;
-        
+
         options.Scope.Add("read:user");
         options.Scope.Add("user:email");
         options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
@@ -172,7 +174,25 @@ builder.Services
 
             context.RunClaimActions(user.RootElement);
         };
+    })
+    .AddCookie("MicrosoftExternal")
+    .AddOpenIdConnect("Microsoft", options =>
+    {
+        options.Authority = "https://login.microsoftonline.com/common/v2.0";
+        options.ClientId = Environment.GetEnvironmentVariable("MICROSOFTAUTHID")!;
+        options.ClientSecret = Environment.GetEnvironmentVariable("MICROSOFTAUTHSECRET")!;
+        options.SignInScheme = "MicrosoftExternal";
+        options.CallbackPath = "/api/auth/microsoft/callback";
+        options.ResponseType = OpenIdConnectResponseType.Code;
+        options.UsePkce = true;
+        options.SaveTokens = false;
+
+        options.Scope.Clear();
+        options.Scope.Add("openid");
+        options.Scope.Add("profile");
+        options.Scope.Add("email");
     });
+    
 
 builder.Services.AddAuthorization();
 

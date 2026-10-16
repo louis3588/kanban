@@ -28,5 +28,9 @@
         <EmbeddedResource Remove="kanbanBackend.Tests/**/*" />
         <None Remove="kanbanBackend.Tests/**/*" />
     </ItemGroup>
-
+    <ItemGroup>
+  	<Content Update="EmailTemplates\**\*.html">
+    	   <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    	</Content>
+    </ItemGroup>
 </Project>

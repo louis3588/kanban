@@ -17,9 +17,10 @@ public class EmailService :  IEmailInterface
     private readonly string _password;
     private readonly KanbanDbContext _dbContext;
     private readonly IPasswordHasher<User> _passwordHasher;
+    private readonly IEmailTemplateUtil _emailTemplateService;
 
     public EmailService(KanbanDbContext  dbContext,
-        IPasswordHasher<User> passwordHasher)
+        IPasswordHasher<User> passwordHasher, IEmailTemplateUtil emailTemplateUtil)
     {
         _email = Environment.GetEnvironmentVariable("EMAILADDRESS")
             ?? throw new InvalidOperationException(
@@ -33,6 +34,7 @@ public class EmailService :  IEmailInterface
 
         _dbContext = dbContext;
         _passwordHasher =  passwordHasher;
+        _emailTemplateService = emailTemplateUtil;
     }
 
     public async Task<ModelResult<UserProfileResponse>> UpdatePassword(int userId, string password)
@@ -131,6 +133,33 @@ public class EmailService :  IEmailInterface
             HtmlBody = body
         }.ToMessageBody();
         
+        using var smtp = new SmtpClient();
+        await smtp.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+        await smtp.AuthenticateAsync(_email, _password);
+        await smtp.SendAsync(message);
+        await smtp.DisconnectAsync(true);
+    }
+
+    public async Task SendMicrosoftLinkConfirmationAsync(string recipientEmail, string confirmationUrl,
+        string? firstName = null)
+    {
+        var body = await _emailTemplateService.RenderAsync("MicrosoftLinkConfirmation.html",
+            new Dictionary<string, string>
+            {
+                ["FirstName"] = string.IsNullOrWhiteSpace(firstName)
+                    ? "there"
+                    : firstName,
+                ["ConfirmationUrl"] = confirmationUrl
+            });
+        
+        var message = new MimeMessage();
+        message.From.Add(new MailboxAddress("Kanban", _email));
+        message.To.Add(MailboxAddress.Parse(recipientEmail));
+        message.Subject = "You requested to link your Microsoft account to your new Kanban account";
+        message.Body = new BodyBuilder
+        {
+            HtmlBody = body
+        }.ToMessageBody();
         using var smtp = new SmtpClient();
         await smtp.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
         await smtp.AuthenticateAsync(_email, _password);

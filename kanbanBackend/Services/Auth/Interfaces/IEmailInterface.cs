@@ -9,4 +9,7 @@ public interface IEmailInterface
     Task<ModelResult<bool>> PasswordReset(string email);
 
     Task<ModelResult<UserProfileResponse>> UpdatePassword(int userId, string password);
+
+    Task SendMicrosoftLinkConfirmationAsync(string recipientEmail, string confirmationUrl,
+        string? firstName = null);
 }
