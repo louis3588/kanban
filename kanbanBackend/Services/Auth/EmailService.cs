@@ -17,7 +17,7 @@ public class EmailService :  IEmailInterface
     private readonly string _password;
     private readonly KanbanDbContext _dbContext;
     private readonly IPasswordHasher<User> _passwordHasher;
-    private readonly IEmailTemplateUtil _emailTemplateService;
+    private readonly IEmailTemplateUtil _emailTemplateUtil;
 
     public EmailService(KanbanDbContext  dbContext,
         IPasswordHasher<User> passwordHasher, IEmailTemplateUtil emailTemplateUtil)
@@ -34,7 +34,7 @@ public class EmailService :  IEmailInterface
 
         _dbContext = dbContext;
         _passwordHasher =  passwordHasher;
-        _emailTemplateService = emailTemplateUtil;
+        _emailTemplateUtil = emailTemplateUtil;
     }
 
     public async Task<ModelResult<UserProfileResponse>> UpdatePassword(int userId, string password)
@@ -98,52 +98,13 @@ public class EmailService :  IEmailInterface
         return ModelResult<bool>.Success(true);
     }
 
-    public async Task SendEmailConfirmationAsync(string recipientEmail, string confirmationUrl, String firstName = null)
+    public async Task SendEmailConfirmationAsync(
+    string recipientEmail,
+    string confirmationUrl,
+    string? firstName = null)
     {
-        var message = new MimeMessage();
-        
-        message.From.Add(new MailboxAddress("Kanban", _email));
-        message.To.Add(MailboxAddress.Parse(recipientEmail));
-        
-        message.Subject = "Hey! Please confirm your account!";
-        var body = ConfirmEmailBody(firstName, confirmationUrl);
-        message.Body = new BodyBuilder
-        {
-            HtmlBody = body
-        }.ToMessageBody();
-
-        using var smtp = new SmtpClient();
-        await smtp.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-        await smtp.AuthenticateAsync(_email, _password);
-        await smtp.SendAsync(message);
-        await smtp.DisconnectAsync(true);
-    }
-
-    private async Task SendForgotPasswordAsync(User user, String resetPasswordUrl)
-    {
-        var message = new MimeMessage();
-        
-        message.From.Add(new MailboxAddress("Kanban", _email));
-        message.To.Add(MailboxAddress.Parse(user.Email));
-        message.Subject = "Password reset request for your Kanban account";
-        
-        var body = ForgotPasswordBody(user.FirstName, resetPasswordUrl);
-        message.Body = new BodyBuilder
-        {
-            HtmlBody = body
-        }.ToMessageBody();
-        
-        using var smtp = new SmtpClient();
-        await smtp.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-        await smtp.AuthenticateAsync(_email, _password);
-        await smtp.SendAsync(message);
-        await smtp.DisconnectAsync(true);
-    }
-
-    public async Task SendMicrosoftLinkConfirmationAsync(string recipientEmail, string confirmationUrl,
-        string? firstName = null)
-    {
-        var body = await _emailTemplateService.RenderAsync("MicrosoftLinkConfirmation.html",
+        var body = await _emailTemplateUtil.RenderAsync(
+            "ConfirmEmail.html",
             new Dictionary<string, string>
             {
                 ["FirstName"] = string.IsNullOrWhiteSpace(firstName)
@@ -151,17 +112,76 @@ public class EmailService :  IEmailInterface
                     : firstName,
                 ["ConfirmationUrl"] = confirmationUrl
             });
-        
+
+        await SendHtmlEmailAsync(
+            recipientEmail,
+            "Hey! Please confirm your account!",
+            body);
+    }
+
+    private async Task SendForgotPasswordAsync(
+        User user,
+        string resetPasswordUrl)
+    {
+        var body = await _emailTemplateUtil.RenderAsync(
+            "ForgotPassword.html",
+            new Dictionary<string, string>
+            {
+                ["FirstName"] = string.IsNullOrWhiteSpace(user.FirstName)
+                    ? "there"
+                    : user.FirstName,
+                ["ResetPasswordUrl"] = resetPasswordUrl
+            });
+
+        await SendHtmlEmailAsync(
+            user.Email,
+            "Password reset request for your Kanban account",
+            body);
+    }
+
+    public async Task SendMicrosoftLinkConfirmationAsync(
+        string recipientEmail,
+        string confirmationUrl,
+        string? firstName = null)
+    {
+        var body = await _emailTemplateUtil.RenderAsync(
+            "MicrosoftLinkConfirmation.html",
+            new Dictionary<string, string>
+            {
+                ["FirstName"] = string.IsNullOrWhiteSpace(firstName)
+                    ? "there"
+                    : firstName,
+                ["ConfirmationUrl"] = confirmationUrl
+            });
+
+        await SendHtmlEmailAsync(
+            recipientEmail,
+            "You requested to link your Microsoft account to your Kanban account",
+            body);
+    }
+
+    private async Task SendHtmlEmailAsync(
+        string recipientEmail,
+        string subject,
+        string htmlBody)
+    {
         var message = new MimeMessage();
+
         message.From.Add(new MailboxAddress("Kanban", _email));
         message.To.Add(MailboxAddress.Parse(recipientEmail));
-        message.Subject = "You requested to link your Microsoft account to your new Kanban account";
+        message.Subject = subject;
         message.Body = new BodyBuilder
         {
-            HtmlBody = body
+            HtmlBody = htmlBody
         }.ToMessageBody();
+
         using var smtp = new SmtpClient();
-        await smtp.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+
+        await smtp.ConnectAsync(
+            "smtp.gmail.com",
+            587,
+            SecureSocketOptions.StartTls);
+
         await smtp.AuthenticateAsync(_email, _password);
         await smtp.SendAsync(message);
         await smtp.DisconnectAsync(true);
