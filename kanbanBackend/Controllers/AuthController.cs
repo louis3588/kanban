@@ -108,8 +108,11 @@ public class AuthController : ControllerBase
         var claims = result.Principal.Claims;
 
         var microsoftUserId =
-            claims.FirstOrDefault(c => c.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value
-            ?? claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+            claims.FirstOrDefault(c => c.Type == "oid")?.Value
+            ?? claims.FirstOrDefault(c =>
+                c.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value
+            ?? claims.FirstOrDefault(c =>
+                c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
             ?? claims.FirstOrDefault(c => c.Type == "sub")?.Value;
 
         var email = claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value
@@ -212,21 +215,17 @@ public class AuthController : ControllerBase
             });
         }
         var principal = result.Principal;
-        var googleId =
-            principal.FindFirst(ClaimTypes.NameIdentifier)?.Value
-            ?? principal.FindFirst("sub")?.Value;
+        var googleId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                       ?? principal.FindFirst("sub")?.Value;
 
-        var email =
-            principal.FindFirst(ClaimTypes.Email)?.Value
-            ?? principal.FindFirst("email")?.Value;
+        var email = principal.FindFirst(ClaimTypes.Email)?.Value
+                    ?? principal.FindFirst("email")?.Value;
 
-        var firstName =
-            principal.FindFirst(ClaimTypes.GivenName)?.Value
-            ?? principal.FindFirst("given_name")?.Value;
+        var firstName = principal.FindFirst(ClaimTypes.GivenName)?.Value
+                        ?? principal.FindFirst("given_name")?.Value;
 
-        var lastName =
-            principal.FindFirst(ClaimTypes.Surname)?.Value
-            ?? principal.FindFirst("family_name")?.Value;
+        var lastName = principal.FindFirst(ClaimTypes.Surname)?.Value
+                       ?? principal.FindFirst("family_name")?.Value;
 
         var profilePicture = principal.FindFirst("picture")?.Value;
 
