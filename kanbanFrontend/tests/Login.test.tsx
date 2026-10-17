@@ -5,6 +5,7 @@ import Login from "../src/app/(auth)/login";
 import { loginClient } from "@/client/api/apiClient";
 import { useAuth } from "@/context/AuthContext";
 import {router} from "expo-router";
+import {Pressable, Text} from "react-native";
 
 const mockReplace = jest.fn();
 const mockLogin = jest.fn();
@@ -21,6 +22,42 @@ jest.mock("@/client/api/apiClient", () => ({
 jest.mock("../src/context/AuthContext", () => ({
     useAuth: jest.fn(),
 }));
+
+jest.mock("@/components/ui/GoogleAuthButton", () => {
+    const { Text, Pressable } = require("react-native");
+
+    return function MockGoogleAuthButton() {
+        return (
+            <Pressable>
+                <Text>Continue with Google</Text>
+            </Pressable>
+        );
+    };
+});
+
+jest.mock("@/components/ui/MicrosoftAuthButton", () => {
+    const { Text, Pressable } = require("react-native");
+
+    return function MockGoogleAuthButton() {
+        return (
+            <Pressable>
+                <Text>Continue with Google</Text>
+            </Pressable>
+        );
+    };
+});
+
+jest.mock("@/components/ui/GitHubAuthButton", () => {
+    const { Text, Pressable } = require("react-native");
+
+    return function MockGoogleAuthButton() {
+        return (
+            <Pressable>
+                <Text>Continue with Google</Text>
+            </Pressable>
+        );
+    };
+});
 
 const mockedLoginClient = loginClient as jest.MockedFunction<typeof loginClient>;
 const mockedUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
