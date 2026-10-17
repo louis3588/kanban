@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Validators;
 using Microsoft.OpenApi.Models;
 
 Env.Load();
@@ -180,13 +181,16 @@ builder.Services
     {
         options.Authority = "https://login.microsoftonline.com/common/v2.0";
         options.ClientId = Environment.GetEnvironmentVariable("MICROSOFTAUTHID")!;
-        options.ClientSecret = Environment.GetEnvironmentVariable("MICROSOFTAUTHSECRET")!;
+        options.ClientSecret = Environment.GetEnvironmentVariable("MICROSOFTAUTHSECRETVALUE")!;
         options.SignInScheme = "MicrosoftExternal";
         options.CallbackPath = "/api/auth/microsoft/callback";
         options.ResponseType = OpenIdConnectResponseType.Code;
         options.UsePkce = true;
         options.SaveTokens = false;
 
+        var validator = AadIssuerValidator.GetAadIssuerValidator(options.Authority);
+        options.TokenValidationParameters.IssuerValidator = validator.Validate;
+        
         options.Scope.Clear();
         options.Scope.Add("openid");
         options.Scope.Add("profile");
