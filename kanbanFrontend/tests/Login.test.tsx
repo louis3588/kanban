@@ -40,7 +40,7 @@ describe("Login", () => {
 
         expect(getByText("Welcome back")).toBeTruthy();
         expect(
-            getByText("Log in to continue to your workspace.")
+            getByText("Sign in with your preferred account.")
         ).toBeTruthy();
 
         expect(getByPlaceholderText("Email or Username")).toBeTruthy();

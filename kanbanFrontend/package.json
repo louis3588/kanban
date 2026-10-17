@@ -13,7 +13,10 @@
     "test": "jest"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "setupFiles": [
+      "./jest.setup.ts"
+    ]
   },
   "dependencies": {
     "@expo/ui": "~57.0.21",
