@@ -107,6 +107,57 @@ export async function githubLoginClient(
 }
 
 
+export const microsoftLoginUrl = `${BASE_URL}/api/Auth/microsoft`;
+
+export async function microsoftLoginClient(
+    ticket: string
+): Promise<AuthResponse> {
+    const response = await fetch(`${microsoftLoginUrl}/exchange`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ticket }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data?.message ?? "Unable to complete Microsoft sign-in."
+        );
+    }
+
+    return data as AuthResponse;
+}
+
+export async function confirmMicrosoftLink(
+    token: string
+): Promise<AuthResponse> {
+    const response = await fetch(
+        `${BASE_URL}/api/Auth/microsoft/confirm-link`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ token }),
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data?.message ??
+            "The Microsoft account-link confirmation is invalid or has expired."
+        );
+    }
+
+    return data as AuthResponse;
+}
+
+
 export async function registerClient(
     username: string,
     firstName: string,

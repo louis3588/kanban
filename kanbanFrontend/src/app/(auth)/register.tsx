@@ -10,6 +10,7 @@ import { registerClient as registerApi } from "@/client/api/apiClient";
 import {Image} from "expo-image";
 import GoogleAuthButton from "@/components/ui/GoogleAuthButton";
 import GitHubAuthButton from "@/components/ui/GitHubAuthButton";
+import MicrosoftAuthButton from "@/components/ui/MicrosoftAuthButton";
 
 export default function RegisterScreen() {
     const [username, setUsername] = useState("");
@@ -165,6 +166,12 @@ export default function RegisterScreen() {
                                 isLogin={false}
                                 isLoading={isLoading}
                                 onError={setError}
+                            />
+
+                            <MicrosoftAuthButton
+                                isLogin={false}
+                                isLoading={isLoading}
+                                setError={setError}
                             />
 
                             <View className="my-6 flex-row items-center">

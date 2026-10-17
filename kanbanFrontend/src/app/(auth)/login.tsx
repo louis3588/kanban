@@ -16,6 +16,7 @@ import {router} from "expo-router";
 import {Image} from "expo-image";
 import GoogleAuthButton from "@/components/ui/GoogleAuthButton";
 import GitHubAuthButton from "@/components/ui/GitHubAuthButton";
+import MicrosoftAuthButton from "@/components/ui/MicrosoftAuthButton";
 
 export default function Login() {
     const {login} = useAuth();
@@ -115,9 +116,13 @@ export default function Login() {
                                 onError={setError}
                             />
 
+                            <MicrosoftAuthButton
+                                isLogin={true}
+                                setError={setError}
+                            />
+
                         </View>
 
-                        {/* Right: email and password login */}
                         <View className="w-full p-6 sm:p-8 md:w-[70%] md:p-10">
                             <Text className="mb-2 text-sm font-bold text-theme-text">
                                 Email/Username
