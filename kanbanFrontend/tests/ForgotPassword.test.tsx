@@ -23,7 +23,7 @@ jest.mock("../src/client/api/apiClient", () => ({
     passwordResetApi: jest.fn(),
 }));
 
-jest.mock("../src/components/Alert", () => {
+jest.mock("@/components/ui/Alert", () => {
     const React = require("react");
     const {Text} = require("react-native");
 

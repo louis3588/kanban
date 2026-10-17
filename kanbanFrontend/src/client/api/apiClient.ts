@@ -62,6 +62,101 @@ export async function loginClient(
 
     return response.json();
 }
+export const googleLoginUrl = `${BASE_URL}/api/Auth/google`;
+
+export async function googleLoginClient(ticket: string): Promise<AuthResponse> {
+    const response = await fetch(`${googleLoginUrl}/exchange`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ ticket })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(
+            data?.message ?? "Unable to complete Google sign-in."
+        );
+    }
+
+    return data as AuthResponse;
+}
+
+export const githubLoginUrl = `${BASE_URL}/api/Auth/github`;
+
+export async function githubLoginClient(
+    ticket: string
+): Promise<AuthResponse> {
+    const response = await fetch(`${githubLoginUrl}/exchange`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ ticket })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data?.message ?? "Unable to complete GitHub sign-in."
+        );
+    }
+
+    return data as AuthResponse;
+}
+
+
+export const microsoftLoginUrl = `${BASE_URL}/api/Auth/microsoft`;
+
+export async function microsoftLoginClient(
+    ticket: string
+): Promise<AuthResponse> {
+    const response = await fetch(`${microsoftLoginUrl}/exchange`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ticket }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data?.message ?? "Unable to complete Microsoft sign-in."
+        );
+    }
+
+    return data as AuthResponse;
+}
+
+export async function confirmMicrosoftLink(
+    token: string
+): Promise<AuthResponse> {
+    const response = await fetch(
+        `${BASE_URL}/api/Auth/microsoft/confirm-link`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ token }),
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data?.message ??
+            "The Microsoft account-link confirmation is invalid or has expired."
+        );
+    }
+
+    return data as AuthResponse;
+}
+
 
 export async function registerClient(
     username: string,
