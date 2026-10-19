@@ -7,12 +7,16 @@ import {
     Pressable,
     Platform,
     ScrollView,
-    KeyboardAvoidingView
+    KeyboardAvoidingView, ActivityIndicator
 } from "react-native";
 import {useAuth} from "@/context/AuthContext";
 import {useState} from "react";
-import {loginClient} from "@/api/apiClient";
+import {loginClient, googleLoginUrl, googleLoginClient} from "@/client/api/apiClient";
 import {router} from "expo-router";
+import {Image} from "expo-image";
+import GoogleAuthButton from "@/components/ui/GoogleAuthButton";
+import GitHubAuthButton from "@/components/ui/GitHubAuthButton";
+import MicrosoftAuthButton from "@/components/ui/MicrosoftAuthButton";
 
 export default function Login() {
     const {login} = useAuth();
@@ -26,8 +30,12 @@ export default function Login() {
         router.replace("/(auth)/register")
     }
 
+    const goToForgotPassword = () => {
+        router.replace({
+            pathname: "/(auth)/forgot-password",
+        });
+    };
 
-    //TODO: User should be able to sign in with email instead
     const handleLogin = async () => {
         setError("")
 
@@ -41,7 +49,7 @@ export default function Login() {
 
             const response = await loginClient(username, password);
             login(response.token, {
-                id: response.userId,
+                id: Number.parseInt(response.userId),
                 username: response.username,
                 firstName: response.firstName,
                 lastName: response.lastName || null,
@@ -66,84 +74,119 @@ export default function Login() {
             behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
             <ScrollView
-                contentContainerStyle={{flexGrow: 1}}
+                contentContainerStyle={{
+                    flexGrow: 1,
+                    justifyContent: "center",
+                    padding: 24
+                }}
                 keyboardShouldPersistTaps="handled"
-                className="flex-1"
             >
-                <View className="flex-1 items-center justify-center px-6 py-12">
-                    <View
-                        className="w-full max-w-[480px] rounded-3xl border border-theme-border bg-theme-surfaceLight p-8 shadow-2xl">
+                <View className="w-full max-w-[1100px] self-center overflow-hidden rounded-3xl border border-theme-border bg-theme-surfaceLight shadow-2xl">
+                    <View className="flex-row flex-wrap">
 
-                        <View className="mb-8 items-center">
-                            <View className="mb-4 h-14 w-14 items-center justify-center rounded-2xl bg-theme-primary">
-                                <Text className="text-2xl font-bold text-theme-textLight">
-                                    K
+                        <View className="w-full border-b border-theme-border bg-theme-surface p-6 md:w-[30%] md:border-b-0 md:border-r">
+                            <View className="mb-8 items-center">
+                                <Image
+                                    source={{
+                                        uri: "https://res.cloudinary.com/dm7vciols/image/upload/v1791052476/app-header_ufbjml.png"
+                                    }}
+                                    style={{
+                                        width: 180,
+                                        height: 72
+                                    }}
+                                    resizeMode="contain"
+                                />
+
+                                <Text className="mt-5 text-center text-xl font-bold text-theme-primaryDark">
+                                    Welcome back
+                                </Text>
+
+                                <Text className="mt-2 text-center text-sm text-theme-textMuted">
+                                    Sign in with your preferred account.
                                 </Text>
                             </View>
 
-                            <Text className="text-center text-3xl font-bold tracking-tight text-theme-primaryDark">
-                                Welcome back
-                            </Text>
+                            <GoogleAuthButton
+                                isLogin={true}
+                                onError={setError}
+                            />
 
-                            <Text className="mt-2 text-center text-base text-theme-textMuted">
-                                Log in to continue to your workspace.
-                            </Text>
+                            <GitHubAuthButton
+                                isLogin={true}
+                                onError={setError}
+                            />
+
+                            <MicrosoftAuthButton
+                                isLogin={true}
+                                setError={setError}
+                            />
+
                         </View>
 
-                        <Text className="mb-2 text-sm font-bold text-theme-text">
-                            Username
-                        </Text>
+                        <View className="w-full p-6 sm:p-8 md:w-[70%] md:p-10">
+                            <Text className="mb-2 text-sm font-bold text-theme-text">
+                                Email/Username
+                            </Text>
 
-                        <TextInput
-                            className="mb-5 rounded-xl border border-theme-border bg-theme-surface px-4 py-3 text-base text-theme-text"
-                            placeholder="Username"
-                            placeholderTextColor="#a08361"
-                            value={username}
-                            onChangeText={setUsername}
-                            autoCapitalize="none"
-                        />
+                            <TextInput
+                                className="mb-5 rounded-xl border border-theme-border bg-theme-surface px-4 py-3 text-base text-theme-text"
+                                placeholder="Email or Username"
+                                placeholderTextColor="#a08361"
+                                value={username}
+                                onChangeText={setUsername}
+                                autoCapitalize="none"
+                            />
 
-                        <Text className="mb-2 text-sm font-bold text-theme-text">
-                            Password
-                        </Text>
+                            <Text className="mb-2 text-sm font-bold text-theme-text">
+                                Password
+                            </Text>
 
-                        <TextInput
-                            className="mb-5 rounded-xl border border-theme-border bg-theme-surface px-4 py-3 text-base text-theme-text"
-                            placeholder="Password"
-                            placeholderTextColor="#a08361"
-                            value={password}
-                            onChangeText={setPassword}
-                            secureTextEntry
-                        />
+                            <TextInput
+                                className="mb-3 rounded-xl border border-theme-border bg-theme-surface px-4 py-3 text-base text-theme-text"
+                                placeholder="Password"
+                                placeholderTextColor="#a08361"
+                                value={password}
+                                onChangeText={setPassword}
+                                secureTextEntry
+                            />
 
-                        {error !== "" && (
-                            <View className="mb-5 rounded-xl border border-[#d5aaa3] bg-[#f5dfdb] px-4 py-3">
-                                <Text className="text-sm font-medium text-theme-error">
-                                    {error}
-                                </Text>
+                            <View className="mb-5 items-end">
+                                <Pressable onPress={goToForgotPassword}>
+                                    <Text className="text-sm font-semibold text-theme-primary">
+                                        Forgot your password?
+                                    </Text>
+                                </Pressable>
                             </View>
-                        )}
 
-                        <Pressable
-                            onPress={handleLogin}
-                            disabled={isLoading}
-                            className="rounded-xl bg-theme-primary px-5 py-4"
-                        >
-                            <Text className="text-center font-bold text-theme-textLight">
-                                {isLoading ? "Logging in..." : "Login"}
-                            </Text>
-                        </Pressable>
+                            {error !== "" && (
+                                <View className="mb-5 rounded-xl border border-[#d5aaa3] bg-[#f5dfdb] px-4 py-3">
+                                    <Text className="text-sm font-medium text-theme-error">
+                                        {error}
+                                    </Text>
+                                </View>
+                            )}
 
-                        <View className="mt-6 flex-row justify-center">
-                            <Text className="text-sm text-theme-textMuted">
-                                Don't have an account?{" "}
-                            </Text>
-
-                            <Pressable onPress={goToRegister}>
-                                <Text className="text-sm font-bold text-theme-primary">
-                                    Create one
+                            <Pressable
+                                onPress={handleLogin}
+                                disabled={isLoading}
+                                className="rounded-xl bg-theme-primary px-5 py-4"
+                            >
+                                <Text className="text-center font-bold text-theme-textLight">
+                                    {isLoading ? "Logging in..." : "Login"}
                                 </Text>
                             </Pressable>
+
+                            <View className="mt-6 flex-row flex-wrap justify-center">
+                                <Text className="text-sm text-theme-textMuted">
+                                    Don't have an account?{" "}
+                                </Text>
+
+                                <Pressable onPress={goToRegister}>
+                                    <Text className="text-sm font-bold text-theme-primary">
+                                        Create one
+                                    </Text>
+                                </Pressable>
+                            </View>
                         </View>
                     </View>
                 </View>

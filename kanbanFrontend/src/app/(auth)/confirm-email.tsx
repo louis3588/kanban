@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Button } from "react-native";
+import { Text, Pressable, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 
 export default function ConfirmEmailScreen() {
@@ -7,52 +7,43 @@ export default function ConfirmEmailScreen() {
     }>();
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>
-                Check your email
-            </Text>
+        <View className="flex-1 items-center justify-center bg-theme-background px-6">
+            <View className="w-full max-w-lg rounded-2xl border border-theme-border bg-theme-surfaceLight p-8">
+                <View className="items-center">
+                    <View className="h-16 w-16 items-center justify-center rounded-full bg-theme-accent">
+                        <Text className="text-2xl text-theme-textLight">
+                            ✉
+                        </Text>
+                    </View>
 
-            <Text style={styles.message}>
-                We've sent a confirmation link to:
-            </Text>
+                    <Text className="mt-6 text-center text-3xl font-bold text-theme-text">
+                        Check your email
+                    </Text>
 
-            <Text style={styles.email}>
-                {email}
-            </Text>
+                    <Text className="mt-4 text-center text-base leading-6 text-theme-textMuted">
+                        We've sent a confirmation link to:
+                    </Text>
 
-            <Text style={styles.message}>
-                Click the link in the email to confirm your account.
-            </Text>
+                    <View className="mt-3 rounded-xl border border-theme-border bg-theme-surface px-4 py-3">
+                        <Text className="text-center text-base font-bold text-theme-text">
+                            {email}
+                        </Text>
+                    </View>
 
-            <Button
-                title="Back to login"
-                onPress={() => router.replace("/login")}
-            />
+                    <Text className="mt-4 text-center text-base leading-6 text-theme-textMuted">
+                        Click the link in the email to confirm your account.
+                    </Text>
+                </View>
+
+                <Pressable
+                    onPress={() => router.replace("/(auth)/login")}
+                    className="mt-8 min-h-12 items-center justify-center rounded-xl bg-theme-primary px-5"
+                >
+                    <Text className="font-bold text-theme-textLight">
+                        Back to login
+                    </Text>
+                </Pressable>
+            </View>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        padding: 24,
-    },
-
-    title: {
-        fontSize: 28,
-        fontWeight: "bold",
-        marginBottom: 16,
-    },
-
-    message: {
-        fontSize: 16,
-        marginBottom: 12,
-    },
-
-    email: {
-        fontSize: 16,
-        fontWeight: "bold",
-        marginBottom: 12,
-    },
-});

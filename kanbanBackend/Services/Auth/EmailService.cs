@@ -1,6 +1,12 @@
+using kanbanBackend.Data;
+using kanbanBackend.DTOs.Profile;
+using kanbanBackend.Models;
 using kanbanBackend.Services.Auth.Interfaces;
+using kanbanBackend.Util;
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using MimeKit;
 
 namespace kanbanBackend.Services.Auth;
@@ -9,8 +15,12 @@ public class EmailService :  IEmailInterface
 {
     private readonly string _email;
     private readonly string _password;
+    private readonly KanbanDbContext _dbContext;
+    private readonly IPasswordHasher<User> _passwordHasher;
+    private readonly IEmailTemplateUtil _emailTemplateUtil;
 
-    public EmailService()
+    public EmailService(KanbanDbContext  dbContext,
+        IPasswordHasher<User> passwordHasher, IEmailTemplateUtil emailTemplateUtil)
     {
         _email = Environment.GetEnvironmentVariable("EMAILADDRESS")
             ?? throw new InvalidOperationException(
@@ -21,185 +31,160 @@ public class EmailService :  IEmailInterface
                     ?? throw new InvalidOperationException(
                         "Password environment variable is not defined."
                     );
+
+        _dbContext = dbContext;
+        _passwordHasher =  passwordHasher;
+        _emailTemplateUtil = emailTemplateUtil;
     }
 
-    public async Task SendEmailConfirmationAsync(String recipientEmail, String confirmationUrl, String firstName = null)
+    public async Task<ModelResult<UserProfileResponse>> UpdatePassword(int userId, string password)
+    {
+        var user = await _dbContext
+            .Users
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
+        {
+            return ModelResult<UserProfileResponse>.Failure("User not found");
+        }
+        
+        if (!user.IsEmailVerified)
+        {
+            return ModelResult<UserProfileResponse>.Failure("Email not verified");
+        }
+        
+        user.PasswordHash = _passwordHasher.HashPassword(user, password);
+        user.EmailConfirmationTokenExpiration = null;
+        user.EmailConfirmationTokenHash = null;
+        await _dbContext.SaveChangesAsync();
+
+        var result = new UserProfileResponse
+        {
+            UserId = userId,
+            Username = user.Username,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Bio = user.Bio,
+            ProfileImage = user.ProfileImage,
+        };
+        return ModelResult<UserProfileResponse>.Success(result);
+    }
+    
+    public async Task<ModelResult<bool>> PasswordReset(string email)
+    {
+        var user = await  _dbContext.Users
+            .FirstOrDefaultAsync(u => u.Email == email);
+
+        if (user == null)
+        {
+            return ModelResult<bool>.Failure("Email not found");
+        }
+        if (!user.IsEmailVerified)
+        {
+            return ModelResult<bool>.Failure("Email not verified");
+        }
+        user.EmailConfirmationTokenHash = Guid.NewGuid().ToString();
+        user.EmailConfirmationTokenExpiration = DateTime.UtcNow.AddMinutes(30);
+        await _dbContext.SaveChangesAsync();
+        
+        
+        var frontendUrl = Environment.GetEnvironmentVariable("FRONTENDURL")
+                          ?? throw new InvalidOperationException("Frontend URL is missing");
+        var resetPasswordUrl =
+            $"{frontendUrl}/(auth)/reset-password?token={user.EmailConfirmationTokenHash}&userId={user.Id}";
+
+        await SendForgotPasswordAsync(user, resetPasswordUrl);
+        return ModelResult<bool>.Success(true);
+    }
+
+    public async Task SendEmailConfirmationAsync(
+    string recipientEmail,
+    string confirmationUrl,
+    string? firstName = null)
+    {
+        var body = await _emailTemplateUtil.RenderAsync(
+            "ConfirmEmail.html",
+            new Dictionary<string, string>
+            {
+                ["FirstName"] = string.IsNullOrWhiteSpace(firstName)
+                    ? "there"
+                    : firstName,
+                ["ConfirmationUrl"] = confirmationUrl
+            });
+
+        await SendHtmlEmailAsync(
+            recipientEmail,
+            "Hey! Please confirm your account!",
+            body);
+    }
+
+    private async Task SendForgotPasswordAsync(
+        User user,
+        string resetPasswordUrl)
+    {
+        var body = await _emailTemplateUtil.RenderAsync(
+            "ForgotPassword.html",
+            new Dictionary<string, string>
+            {
+                ["FirstName"] = string.IsNullOrWhiteSpace(user.FirstName)
+                    ? "there"
+                    : user.FirstName,
+                ["ResetPasswordUrl"] = resetPasswordUrl
+            });
+
+        await SendHtmlEmailAsync(
+            user.Email,
+            "Password reset request for your Kanban account",
+            body);
+    }
+
+    public async Task SendMicrosoftLinkConfirmationAsync(
+        string recipientEmail,
+        string confirmationUrl,
+        string? firstName = null)
+    {
+        var body = await _emailTemplateUtil.RenderAsync(
+            "MicrosoftLinkConfirmation.html",
+            new Dictionary<string, string>
+            {
+                ["FirstName"] = string.IsNullOrWhiteSpace(firstName)
+                    ? "there"
+                    : firstName,
+                ["ConfirmationUrl"] = confirmationUrl
+            });
+
+        await SendHtmlEmailAsync(
+            recipientEmail,
+            "You requested to link your Microsoft account to your Kanban account",
+            body);
+    }
+
+    private async Task SendHtmlEmailAsync(
+        string recipientEmail,
+        string subject,
+        string htmlBody)
     {
         var message = new MimeMessage();
-        
+
         message.From.Add(new MailboxAddress("Kanban", _email));
         message.To.Add(MailboxAddress.Parse(recipientEmail));
-        
-        message.Subject = "Hey! Please confirm your account!";
-        var body = ConfirmEmailBody(firstName, confirmationUrl);
+        message.Subject = subject;
         message.Body = new BodyBuilder
         {
-            HtmlBody = body
+            HtmlBody = htmlBody
         }.ToMessageBody();
 
         using var smtp = new SmtpClient();
-        await smtp.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+
+        await smtp.ConnectAsync(
+            "smtp.gmail.com",
+            587,
+            SecureSocketOptions.StartTls);
+
         await smtp.AuthenticateAsync(_email, _password);
         await smtp.SendAsync(message);
         await smtp.DisconnectAsync(true);
     }
-
-    private static string ConfirmEmailBody(string firstName, string confirmationUrl)
-    {
-        return  $"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Confirm your Kanban account</title>
-            </head>
-
-            <body style="
-                margin: 0;
-                padding: 0;
-                background-color: #f4f4f5;
-                font-family: Arial, Helvetica, sans-serif;
-                color: #18181b;
-            ">
-
-                <div style="
-                    width: 100%;
-                    padding: 40px 0;
-                    background-color: #f4f4f5;
-                ">
-
-                    <div style="
-                        max-width: 560px;
-                        margin: 0 auto;
-                        background-color: #ffffff;
-                        border-radius: 12px;
-                        overflow: hidden;
-                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-                    ">
-
-                        <div style="
-                            padding: 28px 32px;
-                            background-color: #18181b;
-                            text-align: center;
-                        ">
-                            <h1 style="
-                                margin: 0;
-                                color: #ffffff;
-                                font-size: 28px;
-                                font-weight: 700;
-                            ">
-                                Kanban
-                            </h1>
-                        </div>
-
-                        <div style="
-                            padding: 40px 32px;
-                        ">
-
-                            <h2 style="
-                                margin: 0 0 20px 0;
-                                font-size: 24px;
-                                color: #18181b;
-                            ">
-                                Hi {firstName},
-                            </h2>
-
-                            <p style="
-                                margin: 0 0 16px 0;
-                                font-size: 16px;
-                                line-height: 1.6;
-                                color: #52525b;
-                            ">
-                                Thanks for creating your Kanban account.
-                            </p>
-
-                            <p style="
-                                margin: 0 0 28px 0;
-                                font-size: 16px;
-                                line-height: 1.6;
-                                color: #52525b;
-                            ">
-                                Before you can start using your account,
-                                please confirm your email address by clicking
-                                the button below.
-                            </p>
-
-                            <div style="
-                                text-align: center;
-                                margin: 32px 0;
-                            ">
-                                <a href="{confirmationUrl}" style="
-                                    display: inline-block;
-                                    padding: 14px 28px;
-                                    background-color: #18181b;
-                                    color: #ffffff;
-                                    text-decoration: none;
-                                    border-radius: 8px;
-                                    font-size: 16px;
-                                    font-weight: 600;
-                                ">
-                                    Confirm my email
-                                </a>
-                            </div>
-
-                            <p style="
-                                margin: 0 0 12px 0;
-                                font-size: 14px;
-                                line-height: 1.6;
-                                color: #71717a;
-                            ">
-                                This confirmation link will expire in
-                                30 minutes.
-                            </p>
-
-                            <p style="
-                                margin: 24px 0 0 0;
-                                font-size: 13px;
-                                line-height: 1.6;
-                                color: #a1a1aa;
-                            ">
-                                If the button doesn't work, copy and paste
-                                the following link into your browser:
-                            </p>
-
-                            <p style="
-                                margin: 8px 0 0 0;
-                                font-size: 13px;
-                                line-height: 1.6;
-                                word-break: break-all;
-                            ">
-                                <a href="{confirmationUrl}" style="
-                                    color: #52525b;
-                                ">
-                                    {confirmationUrl}
-                                </a>
-                            </p>
-
-                        </div>
-
-                        <div style="
-                            padding: 20px 32px;
-                            background-color: #fafafa;
-                            border-top: 1px solid #e4e4e7;
-                            text-align: center;
-                        ">
-                            <p style="
-                                margin: 0;
-                                font-size: 12px;
-                                color: #a1a1aa;
-                            ">
-                                You received this email because an account
-                                was created using this email address.
-                            </p>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </body>
-            </html>
-            """;
-    }
+    
 }

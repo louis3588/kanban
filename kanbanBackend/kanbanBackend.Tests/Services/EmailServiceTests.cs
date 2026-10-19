@@ -16,11 +16,9 @@ public class EmailServiceTests
     public async Task Confirm_ReturnsOk_WhenEmailConfirmationSucceeds()
     {
 
-        var confirmationService =
-            new Mock<IEmailConfirmationInterface>();
-
-        var jwtService =
-            new Mock<IJwtInterface>();
+        var confirmationService = new Mock<IEmailConfirmationInterface>();
+        var jwtService = new Mock<IJwtInterface>();
+        var emailService = new Mock<IEmailInterface>();
 
         var user = new User
         {
@@ -41,12 +39,10 @@ public class EmailServiceTests
 
         var controller = new EmailController(
             confirmationService.Object,
-            jwtService.Object);
+            jwtService.Object,
+            emailService.Object);
 
-        // Act
         var result = await controller.Confirm(1, "valid-token");
-
-        // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
 
         var response = Assert.IsType<AuthResponse>(okResult.Value);
@@ -69,11 +65,9 @@ public class EmailServiceTests
     public async Task Confirm_ReturnsBadRequest_WhenConfirmationFails()
     {
 
-        var confirmationService =
-            new Mock<IEmailConfirmationInterface>();
-
-        var jwtService =
-            new Mock<IJwtInterface>();
+        var confirmationService = new Mock<IEmailConfirmationInterface>();
+        var jwtService = new Mock<IJwtInterface>();
+        var emailService = new Mock<IEmailInterface>();
 
         confirmationService
             .Setup(x => x.ConfirmEmailAsync(1, "invalid-token"))
@@ -82,7 +76,8 @@ public class EmailServiceTests
 
         var controller = new EmailController(
             confirmationService.Object,
-            jwtService.Object);
+            jwtService.Object,
+            emailService.Object);
         
         var result = await controller.Confirm(1, "invalid-token");
         
