@@ -7,4 +7,5 @@ public interface IEmailConfirmationInterface
 {
     Task<string> GenerateEmailConfirmationTokenAsync(User user);
     Task<ModelResult<User>> ConfirmEmailAsync(int userId, string token);
+    Task<ModelResult<UserSettings>> InitialiseUserSettings(User user);
 }
