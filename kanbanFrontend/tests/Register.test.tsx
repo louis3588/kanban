@@ -5,7 +5,8 @@ import RegisterScreen from "../src/app/(auth)/register";
 import {AuthProvider, useAuth} from "@/context/AuthContext";
 import {describe, expect} from "@jest/globals";
 
-import {registerClient} from "@/api/apiClient";
+import {registerClient} from "@/client/api/apiClient";
+import {Pressable, Text} from "react-native";
 
 
 const mockLogin = jest.fn();
@@ -16,13 +17,49 @@ jest.mock("expo-router", () => ({
     },
 }));
 
-jest.mock("../src/api/apiClient", () => ({
+jest.mock("@/client/api/apiClient", () => ({
     registerClient: jest.fn(),
 }));
 
 jest.mock("../src/context/AuthContext", () => ({
     useAuth: jest.fn(),
 }));
+
+jest.mock("@/components/ui/GoogleAuthButton", () => {
+    const { Text, Pressable } = require("react-native");
+
+    return function MockGoogleAuthButton() {
+        return (
+            <Pressable>
+                <Text>Continue with Google</Text>
+            </Pressable>
+        );
+    };
+});
+
+jest.mock("@/components/ui/MicrosoftAuthButton", () => {
+    const { Text, Pressable } = require("react-native");
+
+    return function MockGoogleAuthButton() {
+        return (
+            <Pressable>
+                <Text>Continue with Google</Text>
+            </Pressable>
+        );
+    };
+});
+
+jest.mock("@/components/ui/GitHubAuthButton", () => {
+    const { Text, Pressable } = require("react-native");
+
+    return function MockGoogleAuthButton() {
+        return (
+            <Pressable>
+                <Text>Continue with Google</Text>
+            </Pressable>
+        );
+    };
+});
 
 const mockedRegisterApi =
     registerClient as jest.MockedFunction<typeof registerClient>;
@@ -35,6 +72,7 @@ describe("Register", () => {
     beforeEach(() => {
         jest.clearAllMocks();
 
+        // @ts-ignore
         mockedUseAuth.mockReturnValue({
             login: mockLogin,
         } as ReturnType<typeof useAuth>);
@@ -314,6 +352,7 @@ describe("Register", () => {
     });
 
     it("calls registerApi with the completed form", async () => {
+        // @ts-ignore
         mockedRegisterApi.mockResolvedValue({
             email: "louis@example.com",
         });
@@ -369,6 +408,7 @@ describe("Register", () => {
     });
 
     it("navigates to email confirmation after successful registration", async () => {
+        // @ts-ignore
         mockedRegisterApi.mockResolvedValue({
             email: "louis@example.com",
         });

@@ -29,6 +29,7 @@ module.exports = {
 
           success: "#557a5a",
           error: "#a34d43",
+          logoSepia: "#e8a66d"
         },
       },
     },

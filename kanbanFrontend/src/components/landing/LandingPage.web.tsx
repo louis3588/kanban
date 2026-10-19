@@ -1,8 +1,10 @@
 import { router } from "expo-router";
 import { Pressable, ScrollView, Text, View } from "react-native";
-
+import {useAssets} from "expo-asset";
+import { Image } from 'expo-image';
 
 export default function LandingPage() {
+
     return (
         <ScrollView
             className="flex-1 bg-[#8f7257]"
@@ -11,15 +13,10 @@ export default function LandingPage() {
             <View className="mx-auto w-full max-w-[1400px] px-8 py-6 lg:px-12">
                 <View className="flex-row items-center justify-between rounded-2xl border border-[#bda78f] bg-[#9b7d61]/80 px-6 py-4">
                     <View className="flex-row items-center gap-3">
-                        <View className="h-10 w-10 items-center justify-center rounded-xl bg-[#f3e7d0]">
-                            <Text className="text-lg font-bold text-[#4b3828]">
-                                K
-                            </Text>
+                        <View className="flex-row items-center gap-3">
+                            <Image source={{ uri: "https://res.cloudinary.com/dm7vciols/image/upload/v1791052476/app-header_ufbjml.png"}}
+                                   style={{width: 200, height: 80}}/>
                         </View>
-
-                        <Text className="text-2xl font-bold tracking-tight text-[#f7ecd9]">
-                            Kanban
-                        </Text>
                     </View>
 
                     <View className="flex-row items-center gap-3">

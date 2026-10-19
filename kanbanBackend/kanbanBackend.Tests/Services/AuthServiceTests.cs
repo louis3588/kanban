@@ -15,6 +15,7 @@ public class AuthControllerTests
     {
 
         var authService = new Mock<IAuthInterface>();
+        var googleService = new Mock<IGoogleTicketInterface>();
 
         var request = new RegisterRequest
         {
@@ -36,7 +37,7 @@ public class AuthControllerTests
             .Setup(x => x.RegisterUser(request))
             .ReturnsAsync(expectedResponse);
 
-        var controller = new AuthController(authService.Object);
+        var controller = new AuthController(authService.Object, googleService.Object);
         
         var result = await controller.Register(request);
         
@@ -53,6 +54,7 @@ public class AuthControllerTests
     public async Task Register_ReturnsConflict_WhenUsernameAlreadyExists()
     {
         var authService = new Mock<IAuthInterface>();
+        var googleService = new Mock<IGoogleTicketInterface>();
 
         var request = new RegisterRequest
         {
@@ -69,7 +71,7 @@ public class AuthControllerTests
                 new InvalidOperationException(
                     "Username is already in use."));
 
-        var controller = new AuthController(authService.Object);
+        var controller = new AuthController(authService.Object, googleService.Object);
 
         var result = await controller.Register(request);
         
@@ -82,10 +84,11 @@ public class AuthControllerTests
     public async Task Login_ReturnsOk_WhenCredentialsAreValid()
     {
         var authService = new Mock<IAuthInterface>();
+        var googleService = new Mock<IGoogleTicketInterface>();
 
         var request = new LoginRequest
         {
-            Username = "testuser",
+            Identifier = "testuser",
             Password = "Password123!"
         };
 
@@ -103,7 +106,7 @@ public class AuthControllerTests
             .Setup(x => x.Login(request))
             .ReturnsAsync(expectedResponse);
 
-        var controller = new AuthController(authService.Object);
+        var controller = new AuthController(authService.Object, googleService.Object);
 
         var result = await controller.Login(request);
         
@@ -116,10 +119,11 @@ public class AuthControllerTests
     public async Task Login_ReturnsUnauthorized_WhenCredentialsAreInvalid()
     {
         var authService = new Mock<IAuthInterface>();
+        var googleService = new Mock<IGoogleTicketInterface>();
 
         var request = new LoginRequest
         {
-            Username = "testuser",
+            Identifier = "testuser",
             Password = "wrongpassword"
         };
 
@@ -127,7 +131,7 @@ public class AuthControllerTests
             .Setup(x => x.Login(request))
             .ReturnsAsync((CredentialResponse?)null);
 
-        var controller = new AuthController(authService.Object);
+        var controller = new AuthController(authService.Object, googleService.Object);
         
         var result = await controller.Login(request);
         

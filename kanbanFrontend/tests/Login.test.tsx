@@ -2,9 +2,10 @@ import React from "react";
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 
 import Login from "../src/app/(auth)/login";
-import { loginClient } from "@/api/apiClient";
+import { loginClient } from "@/client/api/apiClient";
 import { useAuth } from "@/context/AuthContext";
 import {router} from "expo-router";
+import {Pressable, Text} from "react-native";
 
 const mockReplace = jest.fn();
 const mockLogin = jest.fn();
@@ -14,13 +15,49 @@ jest.mock("expo-router", () => ({
         replace: jest.fn(),
     },
 }));
-jest.mock("../src/api/apiClient", () => ({
+jest.mock("@/client/api/apiClient", () => ({
     loginClient: jest.fn(),
 }));
 
 jest.mock("../src/context/AuthContext", () => ({
     useAuth: jest.fn(),
 }));
+
+jest.mock("@/components/ui/GoogleAuthButton", () => {
+    const { Text, Pressable } = require("react-native");
+
+    return function MockGoogleAuthButton() {
+        return (
+            <Pressable>
+                <Text>Continue with Google</Text>
+            </Pressable>
+        );
+    };
+});
+
+jest.mock("@/components/ui/MicrosoftAuthButton", () => {
+    const { Text, Pressable } = require("react-native");
+
+    return function MockGoogleAuthButton() {
+        return (
+            <Pressable>
+                <Text>Continue with Google</Text>
+            </Pressable>
+        );
+    };
+});
+
+jest.mock("@/components/ui/GitHubAuthButton", () => {
+    const { Text, Pressable } = require("react-native");
+
+    return function MockGoogleAuthButton() {
+        return (
+            <Pressable>
+                <Text>Continue with Google</Text>
+            </Pressable>
+        );
+    };
+});
 
 const mockedLoginClient = loginClient as jest.MockedFunction<typeof loginClient>;
 const mockedUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
@@ -29,6 +66,7 @@ describe("Login", () => {
     beforeEach(() => {
         jest.clearAllMocks();
 
+        // @ts-ignore
         mockedUseAuth.mockReturnValue({
             login: mockLogin,
         } as ReturnType<typeof useAuth>);
@@ -39,10 +77,10 @@ describe("Login", () => {
 
         expect(getByText("Welcome back")).toBeTruthy();
         expect(
-            getByText("Log in to continue to your workspace.")
+            getByText("Sign in with your preferred account.")
         ).toBeTruthy();
 
-        expect(getByPlaceholderText("Username")).toBeTruthy();
+        expect(getByPlaceholderText("Email or Username")).toBeTruthy();
         expect(getByPlaceholderText("Password")).toBeTruthy();
 
         expect(getByText("Login")).toBeTruthy();
@@ -68,7 +106,7 @@ describe("Login", () => {
         } = await render(<Login/>);
 
         await fireEvent.changeText(
-            getByPlaceholderText("Username"),
+            getByPlaceholderText("Email or Username"),
             "louis"
         );
 
@@ -104,7 +142,7 @@ describe("Login", () => {
     it("calls the mocked login API with the entered credentials", async () => {
         mockedLoginClient.mockResolvedValue({
             token: "test-token",
-            userId: 1,
+            userId: "1",
             username: "louis",
             firstName: "Louis",
             lastName: "Polly",
@@ -117,7 +155,7 @@ describe("Login", () => {
         } = await render(<Login />);
 
         await fireEvent.changeText(
-            getByPlaceholderText("Username"),
+            getByPlaceholderText("Email or Username"),
             "louis"
         );
 
@@ -141,7 +179,7 @@ describe("Login", () => {
     it("stores the returned user through AuthContext after successful login", async () => {
         mockedLoginClient.mockResolvedValue({
             token: "test-token",
-            userId: 1,
+            userId: "1",
             username: "louis",
             firstName: "Louis",
             lastName: "Polly",
@@ -154,7 +192,7 @@ describe("Login", () => {
         } = await render(<Login />);
 
         await fireEvent.changeText(
-            getByPlaceholderText("Username"),
+            getByPlaceholderText("Email or Username"),
             "louis"
         );
 
@@ -184,7 +222,7 @@ describe("Login", () => {
     it("navigates to the workspaces page after successful login", async () => {
         mockedLoginClient.mockResolvedValue({
             token: "test-token",
-            userId: 1,
+            userId: "1",
             username: "louis",
             firstName: "Louis",
             lastName: "Polly",
@@ -197,7 +235,7 @@ describe("Login", () => {
         } = await render(<Login />);
 
         await fireEvent.changeText(
-            getByPlaceholderText("Username"),
+            getByPlaceholderText("Email or Username"),
             "louis"
         );
 
@@ -226,7 +264,7 @@ describe("Login", () => {
         } = await render(<Login />);
 
         await fireEvent.changeText(
-            getByPlaceholderText("Username"),
+            getByPlaceholderText("Email or Username"),
             "louis"
         );
 
