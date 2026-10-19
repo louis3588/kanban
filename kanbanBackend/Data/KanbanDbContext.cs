@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using kanbanBackend.Models;
+using kanbanBackend.Models.Enum;
 
 namespace kanbanBackend.Data;
 
@@ -17,6 +18,7 @@ public class KanbanDbContext : DbContext
     public DbSet<WorkspaceMember> WorkspaceMembers => Set<WorkspaceMember>();
     public DbSet<BoardColumn> BoardColumns => Set<BoardColumn>();
     public DbSet<TaskItem> TaskItems => Set<TaskItem>();
+    public DbSet<UserSettings> UserSettings => Set<UserSettings>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -52,6 +54,12 @@ public class KanbanDbContext : DbContext
                 .IsRequired()
                 .HasDefaultValue(false);
 
+            entity.HasOne(u => u.Settings)
+                .WithOne(us => us.User)
+                .HasForeignKey<UserSettings>(us => us.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+
             entity.Property(u => u.EmailConfirmationTokenHash)
                 .HasMaxLength(64);
 
@@ -60,6 +68,19 @@ public class KanbanDbContext : DbContext
 
             entity.HasIndex(u => u.Email)
                 .IsUnique();
+        });
+
+        // User settings
+        modelBuilder.Entity<UserSettings>(entity =>
+        {
+            entity.HasKey(us => us.Id);
+            entity.HasIndex(us => us.UserId)
+                .IsUnique();
+
+            entity.Property(us => us.Theme)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .HasDefaultValue(AppTheme.SepiaLight);
         });
         
         // Workspace

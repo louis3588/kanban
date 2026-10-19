@@ -26,6 +26,10 @@ public class User
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
+    public bool IsOnline { get; set; } = false;
+    
+    public UserSettings Settings { get; set; } = new();
+    
     public ICollection<WorkspaceMember> WorkspaceMemberships { get; set; }
         = new List<WorkspaceMember>();
 

@@ -17,7 +17,7 @@ namespace kanbanBackend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.31")
+                .HasAnnotation("ProductVersion", "8.0.32")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -187,6 +187,9 @@ namespace kanbanBackend.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
+                    b.Property<bool>("IsOnline")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("LastName")
                         .HasColumnType("text");
 
@@ -211,6 +214,41 @@ namespace kanbanBackend.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("kanbanBackend.Models.UserSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("DefaultBoardId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("EnableEmailNotifications")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("ShowOnlineStatus")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Theme")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("SepiaLight");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("UserSettings");
                 });
 
             modelBuilder.Entity("kanbanBackend.Models.Workspace", b =>
@@ -308,6 +346,17 @@ namespace kanbanBackend.Migrations
                     b.Navigation("Column");
                 });
 
+            modelBuilder.Entity("kanbanBackend.Models.UserSettings", b =>
+                {
+                    b.HasOne("kanbanBackend.Models.User", "User")
+                        .WithOne("Settings")
+                        .HasForeignKey("kanbanBackend.Models.UserSettings", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("kanbanBackend.Models.WorkspaceMember", b =>
                 {
                     b.HasOne("kanbanBackend.Models.User", "User")
@@ -340,6 +389,9 @@ namespace kanbanBackend.Migrations
             modelBuilder.Entity("kanbanBackend.Models.User", b =>
                 {
                     b.Navigation("AssignedTasks");
+
+                    b.Navigation("Settings")
+                        .IsRequired();
 
                     b.Navigation("WorkspaceMemberships");
                 });
