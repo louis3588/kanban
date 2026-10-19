@@ -1,3 +1,4 @@
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -9,30 +10,25 @@ module.exports = {
     extend: {
       colors: {
         theme: {
-          background: "#8f7257",
-          backgroundDark: "#6f5742",
-
-          surface: "#f3e7d0",
-          surfaceLight: "#f9f0e1",
-
-          primary: "#5c4633",
-          primaryDark: "#4b3828",
-
-          text: "#4b3828",
-          textLight: "#fff5e6",
-          textMuted: "#80664b",
-
-          border: "#d7c3a7",
-          borderDark: "#95765a",
-
-          accent: "#a08361",
-
-          success: "#557a5a",
-          error: "#a34d43",
-          logoSepia: "#e8a66d"
+          background: "rgb(var(--color-theme-background) / <alpha-value>)",
+          backgroundDark: "rgb(var(--color-theme-background-dark) / <alpha-value>)",
+          surface: "rgb(var(--color-theme-surface) / <alpha-value>)",
+          surfaceLight: "rgb(var(--color-theme-surface-light) / <alpha-value>)",
+          primary: "rgb(var(--color-theme-primary) / <alpha-value>)",
+          primaryDark: "rgb(var(--color-theme-primary-dark) / <alpha-value>)",
+          text: "rgb(var(--color-theme-text) / <alpha-value>)",
+          textLight: "rgb(var(--color-theme-text-light) / <alpha-value>)",
+          textMuted: "rgb(var(--color-theme-text-muted) / <alpha-value>)",
+          border: "rgb(var(--color-theme-border) / <alpha-value>)",
+          borderDark: "rgb(var(--color-theme-border-dark) / <alpha-value>)",
+          accent: "rgb(var(--color-theme-accent) / <alpha-value>)",
+          success: "rgb(var(--color-theme-success) / <alpha-value>)",
+          error: "rgb(var(--color-theme-error) / <alpha-value>)",
+          logoSepia: "rgb(var(--color-theme-logo-sepia) / <alpha-value>)",
         },
       },
     },
   },
   plugins: [],
 };
+
