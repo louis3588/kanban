@@ -12,6 +12,7 @@ using kanbanBackend.Services.Auth.Interfaces;
 using kanbanBackend.Services.Dashboard;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -196,7 +197,6 @@ builder.Services
         options.Scope.Add("profile");
         options.Scope.Add("email");
     });
-    
 
 builder.Services.AddAuthorization();
 
@@ -212,6 +212,11 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
+
 var app = builder.Build();
 
 app.UseSwagger();
@@ -221,6 +226,9 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseExceptionHandler();
+app.UseForwardedHeaders();
+app.UseHttpsRedirection();
+app.UseRouting();
 app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
