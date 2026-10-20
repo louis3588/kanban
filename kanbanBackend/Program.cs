@@ -221,6 +221,9 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseExceptionHandler();
+app.UseForwardedHeaders();
+app.UseHttpsRedirection();
+app.UseRouting();
 app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
