@@ -89,4 +89,31 @@ public class BoardHub : Hub
 
         return result.Value!;
     }
+
+    public async Task<UserPreferences> GetPreferences(int userId)
+    {
+        var result = await _userDetailsService.GetPreferences(userId);
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
+        return result.Value!;
+    }
+
+    public async Task<UserPreferences> UpdatePreferences(PreferenceRequest preferences, int id)
+    {
+        var result = await _userDetailsService.EditSettings(
+            appTheme: preferences.Theme,
+            defaultBoardId: preferences.DefaultBoardId,
+            showOnlineStatus: preferences.ShowOnlineStatus,
+            enableEmailNotifications: preferences.EnableEmailNotifications,
+            userId: id
+        );
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
+
+        return result.Value!;
+    }
 }
