@@ -23,6 +23,11 @@ export default function HamburgerMenu(){
         router.push(`/(dashboard)/settings`);
     }
 
+    const goHome = () => {
+        setMenuVisible(!menuVisible);
+        router.push(`/(dashboard)/workspaces`)
+    }
+
     return (
         <>
             <Pressable
@@ -96,6 +101,34 @@ export default function HamburgerMenu(){
 
                         <Pressable
                             accessibilityRole="button"
+                            onPress={goHome}
+                            className="min-h-12 flex-row items-center rounded-lg px-3 py-3"
+                            style={({ pressed }) => ({
+                                backgroundColor: pressed
+                                    ? colours.border
+                                    : "transparent",
+                            })}
+                        >
+                            <Ionicons
+                                name="home-outline"
+                                size={22}
+                                color={colours.text}
+                            />
+                            <Text
+                                className="ml-3 flex-1 text-base font-semibold"
+                                style={{ color: colours.text }}
+                            >
+                                Home
+                            </Text>
+                            <Ionicons
+                                name="chevron-forward"
+                                size={18}
+                                color={colours.textMuted}
+                            />
+                        </Pressable>
+
+                        <Pressable
+                            accessibilityRole="button"
                             onPress={openSettings}
                             className="min-h-12 flex-row items-center rounded-lg px-3 py-3"
                             style={({ pressed }) => ({
@@ -109,14 +142,12 @@ export default function HamburgerMenu(){
                                 size={22}
                                 color={colours.text}
                             />
-
                             <Text
                                 className="ml-3 flex-1 text-base font-semibold"
                                 style={{ color: colours.text }}
                             >
                                 Settings
                             </Text>
-
                             <Ionicons
                                 name="chevron-forward"
                                 size={18}

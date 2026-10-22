@@ -17,6 +17,7 @@ import {Image} from "expo-image";
 import GoogleAuthButton from "@/components/ui/externals/GoogleAuthButton";
 import GitHubAuthButton from "@/components/ui/externals/GitHubAuthButton";
 import MicrosoftAuthButton from "@/components/ui/externals/MicrosoftAuthButton";
+import {AppTheme, themes} from "@/theme/themes";
 
 export default function Login() {
     const {login} = useAuth();
@@ -25,6 +26,8 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+
+    const colours = themes[AppTheme.SepiaLight];
 
     const goToRegister = () => {
         router.replace("/(auth)/register")
@@ -68,40 +71,56 @@ export default function Login() {
         }
 
     }
+
     return (
         <KeyboardAvoidingView
-            className="flex-1 bg-theme-background"
+            className="flex-1"
+            style={{ backgroundColor: colours.background }}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
             <ScrollView
                 contentContainerStyle={{
                     flexGrow: 1,
                     justifyContent: "center",
-                    padding: 24
+                    padding: 24,
                 }}
                 keyboardShouldPersistTaps="handled"
             >
-                <View className="w-full max-w-[1100px] self-center overflow-hidden rounded-3xl border border-theme-border bg-theme-surfaceLight shadow-2xl">
+                <View
+                    className="w-full max-w-[1100px] self-center overflow-hidden rounded-3xl border shadow-2xl"
+                    style={{
+                        backgroundColor: colours.surface,
+                        borderColor: colours.border,
+                    }}
+                >
                     <View className="flex-row flex-wrap">
-
-                        <View className="w-full border-b border-theme-border bg-theme-surface p-6 md:w-[30%] md:border-b-0 md:border-r">
+                        <View
+                            className="w-full border-b p-6 md:w-[30%] md:border-b-0 md:border-r"
+                            style={{
+                                backgroundColor: colours.surface,
+                                borderColor: colours.border,
+                            }}
+                        >
                             <View className="mb-8 items-center">
                                 <Image
                                     source={{
-                                        uri: "https://res.cloudinary.com/dm7vciols/image/upload/v1791052476/app-header_ufbjml.png"
+                                        uri: "https://res.cloudinary.com/dm7vciols/image/upload/v1791052476/app-header_ufbjml.png",
                                     }}
-                                    style={{
-                                        width: 180,
-                                        height: 72
-                                    }}
+                                    style={{ width: 180, height: 72 }}
                                     resizeMode="contain"
                                 />
 
-                                <Text className="mt-5 text-center text-xl font-bold text-theme-primaryDark">
+                                <Text
+                                    className="mt-5 text-center text-xl font-bold"
+                                    style={{ color: colours.primaryDark }}
+                                >
                                     Welcome back
                                 </Text>
 
-                                <Text className="mt-2 text-center text-sm text-theme-textMuted">
+                                <Text
+                                    className="mt-2 text-center text-sm"
+                                    style={{ color: colours.textMuted }}
+                                >
                                     Sign in with your preferred account.
                                 </Text>
                             </View>
@@ -120,31 +139,46 @@ export default function Login() {
                                 isLogin={true}
                                 setError={setError}
                             />
-
                         </View>
 
                         <View className="w-full p-6 sm:p-8 md:w-[70%] md:p-10">
-                            <Text className="mb-2 text-sm font-bold text-theme-text">
+                            <Text
+                                className="mb-2 text-sm font-bold"
+                                style={{ color: colours.text }}
+                            >
                                 Email/Username
                             </Text>
 
                             <TextInput
-                                className="mb-5 rounded-xl border border-theme-border bg-theme-surface px-4 py-3 text-base text-theme-text"
+                                className="mb-5 rounded-xl border px-4 py-3 text-base"
+                                style={{
+                                    backgroundColor: colours.surface,
+                                    borderColor: colours.border,
+                                    color: colours.text,
+                                }}
                                 placeholder="Email or Username"
-                                placeholderTextColor="#a08361"
+                                placeholderTextColor={colours.textMuted}
                                 value={username}
                                 onChangeText={setUsername}
                                 autoCapitalize="none"
                             />
 
-                            <Text className="mb-2 text-sm font-bold text-theme-text">
+                            <Text
+                                className="mb-2 text-sm font-bold"
+                                style={{ color: colours.text }}
+                            >
                                 Password
                             </Text>
 
                             <TextInput
-                                className="mb-3 rounded-xl border border-theme-border bg-theme-surface px-4 py-3 text-base text-theme-text"
+                                className="mb-3 rounded-xl border px-4 py-3 text-base"
+                                style={{
+                                    backgroundColor: colours.surface,
+                                    borderColor: colours.border,
+                                    color: colours.text,
+                                }}
                                 placeholder="Password"
-                                placeholderTextColor="#a08361"
+                                placeholderTextColor={colours.textMuted}
                                 value={password}
                                 onChangeText={setPassword}
                                 secureTextEntry
@@ -152,15 +186,27 @@ export default function Login() {
 
                             <View className="mb-5 items-end">
                                 <Pressable onPress={goToForgotPassword}>
-                                    <Text className="text-sm font-semibold text-theme-primary">
+                                    <Text
+                                        className="text-sm font-semibold"
+                                        style={{ color: colours.primary }}
+                                    >
                                         Forgot your password?
                                     </Text>
                                 </Pressable>
                             </View>
 
                             {error !== "" && (
-                                <View className="mb-5 rounded-xl border border-[#d5aaa3] bg-[#f5dfdb] px-4 py-3">
-                                    <Text className="text-sm font-medium text-theme-error">
+                                <View
+                                    className="mb-5 rounded-xl border px-4 py-3"
+                                    style={{
+                                        backgroundColor: colours.surface,
+                                        borderColor: colours.error,
+                                    }}
+                                >
+                                    <Text
+                                        className="text-sm font-medium"
+                                        style={{ color: colours.error }}
+                                    >
                                         {error}
                                     </Text>
                                 </View>
@@ -169,20 +215,33 @@ export default function Login() {
                             <Pressable
                                 onPress={handleLogin}
                                 disabled={isLoading}
-                                className="rounded-xl bg-theme-primary px-5 py-4"
+                                className="rounded-xl px-5 py-4"
+                                style={{
+                                    backgroundColor: colours.primary,
+                                    opacity: isLoading ? 0.7 : 1,
+                                }}
                             >
-                                <Text className="text-center font-bold text-theme-textLight">
+                                <Text
+                                    className="text-center font-bold"
+                                    style={{ color: colours.textLight }}
+                                >
                                     {isLoading ? "Logging in..." : "Login"}
                                 </Text>
                             </Pressable>
 
                             <View className="mt-6 flex-row flex-wrap justify-center">
-                                <Text className="text-sm text-theme-textMuted">
+                                <Text
+                                    className="text-sm"
+                                    style={{ color: colours.textMuted }}
+                                >
                                     Don't have an account?{" "}
                                 </Text>
 
                                 <Pressable onPress={goToRegister}>
-                                    <Text className="text-sm font-bold text-theme-primary">
+                                    <Text
+                                        className="text-sm font-bold"
+                                        style={{ color: colours.primary }}
+                                    >
                                         Create one
                                     </Text>
                                 </Pressable>
