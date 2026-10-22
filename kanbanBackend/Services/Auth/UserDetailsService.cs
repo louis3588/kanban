@@ -58,6 +58,38 @@ public class UserDetailsService : IUserDetailsInterface
         return ModelResult<UserProfileResponse>.Success(response);
     }
 
+    
+    public async Task<ModelResult<UserProfileResponse>> EditUsername(string username, int userId)
+    {
+        var usernameInUse = await _context.Users
+            .AnyAsync(u => u.Username == username && u.Id != userId);
+
+        if (usernameInUse)
+        {
+            return ModelResult<UserProfileResponse>.Failure("username is already in use");
+        }
+        
+        var potentialUser = await GetUser(userId);
+        if (!potentialUser.IsSuccess)
+        {
+            return ModelResult<UserProfileResponse>.Failure("User not found");
+        }
+        var user = potentialUser.Value!;
+        user.Username = username;
+        await _context.SaveChangesAsync();
+
+        var response = new UserProfileResponse
+        {
+            Username = username,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email,
+            ProfileImage = user.ProfileImage,
+            Bio = user.Bio,
+        };
+        
+        return ModelResult<UserProfileResponse>.Success(response);
+    }
 
     public async Task<ModelResult<UserPreferences>> EditSettings(AppTheme? appTheme = null, int? defaultBoardId = null,
         bool? showOnlineStatus = null, bool? enableEmailNotifications = null, int? userId = null)

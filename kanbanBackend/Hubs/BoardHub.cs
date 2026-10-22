@@ -3,7 +3,7 @@ using kanbanBackend.DTOs.Profile;
 using kanbanBackend.Services.Auth;
 using kanbanBackend.Services.Auth.Interfaces;
 using kanbanBackend.Services.Dashboard;
-
+using kanbanBackend.Util;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
@@ -61,6 +61,17 @@ public class BoardHub : Hub
         return result.IsSuccess;
     }
 
+    public async Task<UserProfileResponse> EditUsername(string username, int userId)
+    {
+        var result = await _userDetailsService.EditUsername(username, userId);
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
+
+        return result.Value!;
+    }
+    
     public async Task<UserProfileResponse> GetUserProfile(int userId)
     {
         var result = await _userDetailsService.GetProfile(userId);
