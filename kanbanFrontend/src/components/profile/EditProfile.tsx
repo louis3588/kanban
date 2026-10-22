@@ -197,9 +197,6 @@ export default function EditProfileModal({
         }
     };
 
-    const inputClassName =
-        "mt-2 w-full rounded-xl border border-theme-border bg-theme-surface px-4 py-3 text-base text-theme-text outline-none";
-
     const inputStyle = {
         backgroundColor: colours.background,
         borderColor: colours.border,
