@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext } from "react";
+import React, {createContext, useContext, useState} from "react";
 import { View } from "react-native";
 import { vars } from "nativewind";
 
@@ -33,14 +33,17 @@ function toRgb(hex: string): string {
     return `${red} ${green} ${blue}`;
 }
 
+
 type ThemeContextValue = {
     theme: AppTheme;
     colors: ThemeColors;
+    setTheme: (theme: AppTheme) => void;
 };
 
 const ThemeContext = createContext<ThemeContextValue>({
     theme: DEFAULT_THEME,
     colors: themes[DEFAULT_THEME],
+    setTheme: () => {},
 });
 
 export function useTheme() {
@@ -53,9 +56,11 @@ type ThemeProviderProps = {
 };
 
 export default function ThemeProvider({
-                                          theme = DEFAULT_THEME,
+                                          theme: initialTheme = DEFAULT_THEME,
                                           children,
                                       }: ThemeProviderProps) {
+    const [theme, setTheme] = useState<AppTheme>(initialTheme);
+
     const colors = themes[theme] ?? themes[DEFAULT_THEME];
 
     const themeVariables = Object.fromEntries(
@@ -66,7 +71,7 @@ export default function ThemeProvider({
     );
 
     return (
-        <ThemeContext.Provider value={{ theme, colors }}>
+        <ThemeContext.Provider value={{ theme, colors, setTheme }}>
             <View style={[{ flex: 1 }, vars(themeVariables)]}>
                 {children}
             </View>

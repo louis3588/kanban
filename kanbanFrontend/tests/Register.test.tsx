@@ -25,7 +25,7 @@ jest.mock("../src/context/AuthContext", () => ({
     useAuth: jest.fn(),
 }));
 
-jest.mock("@/components/ui/GoogleAuthButton", () => {
+jest.mock("@/components/ui/externals/GoogleAuthButton", () => {
     const { Text, Pressable } = require("react-native");
 
     return function MockGoogleAuthButton() {
@@ -37,7 +37,7 @@ jest.mock("@/components/ui/GoogleAuthButton", () => {
     };
 });
 
-jest.mock("@/components/ui/MicrosoftAuthButton", () => {
+jest.mock("@/components/ui/externals/MicrosoftAuthButton", () => {
     const { Text, Pressable } = require("react-native");
 
     return function MockGoogleAuthButton() {
@@ -49,7 +49,7 @@ jest.mock("@/components/ui/MicrosoftAuthButton", () => {
     };
 });
 
-jest.mock("@/components/ui/GitHubAuthButton", () => {
+jest.mock("@/components/ui/externals/GitHubAuthButton", () => {
     const { Text, Pressable } = require("react-native");
 
     return function MockGoogleAuthButton() {

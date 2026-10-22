@@ -8,9 +8,9 @@ import {
 import { router } from "expo-router";
 import { registerClient as registerApi } from "@/client/api/apiClient";
 import {Image} from "expo-image";
-import GoogleAuthButton from "@/components/ui/GoogleAuthButton";
-import GitHubAuthButton from "@/components/ui/GitHubAuthButton";
-import MicrosoftAuthButton from "@/components/ui/MicrosoftAuthButton";
+import GoogleAuthButton from "@/components/ui/externals/GoogleAuthButton";
+import GitHubAuthButton from "@/components/ui/externals/GitHubAuthButton";
+import MicrosoftAuthButton from "@/components/ui/externals/MicrosoftAuthButton";
 
 export default function RegisterScreen() {
     const [username, setUsername] = useState("");

@@ -14,9 +14,9 @@ import {useState} from "react";
 import {loginClient, googleLoginUrl, googleLoginClient} from "@/client/api/apiClient";
 import {router} from "expo-router";
 import {Image} from "expo-image";
-import GoogleAuthButton from "@/components/ui/GoogleAuthButton";
-import GitHubAuthButton from "@/components/ui/GitHubAuthButton";
-import MicrosoftAuthButton from "@/components/ui/MicrosoftAuthButton";
+import GoogleAuthButton from "@/components/ui/externals/GoogleAuthButton";
+import GitHubAuthButton from "@/components/ui/externals/GitHubAuthButton";
+import MicrosoftAuthButton from "@/components/ui/externals/MicrosoftAuthButton";
 
 export default function Login() {
     const {login} = useAuth();
