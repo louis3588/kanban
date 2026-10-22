@@ -28,6 +28,12 @@ export default function HamburgerMenu(){
         router.push(`/(dashboard)/workspaces`)
     }
 
+    const openProfile = () => {
+        setMenuVisible(!menuVisible);
+        // @ts-ignore
+        router.push(`/(dashboard)/profile`)
+    }
+
     return (
         <>
             <Pressable
@@ -119,6 +125,34 @@ export default function HamburgerMenu(){
                                 style={{ color: colours.text }}
                             >
                                 Home
+                            </Text>
+                            <Ionicons
+                                name="chevron-forward"
+                                size={18}
+                                color={colours.textMuted}
+                            />
+                        </Pressable>
+
+                        <Pressable
+                            accessibilityRole="button"
+                            onPress={openProfile}
+                            className="min-h-12 flex-row items-center rounded-lg px-3 py-3"
+                            style={({ pressed }) => ({
+                                backgroundColor: pressed
+                                    ? colours.border
+                                    : "transparent",
+                            })}
+                        >
+                            <Ionicons
+                                name="person-circle-outline"
+                                size={22}
+                                color={colours.text}
+                            />
+                            <Text
+                                className="ml-3 flex-1 text-base font-semibold"
+                                style={{ color: colours.text }}
+                            >
+                                Profile
                             </Text>
                             <Ionicons
                                 name="chevron-forward"
