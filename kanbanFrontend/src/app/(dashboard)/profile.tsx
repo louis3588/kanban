@@ -4,6 +4,7 @@ import {getUserProfile, UserProfileResponse} from "@/client/signalr/profileClien
 import {AppTheme, themes} from "@/theme/themes";
 import {ScrollView, View, Text, Pressable, ActivityIndicator} from "react-native";
 import {Image} from "expo-image"
+import EditProfileModal from "@/components/profile/EditProfile";
 
 export default function ProfileScreen(){
     const {preferences, user, token} = useAuth();
@@ -11,6 +12,7 @@ export default function ProfileScreen(){
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isEditHovered, setIsEditHovered] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
 
     const defaultTheme = AppTheme.SepiaLight;
     const theme = preferences?.theme ?? defaultTheme;
@@ -189,15 +191,26 @@ export default function ProfileScreen(){
                                         </View>
                                     )}
 
+                                    {token && user ? (
+                                        <EditProfileModal
+                                            visible={isEditing}
+                                            token={token}
+                                            userId={user.id}
+                                            profile={preferences?.userProfileResponse ?? profile}
+                                            colours={colours}
+                                            onClose={() => setIsEditing(false)}
+                                            onSaved={(updatedProfile) => {
+                                                setProfile(updatedProfile)
+                                            }} />
+                                    ) : null}
+
                                     <Pressable
                                         onHoverIn={() => setIsEditHovered(true)}
                                         onHoverOut={() => setIsEditHovered(false)}
-                                        onPress={() => {
-                                            //TODO: Profile editing will be implemented later.
-                                        }}
+                                        onPress={() => setIsEditing(true)}
                                         accessibilityRole="button"
                                         accessibilityLabel="Edit profile"
-                                        className="mb-1 flex-row items-center gap-2 rounded-xl border px-4 py-2.5 transition-all duration-200"
+                                        className="mb-1 flex-row items-center gap-2 rounded-xl border px-4 py-1.5 transition-all duration-200"
                                         style={{
                                             borderColor: isEditHovered
                                                 ? colours.primary
