@@ -11,6 +11,8 @@ const THEME_OPTIONS: { value: AppTheme; label: string }[] = [
     { value: AppTheme.Light, label: "Light" },
     { value: AppTheme.Dark, label: "Dark" },
     { value: AppTheme.Forest, label: "Forest" },
+    { value: AppTheme.Bamboo, label: "Bamboo" },
+    { value: AppTheme.Red, label: "Red" },
 ];
 
 type SettingRowProps = {
