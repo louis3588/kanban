@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using DotNetEnv;
 using kanbanBackend.Data;
 using kanbanBackend.Hubs;
@@ -41,7 +42,12 @@ if (string.IsNullOrEmpty(jwtSecret))
 }
 builder.Services.AddDbContext<KanbanDbContext>(options =>
     options.UseNpgsql(connectionString));
-builder.Services.AddSignalR();
+builder.Services.AddSignalR()
+    .AddJsonProtocol(options =>
+    {
+        options.PayloadSerializerOptions
+            .Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddScoped<IJwtInterface, JwtService>();
 builder.Services.AddScoped<IAuthInterface, AuthService>();
 builder.Services.AddScoped<IUserDetailsInterface, UserDetailsService>();

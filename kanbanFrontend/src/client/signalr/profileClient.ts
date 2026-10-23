@@ -23,3 +23,9 @@ export const editUserProfile = async (token: string, profile: UserProfile): Prom
     const connection = await getConnection(token);
     return await connection.invoke<UserProfileResponse>("EditProfile", profile);
 }
+
+
+export const editUsername = async (token: string, username: string, userId: number): Promise<UserProfileResponse> => {
+    const connection = await getConnection(token);
+    return await connection.invoke<UserProfileResponse>("EditUsername", username, userId);
+};

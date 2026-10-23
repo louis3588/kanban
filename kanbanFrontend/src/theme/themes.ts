@@ -6,6 +6,8 @@ export enum AppTheme {
     Light = "Light",
     Dark = "Dark",
     Forest = "Forest",
+    Bamboo = "Bamboo",
+    Red = "Red"
 }
 
 export type ThemeColors = {
@@ -133,6 +135,42 @@ export const themes: Record<AppTheme, ThemeColors> = {
         success: "#4caf50",
         error: "#e57373",
         logoSepia: "#a7d7c5",
+    },
+
+    [AppTheme.Bamboo]: {
+        background: "#dce5cf",
+        backgroundDark: "#b9c99d",
+        surface: "#f4f0df",
+        surfaceLight: "#fbf8ed",
+        primary: "#416747",
+        primaryDark: "#2e4d34",
+        text: "#263d2b",
+        textLight: "#ffffff",
+        textMuted: "#66775c",
+        border: "#c4d1b3",
+        borderDark: "#91a47e",
+        accent: "#a88b5e",
+        success: "#487a4e",
+        error: "#a9473f",
+        logoSepia: "#78965b",
+    },
+
+    [AppTheme.Red]: {
+        background: "#ead3cf",
+        backgroundDark: "#d3aaa5",
+        surface: "#fff4ec",
+        surfaceLight: "#fffaf6",
+        primary: "#a52c38",
+        primaryDark: "#76202b",
+        text: "#48242a",
+        textLight: "#ffffff",
+        textMuted: "#86646a",
+        border: "#e5c4bd",
+        borderDark: "#c28b87",
+        accent: "#d69b91",
+        success: "#477653",
+        error: "#b42332",
+        logoSepia: "#a52c38",
     },
 };
 

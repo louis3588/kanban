@@ -8,9 +8,10 @@ import {
 import { router } from "expo-router";
 import { registerClient as registerApi } from "@/client/api/apiClient";
 import {Image} from "expo-image";
-import GoogleAuthButton from "@/components/ui/GoogleAuthButton";
-import GitHubAuthButton from "@/components/ui/GitHubAuthButton";
-import MicrosoftAuthButton from "@/components/ui/MicrosoftAuthButton";
+import GoogleAuthButton from "@/components/ui/externals/GoogleAuthButton";
+import GitHubAuthButton from "@/components/ui/externals/GitHubAuthButton";
+import MicrosoftAuthButton from "@/components/ui/externals/MicrosoftAuthButton";
+import {AppTheme, themes} from "@/theme/themes";
 
 export default function RegisterScreen() {
     const [username, setUsername] = useState("");
@@ -23,6 +24,8 @@ export default function RegisterScreen() {
     const [isLoading, setIsLoading] = useState(false);
     const [passwordFocused, setPasswordFocused] = useState(false);
     const [usernameFocus, setUsernameFocus] = useState(false);
+
+    const colours = themes[AppTheme.SepiaLight];
 
     const passwordLengthValid =
         password.length >= 8 && password.length <= 64;
@@ -121,9 +124,11 @@ export default function RegisterScreen() {
       })
     }
 
+
     return (
         <KeyboardAvoidingView
-            className="flex-1 bg-theme-background"
+            className="flex-1"
+            style={{ backgroundColor: colours.background }}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
             <ScrollView
@@ -135,9 +140,21 @@ export default function RegisterScreen() {
                 keyboardShouldPersistTaps="handled"
                 className="flex-1"
             >
-                <View className="w-full max-w-[1100px] self-center overflow-hidden rounded-3xl border border-theme-border bg-theme-surfaceLight shadow-2xl">
+                <View
+                    className="w-full max-w-[1100px] self-center overflow-hidden rounded-3xl border shadow-2xl"
+                    style={{
+                        backgroundColor: colours.surface,
+                        borderColor: colours.border,
+                    }}
+                >
                     <View className="flex-row flex-wrap">
-                        <View className="w-full border-b border-theme-border bg-theme-surface p-6 md:w-[30%] md:border-b-0 md:border-r">
+                        <View
+                            className="w-full border-b p-6 md:w-[30%] md:border-b-0 md:border-r"
+                            style={{
+                                backgroundColor: colours.surface,
+                                borderColor: colours.border,
+                            }}
+                        >
                             <View className="mb-8 items-center">
                                 <Image
                                     source={{
@@ -147,11 +164,17 @@ export default function RegisterScreen() {
                                     resizeMode="contain"
                                 />
 
-                                <Text className="mt-5 text-center text-xl font-bold text-theme-primaryDark">
+                                <Text
+                                    className="mt-5 text-center text-xl font-bold"
+                                    style={{ color: colours.primaryDark }}
+                                >
                                     Join Kanban
                                 </Text>
 
-                                <Text className="mt-2 text-center text-sm text-theme-textMuted">
+                                <Text
+                                    className="mt-2 text-center text-sm"
+                                    style={{ color: colours.textMuted }}
+                                >
                                     Create an account using your preferred provider.
                                 </Text>
                             </View>
@@ -175,18 +198,31 @@ export default function RegisterScreen() {
                             />
 
                             <View className="my-6 flex-row items-center">
-                                <View className="h-px flex-1 bg-theme-border" />
-                                <Text className="mx-3 text-xs text-theme-textMuted">
+                                <View
+                                    className="h-px flex-1"
+                                    style={{ backgroundColor: colours.border }}
+                                />
+                                <Text
+                                    className="mx-3 text-xs"
+                                    style={{ color: colours.textMuted }}
+                                >
                                     OR REGISTER WITH EMAIL
                                 </Text>
-                                <View className="h-px flex-1 bg-theme-border" />
+                                <View
+                                    className="h-px flex-1"
+                                    style={{ backgroundColor: colours.border }}
+                                />
                             </View>
 
-                            <Text className="text-center text-sm text-theme-textMuted">
+                            <Text
+                                className="text-center text-sm"
+                                style={{ color: colours.textMuted }}
+                            >
                                 Already have an account?{" "}
                                 <Text
                                     onPress={goToLogin}
-                                    className="font-bold text-theme-primary"
+                                    className="font-bold"
+                                    style={{ color: colours.primary }}
                                 >
                                     Log in
                                 </Text>
@@ -195,22 +231,36 @@ export default function RegisterScreen() {
 
                         <View className="w-full p-6 sm:p-8 md:w-[70%] md:p-10">
                             <View className="mb-8">
-                                <Text className="text-3xl font-bold tracking-tight text-theme-primaryDark">
+                                <Text
+                                    className="text-3xl font-bold tracking-tight"
+                                    style={{ color: colours.primaryDark }}
+                                >
                                     Create an account
                                 </Text>
-                                <Text className="mt-2 text-sm text-theme-textMuted">
+                                <Text
+                                    className="mt-2 text-sm"
+                                    style={{ color: colours.textMuted }}
+                                >
                                     Enter your details to get started.
                                 </Text>
                             </View>
 
-                            <Text className="mb-2 text-sm font-bold text-theme-text">
+                            <Text
+                                className="mb-2 text-sm font-bold"
+                                style={{ color: colours.text }}
+                            >
                                 Username
                             </Text>
 
                             <TextInput
-                                className="mb-3 rounded-xl border border-theme-border bg-theme-surface px-4 py-3 text-base text-theme-text"
+                                className="mb-3 rounded-xl border px-4 py-3 text-base"
+                                style={{
+                                    backgroundColor: colours.surface,
+                                    borderColor: colours.border,
+                                    color: colours.text,
+                                }}
                                 placeholder="Username"
-                                placeholderTextColor="#a08361"
+                                placeholderTextColor={colours.textMuted}
                                 value={username}
                                 onFocus={() => setUsernameFocus(true)}
                                 onBlur={() => setUsernameFocus(false)}
@@ -224,11 +274,12 @@ export default function RegisterScreen() {
                             {usernameFocus && (
                                 <View className="mb-4">
                                     <Text
-                                        className={
-                                            usernameLengthValid
-                                                ? "mb-1 text-sm text-theme-success"
-                                                : "mb-1 text-sm text-theme-error"
-                                        }
+                                        className="mb-1 text-sm"
+                                        style={{
+                                            color: usernameLengthValid
+                                                ? colours.success
+                                                : colours.error,
+                                        }}
                                     >
                                         ● 5-48 characters
                                     </Text>
@@ -237,14 +288,22 @@ export default function RegisterScreen() {
 
                             <View className="flex-row flex-wrap">
                                 <View className="w-full sm:w-1/2 sm:pr-3">
-                                    <Text className="mb-2 text-sm font-bold text-theme-text">
+                                    <Text
+                                        className="mb-2 text-sm font-bold"
+                                        style={{ color: colours.text }}
+                                    >
                                         First Name
                                     </Text>
 
                                     <TextInput
-                                        className="mb-5 rounded-xl border border-theme-border bg-theme-surface px-4 py-3 text-base text-theme-text"
+                                        className="mb-5 rounded-xl border px-4 py-3 text-base"
+                                        style={{
+                                            backgroundColor: colours.surface,
+                                            borderColor: colours.border,
+                                            color: colours.text,
+                                        }}
                                         placeholder="First Name"
-                                        placeholderTextColor="#a08361"
+                                        placeholderTextColor={colours.textMuted}
                                         value={firstName}
                                         onChangeText={(text) => {
                                             setFirstName(text);
@@ -255,14 +314,22 @@ export default function RegisterScreen() {
                                 </View>
 
                                 <View className="w-full sm:w-1/2 sm:pl-3">
-                                    <Text className="mb-2 text-sm font-bold text-theme-text">
+                                    <Text
+                                        className="mb-2 text-sm font-bold"
+                                        style={{ color: colours.text }}
+                                    >
                                         Last Name
                                     </Text>
 
                                     <TextInput
-                                        className="mb-5 rounded-xl border border-theme-border bg-theme-surface px-4 py-3 text-base text-theme-text"
+                                        className="mb-5 rounded-xl border px-4 py-3 text-base"
+                                        style={{
+                                            backgroundColor: colours.surface,
+                                            borderColor: colours.border,
+                                            color: colours.text,
+                                        }}
                                         placeholder="Last Name"
-                                        placeholderTextColor="#a08361"
+                                        placeholderTextColor={colours.textMuted}
                                         value={lastName}
                                         onChangeText={(text) => {
                                             setLastName(text);
@@ -273,14 +340,22 @@ export default function RegisterScreen() {
                                 </View>
                             </View>
 
-                            <Text className="mb-2 text-sm font-bold text-theme-text">
+                            <Text
+                                className="mb-2 text-sm font-bold"
+                                style={{ color: colours.text }}
+                            >
                                 Email
                             </Text>
 
                             <TextInput
-                                className="mb-5 rounded-xl border border-theme-border bg-theme-surface px-4 py-3 text-base text-theme-text"
+                                className="mb-5 rounded-xl border px-4 py-3 text-base"
+                                style={{
+                                    backgroundColor: colours.surface,
+                                    borderColor: colours.border,
+                                    color: colours.text,
+                                }}
                                 placeholder="Email"
-                                placeholderTextColor="#a08361"
+                                placeholderTextColor={colours.textMuted}
                                 value={email}
                                 onChangeText={(text) => {
                                     setEmail(text);
@@ -290,14 +365,22 @@ export default function RegisterScreen() {
                                 keyboardType="email-address"
                             />
 
-                            <Text className="mb-2 text-sm font-bold text-theme-text">
+                            <Text
+                                className="mb-2 text-sm font-bold"
+                                style={{ color: colours.text }}
+                            >
                                 Password
                             </Text>
 
                             <TextInput
-                                className="mb-3 rounded-xl border border-theme-border bg-theme-surface px-4 py-3 text-base text-theme-text"
+                                className="mb-3 rounded-xl border px-4 py-3 text-base"
+                                style={{
+                                    backgroundColor: colours.surface,
+                                    borderColor: colours.border,
+                                    color: colours.text,
+                                }}
                                 placeholder="Password"
-                                placeholderTextColor="#a08361"
+                                placeholderTextColor={colours.textMuted}
                                 value={password}
                                 onFocus={() => setPasswordFocused(true)}
                                 onChangeText={(text) => {
@@ -310,55 +393,67 @@ export default function RegisterScreen() {
                             {passwordFocused && (
                                 <View className="mb-4">
                                     <Text
-                                        className={
-                                            passwordLengthValid
-                                                ? "mb-1 text-sm text-theme-success"
-                                                : "mb-1 text-sm text-theme-error"
-                                        }
+                                        className="mb-1 text-sm"
+                                        style={{
+                                            color: passwordLengthValid
+                                                ? colours.success
+                                                : colours.error,
+                                        }}
                                     >
                                         ● 8–64 characters
                                     </Text>
 
                                     <Text
-                                        className={
-                                            passwordUppercaseValid
-                                                ? "mb-1 text-sm text-theme-success"
-                                                : "mb-1 text-sm text-theme-error"
-                                        }
+                                        className="mb-1 text-sm"
+                                        style={{
+                                            color: passwordUppercaseValid
+                                                ? colours.success
+                                                : colours.error,
+                                        }}
                                     >
                                         ● At least one uppercase letter
                                     </Text>
 
                                     <Text
-                                        className={
-                                            passwordNumberValid
-                                                ? "mb-1 text-sm text-theme-success"
-                                                : "mb-1 text-sm text-theme-error"
-                                        }
+                                        className="mb-1 text-sm"
+                                        style={{
+                                            color: passwordNumberValid
+                                                ? colours.success
+                                                : colours.error,
+                                        }}
                                     >
                                         ● At least one number
                                     </Text>
 
                                     <Text
-                                        className={
-                                            passwordsMatch
-                                                ? "mb-1 text-sm text-theme-success"
-                                                : "mb-1 text-sm text-theme-error"
-                                        }
+                                        className="mb-1 text-sm"
+                                        style={{
+                                            color: passwordsMatch
+                                                ? colours.success
+                                                : colours.error,
+                                        }}
                                     >
                                         ● Passwords match
                                     </Text>
                                 </View>
                             )}
 
-                            <Text className="mb-2 text-sm font-bold text-theme-text">
+                            <Text
+                                className="mb-2 text-sm font-bold"
+                                style={{ color: colours.text }}
+                            >
                                 Confirm Password
                             </Text>
 
                             <TextInput
-                                className="mb-5 rounded-xl border border-theme-border bg-theme-surface px-4 py-3 text-base text-theme-text"
+                                className="mb-5 rounded-xl border px-4 py-3 text-base"
+                                style={{
+                                    backgroundColor: colours.surface,
+                                    borderColor: colours.border,
+                                    color: colours.text,
+                                }}
                                 placeholder="Confirm password"
-                                placeholderTextColor="#a08361"
+                                placeholderTextColor={colours.textMuted}
                                 value={confirmPassword}
                                 onChangeText={(text) => {
                                     setConfirmPassword(text);
@@ -368,8 +463,17 @@ export default function RegisterScreen() {
                             />
 
                             {error !== "" && (
-                                <View className="mb-5 rounded-xl border border-[#d5aaa3] bg-[#f5dfdb] px-4 py-3">
-                                    <Text className="text-sm font-medium text-theme-error">
+                                <View
+                                    className="mb-5 rounded-xl border px-4 py-3"
+                                    style={{
+                                        backgroundColor: colours.surface,
+                                        borderColor: colours.error,
+                                    }}
+                                >
+                                    <Text
+                                        className="text-sm font-medium"
+                                        style={{ color: colours.error }}
+                                    >
                                         {error}
                                     </Text>
                                 </View>
@@ -378,11 +482,15 @@ export default function RegisterScreen() {
                             <Pressable
                                 onPress={handleRegister}
                                 disabled={isLoading}
-                                className={`rounded-xl bg-theme-primary px-5 py-4 ${
-                                    isLoading ? "opacity-60" : ""
-                                }`}
+                                className={`rounded-xl px-5 py-4 ${
+            isLoading ? "opacity-60" : ""
+        }`}
+                                style={{ backgroundColor: colours.primary }}
                             >
-                                <Text className="text-center font-bold text-theme-textLight">
+                                <Text
+                                    className="text-center font-bold"
+                                    style={{ color: colours.textLight }}
+                                >
                                     {isLoading ? "Creating account..." : "Register"}
                                 </Text>
                             </Pressable>

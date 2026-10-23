@@ -415,6 +415,15 @@ public class AuthService : IAuthInterface
         _context.ExternalLogins.Add(newLogin);
         await _context.SaveChangesAsync();
         
+        var settingsResponse = await _emailConfirmationService.InitialiseUserSettings(newUser);
+        if (!settingsResponse.IsSuccess)
+        {
+            ModelResult<AuthResponse>.Failure(settingsResponse.ErrorMessage!);
+        }
+        var userSettings = settingsResponse.Value!;
+        _context.UserSettings.Add(userSettings);
+        await _context.SaveChangesAsync();
+        
         var confirmationToken = await _emailConfirmationService.GenerateEmailConfirmationTokenAsync(newUser);
         var frontendUrl = Environment.GetEnvironmentVariable("FRONTENDURL")
                           ?? throw new InvalidOperationException("Frontend URL is missing");
@@ -533,6 +542,15 @@ public class AuthService : IAuthInterface
         _context.ExternalLogins.Add(externalLogin);
         await _context.SaveChangesAsync();
 
+        var settingsResponse = await _emailConfirmationService.InitialiseUserSettings(newUser);
+        if (!settingsResponse.IsSuccess)
+        {
+            return ModelResult<AuthResponse>.Failure(settingsResponse.ErrorMessage!);
+        }
+        var userSettings = settingsResponse.Value!;
+        _context.UserSettings.Add(userSettings);
+        await _context.SaveChangesAsync();
+        
         var newUserResponse = new AuthResponse
         {
             Token = _jwtService.GenerateToken(newUser),
