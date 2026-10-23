@@ -7,5 +7,7 @@ public enum AppTheme
     Pastel,
     Light,
     Dark,
-    Forest
+    Forest,
+    Bamboo,
+    Red
 }

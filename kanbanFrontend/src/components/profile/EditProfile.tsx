@@ -65,7 +65,6 @@ export default function EditProfileModal({
     const [isPhotoHovered, setIsPhotoHovered] = useState(false);
     const [usernameSuggestions, setUsernameSuggestions] = useState<string[]>([]);
     const {preferences, user} = useAuth()
-
     const currentProfile = preferences?.userProfileResponse ?? profile;
 
     useEffect(() => {
