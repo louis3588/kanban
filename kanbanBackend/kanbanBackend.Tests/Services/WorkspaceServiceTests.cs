@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using kanbanBackend.Data;
 using kanbanBackend.Models;
+using kanbanBackend.Models.Enum;
 using kanbanBackend.Services.Auth;
 using kanbanBackend.Services.Dashboard;
 using Microsoft.AspNetCore.Http;
@@ -103,7 +104,7 @@ public class WorkspaceServiceTests
 
         Assert.Equal(
             "Owner",
-            result.Value.Role);
+            result.Value.Role.ToString());
 
         var workspace = await dbContext.Workspaces
             .FirstOrDefaultAsync();
@@ -121,7 +122,7 @@ public class WorkspaceServiceTests
 
         Assert.Equal(user.Id, membership!.UserId);
         Assert.Equal(workspace.Id, membership.WorkspaceId);
-        Assert.Equal("Owner", membership.Role);
+        Assert.Equal("Owner", membership.Role.ToString());
     }
 
     [Fact]
@@ -234,19 +235,19 @@ public class WorkspaceServiceTests
             {
                 UserId = user1.Id,
                 Workspace = workspace1,
-                Role = "Owner"
+                Role = WorkspaceRole.Owner
             },
             new WorkspaceMember
             {
                 UserId = user1.Id,
                 Workspace = workspace2,
-                Role = "Member"
+                Role = WorkspaceRole.Member
             },
             new WorkspaceMember
             {
                 UserId = user2.Id,
                 Workspace = workspace3,
-                Role = "Owner"
+                Role = WorkspaceRole.Owner
             });
 
         await dbContext.SaveChangesAsync();
@@ -301,13 +302,13 @@ public class WorkspaceServiceTests
             {
                 UserId = user.Id,
                 Workspace = ownerWorkspace,
-                Role = "Owner"
+                Role = WorkspaceRole.Owner
             },
             new WorkspaceMember
             {
                 UserId = user.Id,
                 Workspace = memberWorkspace,
-                Role = "Member"
+                Role = WorkspaceRole.Member
             });
 
         await dbContext.SaveChangesAsync();
@@ -328,8 +329,8 @@ public class WorkspaceServiceTests
             .First(workspace =>
                 workspace.Name == "Member Workspace");
 
-        Assert.Equal("Owner", ownerResult.Role);
-        Assert.Equal("Member", memberResult.Role);
+        Assert.Equal("Owner", ownerResult.Role.ToString());
+        Assert.Equal("Member", memberResult.Role.ToString());
     }
 
     [Fact]
@@ -351,7 +352,7 @@ public class WorkspaceServiceTests
             {
                 UserId = user.Id,
                 Workspace = workspace,
-                Role = "Owner"
+                Role = WorkspaceRole.Owner
             });
 
         await dbContext.SaveChangesAsync();
@@ -399,13 +400,13 @@ public class WorkspaceServiceTests
             {
                 UserId = owner.Id,
                 Workspace = workspace,
-                Role = "Owner"
+                Role = WorkspaceRole.Owner
             },
             new WorkspaceMember
             {
                 UserId = member.Id,
                 Workspace = workspace,
-                Role = "Member"
+                Role = WorkspaceRole.Member
             });
 
         await dbContext.SaveChangesAsync();
@@ -451,7 +452,7 @@ public class WorkspaceServiceTests
             {
                 UserId = user.Id,
                 Workspace = workspace,
-                Role = "Owner"
+                Role = WorkspaceRole.Owner
             });
 
         await dbContext.SaveChangesAsync();
@@ -490,7 +491,7 @@ public class WorkspaceServiceTests
             {
                 UserId = user.Id,
                 Workspace = workspace,
-                Role = "Owner"
+                Role = WorkspaceRole.Owner
             });
 
         await dbContext.SaveChangesAsync();
@@ -540,13 +541,13 @@ public class WorkspaceServiceTests
             {
                 UserId = owner.Id,
                 Workspace = workspace,
-                Role = "Owner"
+                Role = WorkspaceRole.Owner
             },
             new WorkspaceMember
             {
                 UserId = member.Id,
                 Workspace = workspace,
-                Role = "Member"
+                Role = WorkspaceRole.Owner
             });
 
         await dbContext.SaveChangesAsync();

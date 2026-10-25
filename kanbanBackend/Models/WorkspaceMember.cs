@@ -1,3 +1,5 @@
+using kanbanBackend.Models.Enum;
+
 namespace kanbanBackend.Models;
 
 public class WorkspaceMember
@@ -10,7 +12,7 @@ public class WorkspaceMember
 
     public Workspace Workspace { get; set; } = null!;
 
-    public string Role { get; set; } = "Member";
+    public WorkspaceRole Role { get; set; } = WorkspaceRole.Member;
 
     public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
 }

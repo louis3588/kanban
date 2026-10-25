@@ -1,4 +1,5 @@
 using kanbanBackend.Data;
+using kanbanBackend.Models.Enum;
 using Microsoft.EntityFrameworkCore;
 
 namespace kanbanBackend.Services.Auth;
@@ -27,7 +28,7 @@ public class WorkspaceAuthService
             .AnyAsync(member =>
                 member.UserId == userId &&
                 member.WorkspaceId == workspaceId &&
-                member.Role == "Owner"
+                member.Role == WorkspaceRole.Owner
             );
     }
 
@@ -37,7 +38,16 @@ public class WorkspaceAuthService
             .AnyAsync(member =>
                 member.UserId == userId &&
                 member.WorkspaceId == workspaceId &&
-                (member.Role == "Admin" || member.Role == "Owner")
+                (member.Role == WorkspaceRole.Admin || member.Role == WorkspaceRole.Owner)
             );
+    }
+
+    public async Task<bool> CanEditTasksAsync(int userId, int workspaceId)
+    {
+        return await _context.WorkspaceMembers
+            .AnyAsync(member =>
+                member.UserId == userId &&
+                member.WorkspaceId == workspaceId &&
+                member.Role != WorkspaceRole.Viewer);
     }
 }

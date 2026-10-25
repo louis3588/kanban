@@ -100,8 +100,13 @@ public class KanbanDbContext : DbContext
                 wm.UserId,
                 wm.WorkspaceId
             });
+            
+            entity.HasIndex(wm => wm.WorkspaceId)
+                .IsUnique()
+                .HasFilter("\"Role\" = 'Owner'");
 
             entity.Property(wm => wm.Role)
+                .HasConversion<string>()
                 .IsRequired()
                 .HasMaxLength(20);
             
