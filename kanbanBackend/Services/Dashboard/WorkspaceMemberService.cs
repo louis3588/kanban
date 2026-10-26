@@ -63,9 +63,9 @@ public class WorkspaceMemberService : IWorkspaceMemberInterface
             return ModelResult<List<WorkspaceMemberResponse>>
                 .Failure(potentialUserId.ErrorMessage ?? "User could not be identified");
         }
-        var userId =  potentialUserId.Value!;
+        var userId =  potentialUserId.Value;
 
-        var hasAccess = await _workAuthService.CanEditTasksAsync(userId, workspaceId);
+        var hasAccess = await _workAuthService.IsMemberAsync(userId, workspaceId);
         if (!hasAccess)
         {
             return ModelResult<List<WorkspaceMemberResponse>>.Failure("You do not have access to this workspace");
@@ -134,7 +134,7 @@ public class WorkspaceMemberService : IWorkspaceMemberInterface
         {
             return _userNotFound;
         }
-        var alreadyAMember = await _workAuthService.IsMemberAsync(userId, workspaceId);
+        var alreadyAMember = await _workAuthService.IsMemberAsync(user.Id, workspaceId);
         if (alreadyAMember)
         {
             return ModelResult<WorkspaceMemberResponse>.Failure("User is already a member of this workspace");
@@ -150,6 +150,7 @@ public class WorkspaceMemberService : IWorkspaceMemberInterface
         };
 
         await _context.WorkspaceMembers.AddAsync(membership);
+        await _context.SaveChangesAsync();
         var response = ToResponse(membership);
         return ModelResult<WorkspaceMemberResponse>.Success(response);
     }
@@ -190,7 +191,7 @@ public class WorkspaceMemberService : IWorkspaceMemberInterface
             return ModelResult<WorkspaceMemberResponse>.Failure("The workspace owner can not be demoted");
         }
 
-        if (!isOwner && membership.Role == WorkspaceRole.Admin || newRole == WorkspaceRole.Admin)
+        if (!isOwner && (membership.Role == WorkspaceRole.Admin || newRole == WorkspaceRole.Admin))
         {
             return ModelResult<WorkspaceMemberResponse>.Failure("Only the workspace owner can manage admin roles");
         }
