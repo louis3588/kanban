@@ -102,6 +102,11 @@ public class KanbanDbContext : DbContext
             });
             
             entity.HasIndex(wm => wm.WorkspaceId)
+                .HasDatabaseName("IX_WorkspaceMembers_WorkspaceId");
+            
+            entity.HasIndex(
+                    wm => wm.WorkspaceId,
+                    "IX_WorkspaceMembers_SingleOwner")
                 .IsUnique()
                 .HasFilter("\"Role\" = 'Owner'");
 
@@ -182,8 +187,10 @@ public class KanbanDbContext : DbContext
                 .HasMaxLength(5000);
 
             entity.Property(t => t.Priority)
-                .IsRequired()
-                .HasMaxLength(20);
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .HasDefaultValue(TaskPriority.Medium)
+                .HasSentinel(TaskPriority.Medium);
 
             entity.HasOne(t => t.Column)
                 .WithMany(t => t.Tasks)

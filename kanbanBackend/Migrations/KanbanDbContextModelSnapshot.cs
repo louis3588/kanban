@@ -17,7 +17,7 @@ namespace kanbanBackend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.32")
+                .HasAnnotation("ProductVersion", "8.0.33")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -131,8 +131,10 @@ namespace kanbanBackend.Migrations
 
                     b.Property<string>("Priority")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("Medium");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -290,7 +292,12 @@ namespace kanbanBackend.Migrations
 
                     b.HasKey("UserId", "WorkspaceId");
 
-                    b.HasIndex("WorkspaceId");
+                    b.HasIndex("WorkspaceId")
+                        .HasDatabaseName("IX_WorkspaceMembers_WorkspaceId");
+
+                    b.HasIndex(new[] { "WorkspaceId" }, "IX_WorkspaceMembers_SingleOwner")
+                        .IsUnique()
+                        .HasFilter("\"Role\" = 'Owner'");
 
                     b.ToTable("WorkspaceMembers");
                 });

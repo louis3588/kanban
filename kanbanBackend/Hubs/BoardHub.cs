@@ -1,8 +1,10 @@
 using kanbanBackend.DTOs.Dashboard;
 using kanbanBackend.DTOs.Profile;
+using kanbanBackend.Models.Enum;
 using kanbanBackend.Services.Auth;
 using kanbanBackend.Services.Auth.Interfaces;
 using kanbanBackend.Services.Dashboard;
+using kanbanBackend.Services.Dashboard.Interfaces;
 using kanbanBackend.Util;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -14,12 +16,14 @@ public class BoardHub : Hub
 {
     private readonly WorkspaceService _workspaceService;
     private readonly IUserDetailsInterface _userDetailsService;
+    private readonly IWorkspaceMemberInterface _workspaceMemberService;
 
     public BoardHub(
-        WorkspaceService workspaceService, IUserDetailsInterface userDetailsService)
+        WorkspaceService workspaceService, IUserDetailsInterface userDetailsService,  IWorkspaceMemberInterface workspaceMemberService)
     {
         _workspaceService = workspaceService;
         _userDetailsService = userDetailsService;
+        _workspaceMemberService = workspaceMemberService;
     }
     
     public async Task<WorkspaceResponse> CreateWorkspace(string name){
@@ -120,6 +124,71 @@ public class BoardHub : Hub
             enableEmailNotifications: preferences.EnableEmailNotifications,
             userId: id
         );
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
+
+        return result.Value!;
+    }
+    
+    public async Task<List<WorkspaceMemberResponse>> GetWorkspaceMembers(
+        int workspaceId)
+    {
+        var result = await _workspaceMemberService.GetWorkspaceMembersAsync(workspaceId);
+
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
+
+        return result.Value!;
+    }
+
+    public async Task<WorkspaceMemberResponse> AddWorkspaceMember(
+        int workspaceId, string username, WorkspaceRole role)
+    {
+        var result = await _workspaceMemberService.AddWorkspaceMembersAsync(workspaceId, username, role);
+
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
+
+        return result.Value!;
+    }
+
+    public async Task<WorkspaceMemberResponse> UpdateWorkspaceMemberRole(
+        int workspaceId, int userId, WorkspaceRole role)
+    {
+        var result = await _workspaceMemberService.UpdateWorkspaceMemberAsync(workspaceId, userId, role);
+
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
+
+        return result.Value!;
+    }
+
+    public async Task<bool> RemoveWorkspaceMember(
+        int workspaceId, int userId)
+    {
+        var result = await _workspaceMemberService.DeleteWorkspaceMemberAsync(workspaceId, userId);
+
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
+
+        return result.Value!;
+    }
+
+    public async Task<WorkspaceMemberResponse> TransferWorkspaceOwnership(
+        int workspaceId, int newOwnerId)
+    {
+        var result = await _workspaceMemberService.TransferWorkspaceOwnershipAsync(workspaceId, newOwnerId);
+
         if (!result.IsSuccess)
         {
             throw new HubException(result.ErrorMessage);

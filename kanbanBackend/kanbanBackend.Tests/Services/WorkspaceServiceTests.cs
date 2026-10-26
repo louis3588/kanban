@@ -547,7 +547,7 @@ public class WorkspaceServiceTests
             {
                 UserId = member.Id,
                 Workspace = workspace,
-                Role = WorkspaceRole.Owner
+                Role = WorkspaceRole.Member
             });
 
         await dbContext.SaveChangesAsync();

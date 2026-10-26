@@ -1,3 +1,5 @@
+using kanbanBackend.Models.Enum;
+
 namespace kanbanBackend.Models;
 
 public class TaskItem
@@ -6,7 +8,7 @@ public class TaskItem
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; } = string.Empty;
     public int Position { get; set; }
-    public string Priority { get; set; } = "Medium";
+    public TaskPriority Priority { get; set; } = TaskPriority.Medium;
     public DateTime? DueDate { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
