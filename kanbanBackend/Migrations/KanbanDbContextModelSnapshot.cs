@@ -274,6 +274,54 @@ namespace kanbanBackend.Migrations
                     b.ToTable("Workspaces");
                 });
 
+            modelBuilder.Entity("kanbanBackend.Models.WorkspaceInvitation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CodeHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedByUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("MaxUses")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RedeemedCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<DateTime?>("RevokedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("WorkspaceId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CodeHash")
+                        .IsUnique();
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("WorkspaceId");
+
+                    b.ToTable("WorkspaceInvitations");
+                });
+
             modelBuilder.Entity("kanbanBackend.Models.WorkspaceMember", b =>
                 {
                     b.Property<int>("UserId")
@@ -364,6 +412,24 @@ namespace kanbanBackend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("kanbanBackend.Models.WorkspaceInvitation", b =>
+                {
+                    b.HasOne("kanbanBackend.Models.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("kanbanBackend.Models.Workspace", "Workspace")
+                        .WithMany("Invitations")
+                        .HasForeignKey("WorkspaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("Workspace");
+                });
+
             modelBuilder.Entity("kanbanBackend.Models.WorkspaceMember", b =>
                 {
                     b.HasOne("kanbanBackend.Models.User", "User")
@@ -406,6 +472,8 @@ namespace kanbanBackend.Migrations
             modelBuilder.Entity("kanbanBackend.Models.Workspace", b =>
                 {
                     b.Navigation("Boards");
+
+                    b.Navigation("Invitations");
 
                     b.Navigation("Members");
                 });

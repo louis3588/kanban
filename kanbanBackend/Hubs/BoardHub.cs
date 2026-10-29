@@ -17,13 +17,16 @@ public class BoardHub : Hub
     private readonly WorkspaceService _workspaceService;
     private readonly IUserDetailsInterface _userDetailsService;
     private readonly IWorkspaceMemberInterface _workspaceMemberService;
+    private readonly IWorkspaceInvitationInterface _workspaceInvitationService;
 
     public BoardHub(
-        WorkspaceService workspaceService, IUserDetailsInterface userDetailsService,  IWorkspaceMemberInterface workspaceMemberService)
+        WorkspaceService workspaceService, IUserDetailsInterface userDetailsService,
+        IWorkspaceMemberInterface workspaceMemberService, IWorkspaceInvitationInterface workspaceInvitationService)
     {
         _workspaceService = workspaceService;
         _userDetailsService = userDetailsService;
         _workspaceMemberService = workspaceMemberService;
+        _workspaceInvitationService = workspaceInvitationService;
     }
     
     public async Task<WorkspaceResponse> CreateWorkspace(string name){
@@ -193,7 +196,46 @@ public class BoardHub : Hub
         {
             throw new HubException(result.ErrorMessage);
         }
+        return result.Value!;
+    }
 
+    public async Task<CreatedWorkspaceInvitation> CreateWorkspaceInvitation(CreateInvitationRequest request)
+    {
+        var result = await _workspaceInvitationService.CreateWorkspaceInvitation(request);
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
+        return result.Value!;
+    }
+
+    public async Task<List<WorkspaceInvitationResponse>> GetWorkspaceInvitations(int workspaceId)
+    {
+        var result = await _workspaceInvitationService.GetWorkspaceInvitations(workspaceId);
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
+        return result.Value!;
+    }
+
+    public async Task<bool> RevokeWorkspaceInvitation(int workspaceId, int invitationId)
+    {
+        var result = await _workspaceInvitationService.RevokeInvitation(workspaceId, invitationId);
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
+        return result.IsSuccess;
+    }
+
+    public async Task<WorkspaceResponse> JoinWorkspace(string code)
+    {
+        var result = await _workspaceInvitationService.JoinWorkspace(code);
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
         return result.Value!;
     }
 }

@@ -240,6 +240,14 @@ public class WorkspaceMemberService : IWorkspaceMemberInterface
             return ModelResult<bool>.Failure("Only the workspace owner can remove an admin");
         }
 
+        await _context.WorkspaceInvitations
+            .Where(i =>
+                i.WorkspaceId == workspaceId &&
+                i.CreatedByUserId == targetUserId &&
+                i.RevokedAtUtc == null)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(i => i.RevokedAtUtc, DateTime.UtcNow));
+        
         await _context.TaskItems
             .Where(t =>
                 t.AssignedUserId == targetUserId &&

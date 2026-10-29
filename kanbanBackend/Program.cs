@@ -55,6 +55,7 @@ builder.Services.AddScoped<IUserDetailsInterface, UserDetailsService>();
 builder.Services.AddScoped<CurrentUserService>();
 builder.Services.AddScoped<WorkspaceService>();
 builder.Services.AddScoped<IWorkspaceMemberInterface, WorkspaceMemberService>();
+builder.Services.AddScoped<IWorkspaceInvitationInterface, WorkspaceInvitationService>();
 builder.Services.AddScoped<WorkspaceAuthService>();
 builder.Services.AddScoped<IEmailInterface, EmailService>();
 builder.Services.AddScoped<IEmailConfirmationInterface, EmailConfirmationService>();

@@ -11,6 +11,9 @@ public class Workspace
     public ICollection<WorkspaceMember> Members { get; set; }
         = new List<WorkspaceMember>();
 
+    public ICollection<WorkspaceInvitation> Invitations { get; set; } 
+        = new List<WorkspaceInvitation>();
+    
     public ICollection<Board> Boards { get; set; }
         = new List<Board>();
 }

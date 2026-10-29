@@ -19,6 +19,7 @@ public class KanbanDbContext : DbContext
     public DbSet<BoardColumn> BoardColumns => Set<BoardColumn>();
     public DbSet<TaskItem> TaskItems => Set<TaskItem>();
     public DbSet<UserSettings> UserSettings => Set<UserSettings>();
+    public DbSet<WorkspaceInvitation> WorkspaceInvitations => Set<WorkspaceInvitation>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -81,6 +82,33 @@ public class KanbanDbContext : DbContext
                 .HasConversion<string>()
                 .HasMaxLength(20)
                 .HasDefaultValue(AppTheme.SepiaLight);
+        });
+
+        modelBuilder.Entity<WorkspaceInvitation>(entity =>
+        {
+            entity.HasKey(wi => wi.Id);
+
+            entity.Property(wi => wi.CodeHash)
+                .IsRequired()
+                .HasMaxLength(64);
+
+            entity.HasIndex(wi => wi.CodeHash)
+                .IsUnique();
+            entity.HasIndex(wi => wi.WorkspaceId);
+
+            entity.Property(wi => wi.RedeemedCount)
+                .HasDefaultValue(0);
+
+            entity.HasOne(wi => wi.Workspace)
+                .WithMany(w => w.Invitations)
+                .HasForeignKey(wi => wi.WorkspaceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(wi => wi.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(wi => wi.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
         });
         
         // Workspace
