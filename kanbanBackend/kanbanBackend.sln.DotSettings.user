@@ -1,6 +1,6 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AActionMethodExecutor_002Ecs_002Fl_003AC_0021_003FUsers_003Fpolly_003FAppData_003FRoaming_003FJetBrains_003FRider2026_002E2_003Fresharper_002Dhost_003FSourcesCache_003F294078ecfce6fdb942ecfee089f09717de7a6fcfe5efd9fdb6f4f93c0fb4813_003FActionMethodExecutor_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=58c56b00_002Df81e_002D48fd_002Da74f_002Dc8e84271fcf4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Continuous Testing" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=58c56b00_002Df81e_002D48fd_002Da74f_002Dc8e84271fcf4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Continuous Testing" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Solution /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=68bd0072_002D7bd9_002D498b_002Dbdbf_002D50b6a5bb194e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Test1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
@@ -13,9 +13,11 @@
     &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.AuthControllerTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.UserDetailsServiceTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.WorkspaceServiceTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.WorkspaceInvitationTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.WorkspaceMemberTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=b8ddee98_002Dbc53_002D4e1a_002D9538_002D69d919d70e5e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="UnitTest1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=b8ddee98_002Dbc53_002D4e1a_002D9538_002D69d919d70e5e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="UnitTest1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.UnitTest1&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.KanbanDbContextTests.DBContext_CanBeCreated&lt;/TestId&gt;&#xD;
@@ -28,5 +30,6 @@
     &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.UserDetailsServiceTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.EmailServiceTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.WorkspaceMemberTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.WorkspaceInvitationTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
