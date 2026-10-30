@@ -7,6 +7,10 @@ public class Workspace
     public string Name { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    
+    public string? ImageUrl { get; set; } = string.Empty;
+    
+    public ICollection<WorkspaceLabel> Labels { get; set; } = new List<WorkspaceLabel>();
 
     public ICollection<WorkspaceMember> Members { get; set; }
         = new List<WorkspaceMember>();
