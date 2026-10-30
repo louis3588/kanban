@@ -22,6 +22,7 @@ public class KanbanDbContext : DbContext
     public DbSet<WorkspaceInvitation> WorkspaceInvitations => Set<WorkspaceInvitation>();
     public DbSet<WorkspaceLabel> WorkspaceLabels => Set<WorkspaceLabel>();
     public DbSet<TaskItemLabel> TaskItemLabels => Set<TaskItemLabel>();
+    public DbSet<SuccessCriteria> SuccessCriteria => Set<SuccessCriteria>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -234,10 +235,6 @@ public class KanbanDbContext : DbContext
                 .HasMaxLength(20)
                 .HasDefaultValue(TaskPriority.Medium)
                 .HasSentinel(TaskPriority.Medium);
-            
-            entity.Property(t => t.Progress)
-                .HasPrecision(5,2)
-                .IsRequired(false);
 
             entity.HasOne(t => t.Column)
                 .WithMany(t => t.Tasks)
@@ -324,6 +321,45 @@ public class KanbanDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasIndex(tl => tl.WorkspaceLabelId);
+        });
+        
+        //Success Criteria
+        modelBuilder.Entity<SuccessCriteria>(entity =>
+        {
+            entity.HasKey(sc => sc.Id);
+
+            entity.Property(sc => sc.Description)
+                .IsRequired()
+                .HasMaxLength(300);
+
+            entity.Property(sc => sc.Completed)
+                .IsRequired()
+                .HasDefaultValue(false);
+
+            entity.Property(sc => sc.Position)
+                .IsRequired();
+
+            entity.HasOne(sc => sc.TaskItem)
+                .WithMany(t => t.SuccessCriteria)
+                .HasForeignKey(sc => sc.TaskItemId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(sc => new
+            {
+                sc.TaskItemId,
+                sc.Position
+            });
+
+            entity.ToTable(table =>
+            {
+                table.HasCheckConstraint(
+                    "CK_SuccessCriteria_Description",
+                    "length(trim(\"Description\")) > 0");
+
+                table.HasCheckConstraint(
+                    "CK_SuccessCriteria_Position",
+                    "\"Position\" >= 0");
+            });
         });
     }
 }

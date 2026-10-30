@@ -108,6 +108,42 @@ namespace kanbanBackend.Migrations
                     b.ToTable("ExternalLogins");
                 });
 
+            modelBuilder.Entity("kanbanBackend.Models.SuccessCriteria", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Completed")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TaskItemId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskItemId", "Position");
+
+                    b.ToTable("SuccessCriteria", t =>
+                        {
+                            t.HasCheckConstraint("CK_SuccessCriteria_Description", "length(trim(\"Description\")) > 0");
+
+                            t.HasCheckConstraint("CK_SuccessCriteria_Position", "\"Position\" >= 0");
+                        });
+                });
+
             modelBuilder.Entity("kanbanBackend.Models.TaskItem", b =>
                 {
                     b.Property<int>("Id")
@@ -141,10 +177,6 @@ namespace kanbanBackend.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasDefaultValue("Medium");
-
-                    b.Property<decimal?>("Progress")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("numeric(5,2)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -456,6 +488,17 @@ namespace kanbanBackend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("kanbanBackend.Models.SuccessCriteria", b =>
+                {
+                    b.HasOne("kanbanBackend.Models.TaskItem", "TaskItem")
+                        .WithMany("SuccessCriteria")
+                        .HasForeignKey("TaskItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TaskItem");
+                });
+
             modelBuilder.Entity("kanbanBackend.Models.TaskItem", b =>
                 {
                     b.HasOne("kanbanBackend.Models.User", "AssignedUser")
@@ -564,6 +607,8 @@ namespace kanbanBackend.Migrations
 
             modelBuilder.Entity("kanbanBackend.Models.TaskItem", b =>
                 {
+                    b.Navigation("SuccessCriteria");
+
                     b.Navigation("TaskLabels");
                 });
 
