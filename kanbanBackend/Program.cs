@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using DotNetEnv;
 using kanbanBackend.Data;
 using kanbanBackend.Hubs;
+using kanbanBackend.Hubs.Filters;
 using kanbanBackend.Models;
 using kanbanBackend.Services;
 using kanbanBackend.Services.Auth;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
@@ -44,6 +46,10 @@ if (string.IsNullOrEmpty(jwtSecret))
 builder.Services.AddDbContext<KanbanDbContext>(options =>
     options.UseNpgsql(connectionString));
 builder.Services.AddSignalR()
+    .AddHubOptions<BoardHub>(options =>
+    {
+        options.AddFilter<CurrentUserHubFilter>();
+    })
     .AddJsonProtocol(options =>
     {
         options.PayloadSerializerOptions
@@ -242,7 +248,10 @@ app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.MapHub<BoardHub>("/hubs/board")
+app.MapHub<BoardHub>("/hubs/board", options =>
+    {
+        options.CloseOnAuthenticationExpiration = true;
+    })
     .RequireCors("Frontend");
 
 app.Run();
