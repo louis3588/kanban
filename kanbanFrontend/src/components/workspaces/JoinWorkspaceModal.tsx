@@ -301,6 +301,7 @@ export default function JoinWorkspaceModal({
                     </View>
 
                     <Pressable
+                        testID="join-modal-create-option"
                         onPress={onCreate}
                         disabled={isJoining}
                         className="items-center rounded-xl border py-4 active:opacity-80"

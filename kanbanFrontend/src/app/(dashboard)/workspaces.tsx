@@ -98,7 +98,11 @@ export default function WorkspacesScreen() {
                     setShowCreateModal(true);
                 }
             } catch (err) {
-
+                setError(
+                    err instanceof Error
+                        ? err.message
+                        : "Unable to load workspaces."
+                );
             } finally {
                 if (!cancelled) {
                     setIsLoading(false);

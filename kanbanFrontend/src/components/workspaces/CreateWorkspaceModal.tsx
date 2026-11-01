@@ -291,6 +291,7 @@ export default function CreateWorkspaceModal({
                                 </View>
 
                                 <Pressable
+                                    testID="create-modal-join-option"
                                     className="items-center rounded-xl border p-4"
                                     style={{
                                         borderColor: colours.border,
