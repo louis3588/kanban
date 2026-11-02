@@ -12,6 +12,9 @@
     &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.EmailServiceTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.AuthControllerTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.UserDetailsServiceTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.WorkspaceServiceTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.WorkspaceInvitationTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.WorkspaceMemberTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=b8ddee98_002Dbc53_002D4e1a_002D9538_002D69d919d70e5e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="UnitTest1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
@@ -26,5 +29,7 @@
     &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.WorkspaceServiceTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.UserDetailsServiceTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.EmailServiceTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.WorkspaceMemberTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BDDF1E33-3D85-453E-9C4A-8823D8C596D5::net8.0::kanbanBackend.Tests.Services.WorkspaceInvitationTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

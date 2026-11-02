@@ -19,6 +19,10 @@ public class KanbanDbContext : DbContext
     public DbSet<BoardColumn> BoardColumns => Set<BoardColumn>();
     public DbSet<TaskItem> TaskItems => Set<TaskItem>();
     public DbSet<UserSettings> UserSettings => Set<UserSettings>();
+    public DbSet<WorkspaceInvitation> WorkspaceInvitations => Set<WorkspaceInvitation>();
+    public DbSet<WorkspaceLabel> WorkspaceLabels => Set<WorkspaceLabel>();
+    public DbSet<TaskItemLabel> TaskItemLabels => Set<TaskItemLabel>();
+    public DbSet<SuccessCriteria> SuccessCriteria => Set<SuccessCriteria>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -82,6 +86,33 @@ public class KanbanDbContext : DbContext
                 .HasMaxLength(20)
                 .HasDefaultValue(AppTheme.SepiaLight);
         });
+
+        modelBuilder.Entity<WorkspaceInvitation>(entity =>
+        {
+            entity.HasKey(wi => wi.Id);
+
+            entity.Property(wi => wi.CodeHash)
+                .IsRequired()
+                .HasMaxLength(64);
+
+            entity.HasIndex(wi => wi.CodeHash)
+                .IsUnique();
+            entity.HasIndex(wi => wi.WorkspaceId);
+
+            entity.Property(wi => wi.RedeemedCount)
+                .HasDefaultValue(0);
+
+            entity.HasOne(wi => wi.Workspace)
+                .WithMany(w => w.Invitations)
+                .HasForeignKey(wi => wi.WorkspaceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(wi => wi.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(wi => wi.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+        });
         
         // Workspace
         modelBuilder.Entity<Workspace>(entity =>
@@ -90,6 +121,10 @@ public class KanbanDbContext : DbContext
             entity.Property(w => w.Name)
                 .IsRequired()
                 .HasMaxLength(150);
+
+            entity.Property(w => w.ImageUrl)
+                .HasMaxLength(2048)
+                .IsRequired(false);
         });
         
         //Workspace member
@@ -97,11 +132,20 @@ public class KanbanDbContext : DbContext
         {
             entity.HasKey(wm => new
             {
-                wm.UserId,
-                wm.WorkspaceId
+                wm.UserId, wm.WorkspaceId
             });
+            
+            entity.HasIndex(wm => wm.WorkspaceId)
+                .HasDatabaseName("IX_WorkspaceMembers_WorkspaceId");
+            
+            entity.HasIndex(
+                    wm => wm.WorkspaceId,
+                    "IX_WorkspaceMembers_SingleOwner")
+                .IsUnique()
+                .HasFilter("\"Role\" = 'Owner'");
 
             entity.Property(wm => wm.Role)
+                .HasConversion<string>()
                 .IsRequired()
                 .HasMaxLength(20);
             
@@ -152,6 +196,9 @@ public class KanbanDbContext : DbContext
                 .IsRequired()
                 .HasMaxLength(100);
 
+            entity.Property(bc => bc.WorkInProgressLimit)
+                .IsRequired(false);
+
             entity.HasOne(bc => bc.Board)
                 .WithMany(b => b.Columns)
                 .HasForeignKey(c => c.BoardId)
@@ -159,8 +206,15 @@ public class KanbanDbContext : DbContext
 
             entity.HasIndex(bc => new
             {
-                bc.BoardId,
-                bc.Position
+                bc.BoardId, bc.Position
+            });
+            
+            entity.ToTable(table =>
+            {
+                table.HasCheckConstraint(
+                    "CK_BoardColumns_WorkInProgressLimit",
+                    "\"WorkInProgressLimit\" IS NULL OR \"WorkInProgressLimit\" >= 0"
+                );
             });
         });
         
@@ -177,8 +231,10 @@ public class KanbanDbContext : DbContext
                 .HasMaxLength(5000);
 
             entity.Property(t => t.Priority)
-                .IsRequired()
-                .HasMaxLength(20);
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .HasDefaultValue(TaskPriority.Medium)
+                .HasSentinel(TaskPriority.Medium);
 
             entity.HasOne(t => t.Column)
                 .WithMany(t => t.Tasks)
@@ -192,8 +248,109 @@ public class KanbanDbContext : DbContext
 
             entity.HasIndex(t => new
             {
-                t.ColumnId,
-                t.Position
+                t.ColumnId, t.Position
+            });
+            
+        });
+        
+        //Workspace Labels
+        modelBuilder.Entity<WorkspaceLabel>(entity =>
+        {
+            entity.HasKey(wl => wl.Id);
+
+            entity.Property(wl => wl.Name)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(wl => wl.NormalisedName)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(wl => wl.Colour)
+                .IsRequired()
+                .HasMaxLength(7)
+                .HasDefaultValue("#6B7280");
+
+            entity.HasOne(wl => wl.Workspace)
+                .WithMany(w => w.Labels)
+                .HasForeignKey(wl => wl.WorkspaceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(wl => new
+            {
+                wl.WorkspaceId, wl.NormalisedName
+            }).IsUnique();
+
+            entity.ToTable(table =>
+            {
+                table.HasCheckConstraint(
+                    "CK_WorkspaceLabels_Name",
+                    "length(trim(\"Name\")) > 0"
+                );
+
+                table.HasCheckConstraint(
+                    "CK_WorkspaceLabels_NormalisedName",
+                    "length(trim(\"NormalisedName\")) > 0"
+                );
+            });
+        });
+
+        modelBuilder.Entity<TaskItemLabel>(entity =>
+        {
+            entity.HasKey(tl => new
+            {
+                tl.TaskItemId, tl.WorkspaceLabelId
+            });
+
+            entity.HasOne(tl => tl.TaskItem)
+                .WithMany(t => t.TaskLabels)
+                .HasForeignKey(tl => tl.TaskItemId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(tl => tl.WorkspaceLabel)
+                .WithMany(wl => wl.TaskLabels)
+                .HasForeignKey(tl => tl.WorkspaceLabelId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(tl => tl.WorkspaceLabelId);
+        });
+        
+        //Success Criteria
+        modelBuilder.Entity<SuccessCriteria>(entity =>
+        {
+            entity.HasKey(sc => sc.Id);
+
+            entity.Property(sc => sc.Description)
+                .IsRequired()
+                .HasMaxLength(300);
+
+            entity.Property(sc => sc.Completed)
+                .IsRequired()
+                .HasDefaultValue(false);
+
+            entity.Property(sc => sc.Position)
+                .IsRequired();
+
+            entity.HasOne(sc => sc.TaskItem)
+                .WithMany(t => t.SuccessCriteria)
+                .HasForeignKey(sc => sc.TaskItemId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(sc => new
+            {
+                sc.TaskItemId,
+                sc.Position
+            });
+
+            entity.ToTable(table =>
+            {
+                table.HasCheckConstraint(
+                    "CK_SuccessCriteria_Description",
+                    "length(trim(\"Description\")) > 0");
+
+                table.HasCheckConstraint(
+                    "CK_SuccessCriteria_Position",
+                    "\"Position\" >= 0");
             });
         });
     }

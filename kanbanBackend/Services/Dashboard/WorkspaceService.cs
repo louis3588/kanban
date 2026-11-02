@@ -1,6 +1,7 @@
 using kanbanBackend.Data;
 using kanbanBackend.DTOs.Dashboard;
 using kanbanBackend.Models;
+using kanbanBackend.Models.Enum;
 using kanbanBackend.Services.Auth;
 using kanbanBackend.Util;
 using Microsoft.EntityFrameworkCore;
@@ -59,7 +60,7 @@ public class WorkspaceService
             User = user,
             Workspace = workspace,
             JoinedAt = DateTime.UtcNow,
-            Role = "Owner"
+            Role = WorkspaceRole.Owner
         };
         
         workspace.Members.Add(membership);

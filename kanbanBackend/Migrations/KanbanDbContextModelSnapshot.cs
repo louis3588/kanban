@@ -17,7 +17,7 @@ namespace kanbanBackend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.32")
+                .HasAnnotation("ProductVersion", "8.0.33")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -67,11 +67,17 @@ namespace kanbanBackend.Migrations
                     b.Property<int>("Position")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("WorkInProgressLimit")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BoardId", "Position");
 
-                    b.ToTable("BoardColumns");
+                    b.ToTable("BoardColumns", t =>
+                        {
+                            t.HasCheckConstraint("CK_BoardColumns_WorkInProgressLimit", "\"WorkInProgressLimit\" IS NULL OR \"WorkInProgressLimit\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("kanbanBackend.Models.ExternalLogin", b =>
@@ -100,6 +106,42 @@ namespace kanbanBackend.Migrations
                         .IsUnique();
 
                     b.ToTable("ExternalLogins");
+                });
+
+            modelBuilder.Entity("kanbanBackend.Models.SuccessCriteria", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Completed")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TaskItemId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskItemId", "Position");
+
+                    b.ToTable("SuccessCriteria", t =>
+                        {
+                            t.HasCheckConstraint("CK_SuccessCriteria_Description", "length(trim(\"Description\")) > 0");
+
+                            t.HasCheckConstraint("CK_SuccessCriteria_Position", "\"Position\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("kanbanBackend.Models.TaskItem", b =>
@@ -131,8 +173,10 @@ namespace kanbanBackend.Migrations
 
                     b.Property<string>("Priority")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("Medium");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -148,7 +192,25 @@ namespace kanbanBackend.Migrations
 
                     b.HasIndex("ColumnId", "Position");
 
-                    b.ToTable("TaskItems");
+                    b.ToTable("TaskItems", t =>
+                        {
+                            t.HasCheckConstraint("CK_TaskItems_Progress", "\"Progress\" IS NULL OR (\"Progress\" >= 0 AND \"Progress\" <= 100)");
+                        });
+                });
+
+            modelBuilder.Entity("kanbanBackend.Models.TaskItemLabel", b =>
+                {
+                    b.Property<int>("TaskItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WorkspaceLabelId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("TaskItemId", "WorkspaceLabelId");
+
+                    b.HasIndex("WorkspaceLabelId");
+
+                    b.ToTable("TaskItemLabels");
                 });
 
             modelBuilder.Entity("kanbanBackend.Models.User", b =>
@@ -262,6 +324,10 @@ namespace kanbanBackend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -270,6 +336,95 @@ namespace kanbanBackend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Workspaces");
+                });
+
+            modelBuilder.Entity("kanbanBackend.Models.WorkspaceInvitation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CodeHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedByUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("MaxUses")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RedeemedCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<DateTime?>("RevokedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("WorkspaceId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CodeHash")
+                        .IsUnique();
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("WorkspaceId");
+
+                    b.ToTable("WorkspaceInvitations");
+                });
+
+            modelBuilder.Entity("kanbanBackend.Models.WorkspaceLabel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Colour")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)")
+                        .HasDefaultValue("#6B7280");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("NormalisedName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("WorkspaceId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WorkspaceId", "NormalisedName")
+                        .IsUnique();
+
+                    b.ToTable("WorkspaceLabels", t =>
+                        {
+                            t.HasCheckConstraint("CK_WorkspaceLabels_Name", "length(trim(\"Name\")) > 0");
+
+                            t.HasCheckConstraint("CK_WorkspaceLabels_NormalisedName", "length(trim(\"NormalisedName\")) > 0");
+                        });
                 });
 
             modelBuilder.Entity("kanbanBackend.Models.WorkspaceMember", b =>
@@ -290,7 +445,12 @@ namespace kanbanBackend.Migrations
 
                     b.HasKey("UserId", "WorkspaceId");
 
-                    b.HasIndex("WorkspaceId");
+                    b.HasIndex("WorkspaceId")
+                        .HasDatabaseName("IX_WorkspaceMembers_WorkspaceId");
+
+                    b.HasIndex(new[] { "WorkspaceId" }, "IX_WorkspaceMembers_SingleOwner")
+                        .IsUnique()
+                        .HasFilter("\"Role\" = 'Owner'");
 
                     b.ToTable("WorkspaceMembers");
                 });
@@ -328,6 +488,17 @@ namespace kanbanBackend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("kanbanBackend.Models.SuccessCriteria", b =>
+                {
+                    b.HasOne("kanbanBackend.Models.TaskItem", "TaskItem")
+                        .WithMany("SuccessCriteria")
+                        .HasForeignKey("TaskItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TaskItem");
+                });
+
             modelBuilder.Entity("kanbanBackend.Models.TaskItem", b =>
                 {
                     b.HasOne("kanbanBackend.Models.User", "AssignedUser")
@@ -346,6 +517,25 @@ namespace kanbanBackend.Migrations
                     b.Navigation("Column");
                 });
 
+            modelBuilder.Entity("kanbanBackend.Models.TaskItemLabel", b =>
+                {
+                    b.HasOne("kanbanBackend.Models.TaskItem", "TaskItem")
+                        .WithMany("TaskLabels")
+                        .HasForeignKey("TaskItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("kanbanBackend.Models.WorkspaceLabel", "WorkspaceLabel")
+                        .WithMany("TaskLabels")
+                        .HasForeignKey("WorkspaceLabelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TaskItem");
+
+                    b.Navigation("WorkspaceLabel");
+                });
+
             modelBuilder.Entity("kanbanBackend.Models.UserSettings", b =>
                 {
                     b.HasOne("kanbanBackend.Models.User", "User")
@@ -355,6 +545,35 @@ namespace kanbanBackend.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("kanbanBackend.Models.WorkspaceInvitation", b =>
+                {
+                    b.HasOne("kanbanBackend.Models.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("kanbanBackend.Models.Workspace", "Workspace")
+                        .WithMany("Invitations")
+                        .HasForeignKey("WorkspaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("Workspace");
+                });
+
+            modelBuilder.Entity("kanbanBackend.Models.WorkspaceLabel", b =>
+                {
+                    b.HasOne("kanbanBackend.Models.Workspace", "Workspace")
+                        .WithMany("Labels")
+                        .HasForeignKey("WorkspaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Workspace");
                 });
 
             modelBuilder.Entity("kanbanBackend.Models.WorkspaceMember", b =>
@@ -386,6 +605,13 @@ namespace kanbanBackend.Migrations
                     b.Navigation("Tasks");
                 });
 
+            modelBuilder.Entity("kanbanBackend.Models.TaskItem", b =>
+                {
+                    b.Navigation("SuccessCriteria");
+
+                    b.Navigation("TaskLabels");
+                });
+
             modelBuilder.Entity("kanbanBackend.Models.User", b =>
                 {
                     b.Navigation("AssignedTasks");
@@ -400,7 +626,16 @@ namespace kanbanBackend.Migrations
                 {
                     b.Navigation("Boards");
 
+                    b.Navigation("Invitations");
+
+                    b.Navigation("Labels");
+
                     b.Navigation("Members");
+                });
+
+            modelBuilder.Entity("kanbanBackend.Models.WorkspaceLabel", b =>
+                {
+                    b.Navigation("TaskLabels");
                 });
 #pragma warning restore 612, 618
         }

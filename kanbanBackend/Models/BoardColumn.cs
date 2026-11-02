@@ -11,6 +11,8 @@ public class BoardColumn
     public int BoardId { get; set; }
 
     public Board Board { get; set; } = null!;
+    
+    public int? WorkInProgressLimit { get; set; }
 
     public ICollection<TaskItem> Tasks { get; set; }
         = new List<TaskItem>();

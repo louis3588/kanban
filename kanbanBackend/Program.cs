@@ -6,15 +6,18 @@ using System.Text.Json.Serialization;
 using DotNetEnv;
 using kanbanBackend.Data;
 using kanbanBackend.Hubs;
+using kanbanBackend.Hubs.Filters;
 using kanbanBackend.Models;
 using kanbanBackend.Services;
 using kanbanBackend.Services.Auth;
 using kanbanBackend.Services.Auth.Interfaces;
 using kanbanBackend.Services.Dashboard;
+using kanbanBackend.Services.Dashboard.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
@@ -43,6 +46,10 @@ if (string.IsNullOrEmpty(jwtSecret))
 builder.Services.AddDbContext<KanbanDbContext>(options =>
     options.UseNpgsql(connectionString));
 builder.Services.AddSignalR()
+    .AddHubOptions<BoardHub>(options =>
+    {
+        options.AddFilter<CurrentUserHubFilter>();
+    })
     .AddJsonProtocol(options =>
     {
         options.PayloadSerializerOptions
@@ -53,6 +60,8 @@ builder.Services.AddScoped<IAuthInterface, AuthService>();
 builder.Services.AddScoped<IUserDetailsInterface, UserDetailsService>();
 builder.Services.AddScoped<CurrentUserService>();
 builder.Services.AddScoped<WorkspaceService>();
+builder.Services.AddScoped<IWorkspaceMemberInterface, WorkspaceMemberService>();
+builder.Services.AddScoped<IWorkspaceInvitationInterface, WorkspaceInvitationService>();
 builder.Services.AddScoped<WorkspaceAuthService>();
 builder.Services.AddScoped<IEmailInterface, EmailService>();
 builder.Services.AddScoped<IEmailConfirmationInterface, EmailConfirmationService>();
@@ -239,7 +248,10 @@ app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.MapHub<BoardHub>("/hubs/board")
+app.MapHub<BoardHub>("/hubs/board", options =>
+    {
+        options.CloseOnAuthenticationExpiration = true;
+    })
     .RequireCors("Frontend");
 
 app.Run();

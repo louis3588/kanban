@@ -273,77 +273,88 @@ describe("ProfileScreen", () => {
 
         it("shows username suggestions when the username is already taken", async () => {
             const props = createEditModalProps();
+            const consoleErrorSpy = jest.spyOn(console, "error")
+                .mockImplementation(() => {});
+            try {
+                (editUserProfile as jest.Mock).mockResolvedValue({
+                    firstname: "John",
+                    lastname: "Smith",
+                    bio: "I enjoy building software.",
+                    profileImage: null,
+                    email: "john.smith@example.com",
+                });
 
-            (editUserProfile as jest.Mock).mockResolvedValue({
-                firstname: "John",
-                lastname: "Smith",
-                bio: "I enjoy building software.",
-                profileImage: null,
-                email: "john.smith@example.com",
-            });
+                (editUsername as jest.Mock).mockRejectedValue(
+                    new Error("Username already in use"),
+                );
 
-            (editUsername as jest.Mock).mockRejectedValue(
-                new Error("Username already in use"),
-            );
+                // @ts-ignore
+                await render(<EditProfileModal {...props} />);
 
-            // @ts-ignore
-            await render(<EditProfileModal {...props} />);
+                await fireEvent.changeText(
+                    screen.getByPlaceholderText("Choose a username"),
+                    "takenname",
+                );
 
-            await fireEvent.changeText(
-                screen.getByPlaceholderText("Choose a username"),
-                "takenname",
-            );
+                await fireEvent.press(screen.getByText("Save changes"));
 
-            await fireEvent.press(screen.getByText("Save changes"));
+                expect(
+                    await screen.findByText("That username is already taken."),
+                ).toBeTruthy();
 
-            expect(
-                await screen.findByText("That username is already taken."),
-            ).toBeTruthy();
+                expect(screen.getByText("Try one of these instead:")).toBeTruthy();
+                expect(screen.getByText("takenname1")).toBeTruthy();
+                expect(screen.getByText("takenname2")).toBeTruthy();
+                expect(screen.getByText("takenname_1")).toBeTruthy();
 
-            expect(screen.getByText("Try one of these instead:")).toBeTruthy();
-            expect(screen.getByText("takenname1")).toBeTruthy();
-            expect(screen.getByText("takenname2")).toBeTruthy();
-            expect(screen.getByText("takenname_1")).toBeTruthy();
-
-            expect(props.onSaved).not.toHaveBeenCalled();
-            expect(props.onClose).not.toHaveBeenCalled();
-            expect(uploadProfileImage).not.toHaveBeenCalled();
+                expect(props.onSaved).not.toHaveBeenCalled();
+                expect(props.onClose).not.toHaveBeenCalled();
+                expect(uploadProfileImage).not.toHaveBeenCalled();
+            } finally {
+                consoleErrorSpy.mockRestore();
+            }
         });
 
         it("allows the user to select a suggested username", async () => {
             const props = createEditModalProps();
+            const consoleErrorSpy = jest.spyOn(console, "error")
+                .mockImplementation(() => {});
 
-            (editUserProfile as jest.Mock).mockResolvedValue({
-                firstname: "John",
-                lastname: "Smith",
-                bio: "",
-                profileImage: null,
-            });
+            try{
+                (editUserProfile as jest.Mock).mockResolvedValue({
+                    firstname: "John",
+                    lastname: "Smith",
+                    bio: "",
+                    profileImage: null,
+                });
 
-            (editUsername as jest.Mock).mockRejectedValue(
-                new Error("Username already in use"),
-            );
+                (editUsername as jest.Mock).mockRejectedValue(
+                    new Error("Username already in use"),
+                );
 
-            // @ts-ignore
-            await render(<EditProfileModal {...props} />);
+                // @ts-ignore
+                await render(<EditProfileModal {...props} />);
 
-            await fireEvent.changeText(
-                screen.getByPlaceholderText("Choose a username"),
-                "takenname",
-            );
+                await fireEvent.changeText(
+                    screen.getByPlaceholderText("Choose a username"),
+                    "takenname",
+                );
 
-            await fireEvent.press(screen.getByText("Save changes"));
+                await fireEvent.press(screen.getByText("Save changes"));
 
-            expect(
-                await screen.findByText("That username is already taken."),
-            ).toBeTruthy();
+                expect(
+                    await screen.findByText("That username is already taken."),
+                ).toBeTruthy();
 
-            await fireEvent.press(screen.getByText("takenname1"));
+                await fireEvent.press(screen.getByText("takenname1"));
 
-            expect(screen.getByDisplayValue("takenname1")).toBeTruthy();
-            expect(
-                screen.queryByText("Try one of these instead:"),
-            ).toBeNull();
+                expect(screen.getByDisplayValue("takenname1")).toBeTruthy();
+                expect(
+                    screen.queryByText("Try one of these instead:"),
+                ).toBeNull();
+            } finally {
+                consoleErrorSpy.mockRestore();
+            }
         });
 
         it("closes the modal when Cancel is pressed", async () => {
@@ -375,22 +386,28 @@ describe("ProfileScreen", () => {
 
         it("displays an error when saving fails", async () => {
             const props = createEditModalProps();
+            const consoleErrorSpy = jest.spyOn(console, "error")
+                .mockImplementation(() => {});
+            try{
 
-            (editUserProfile as jest.Mock).mockRejectedValue(
-                new Error("Unable to update profile"),
-            );
+                (editUserProfile as jest.Mock).mockRejectedValue(
+                    new Error("Unable to update profile"),
+                );
 
-            // @ts-ignore
-            await render(<EditProfileModal {...props} />);
+                // @ts-ignore
+                await render(<EditProfileModal {...props} />);
 
-            await fireEvent.press(screen.getByText("Save changes"));
+                await fireEvent.press(screen.getByText("Save changes"));
 
-            expect(
-                await screen.findByText("Unable to update profile"),
-            ).toBeTruthy();
+                expect(
+                    await screen.findByText("Unable to update profile"),
+                ).toBeTruthy();
 
-            expect(props.onSaved).not.toHaveBeenCalled();
-            expect(props.onClose).not.toHaveBeenCalled();
+                expect(props.onSaved).not.toHaveBeenCalled();
+                expect(props.onClose).not.toHaveBeenCalled();
+            } finally {
+                consoleErrorSpy.mockRestore();
+            }
         });
     });
 
