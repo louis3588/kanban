@@ -33,19 +33,31 @@ namespace kanbanBackend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<int>("Position")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
 
                     b.Property<int>("WorkspaceId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("WorkspaceId");
+                    b.HasIndex("WorkspaceId", "Position");
 
-                    b.ToTable("Boards");
+                    b.ToTable("Boards", t =>
+                        {
+                            t.HasCheckConstraint("CK_Boards_Position", "\"Position\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("kanbanBackend.Models.BoardColumn", b =>
@@ -192,10 +204,7 @@ namespace kanbanBackend.Migrations
 
                     b.HasIndex("ColumnId", "Position");
 
-                    b.ToTable("TaskItems", t =>
-                        {
-                            t.HasCheckConstraint("CK_TaskItems_Progress", "\"Progress\" IS NULL OR (\"Progress\" >= 0 AND \"Progress\" <= 100)");
-                        });
+                    b.ToTable("TaskItems");
                 });
 
             modelBuilder.Entity("kanbanBackend.Models.TaskItemLabel", b =>
