@@ -251,15 +251,7 @@ public class KanbanDbContext : DbContext
                 t.ColumnId, t.Position
             });
             
-            entity.ToTable(table =>
-            {
-                table.HasCheckConstraint(
-                    "CK_TaskItems_Progress",
-                    "\"Progress\" IS NULL OR (\"Progress\" >= 0 AND \"Progress\" <= 100)"
-                );
-            });
         });
-        
         
         //Workspace Labels
         modelBuilder.Entity<WorkspaceLabel>(entity =>

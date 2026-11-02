@@ -13,11 +13,11 @@ public class TaskItem
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
     public int ColumnId { get; set; }
-    public ICollection<SuccessCriteria> SuccessCriteria { get; set; } 
-        = new List<SuccessCriteria>();
     public BoardColumn Column { get; set; } = null!;
     public int? AssignedUserId { get; set; }
     public User? AssignedUser { get; set; }
+    public ICollection<SuccessCriteria> SuccessCriteria { get; set; } 
+        = new List<SuccessCriteria>();
     public ICollection<TaskItemLabel> TaskLabels { get; set; } 
         = new List<TaskItemLabel>();
 }
