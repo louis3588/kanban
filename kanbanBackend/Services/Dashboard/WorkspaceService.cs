@@ -1,8 +1,11 @@
 using kanbanBackend.Data;
 using kanbanBackend.DTOs.Dashboard;
+using kanbanBackend.DTOs.Dashboard.Boards;
+using kanbanBackend.DTOs.Dashboard.Workspaces;
 using kanbanBackend.Models;
 using kanbanBackend.Models.Enum;
 using kanbanBackend.Services.Auth;
+using kanbanBackend.Services.Dashboard.Interfaces;
 using kanbanBackend.Util;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,15 +16,150 @@ public class WorkspaceService
     private readonly KanbanDbContext _dbContext;
     private readonly CurrentUserService _currentUser;
     private readonly WorkspaceAuthService _authService;
+    private readonly IWorkspaceMemberInterface _memberService;
 
-    public WorkspaceService(KanbanDbContext dbContext, CurrentUserService currentUser, WorkspaceAuthService authService)
+    public WorkspaceService(KanbanDbContext dbContext, CurrentUserService currentUser, WorkspaceAuthService authService,
+        IWorkspaceMemberInterface memberService)
     {
         _dbContext = dbContext;
         _currentUser = currentUser;
         _authService = authService;
+        _memberService = memberService;
+    }
+
+    private static BoardsPermissionsResponse GetPermissions(WorkspaceRole role)
+    {
+        return role switch
+        {
+            WorkspaceRole.Owner => new BoardsPermissionsResponse
+            {
+                CanEditTasks = true,
+                CanManageBoards = true,
+                CanManageMembers = true,
+                CanManageAdmins = true,
+                CanManageInvitations = true,
+                CanEditWorkspace = true,
+                CanTransferOwnership = true
+            },
+            WorkspaceRole.Admin => new BoardsPermissionsResponse
+            {
+                CanEditTasks = true,
+                CanManageBoards = true,
+                CanManageMembers = true,
+                CanManageAdmins = false,
+                CanManageInvitations = true,
+                CanEditWorkspace = false,
+                CanTransferOwnership = false
+            },
+            WorkspaceRole.Member => new BoardsPermissionsResponse
+            {
+                CanEditTasks = true,
+                CanManageBoards = false,
+                CanManageMembers = false,
+                CanManageAdmins = false,
+                CanManageInvitations = false,
+                CanEditWorkspace = false,
+                CanTransferOwnership = false
+            },
+            _ => new BoardsPermissionsResponse()
+        };
     }
     
+    public async Task<ModelResult<WorkspaceBoardsResponse>> GetWorkspaceAsync(int workspaceId)
+    {
+        var userId = _currentUser.UserId();
+        var userNotFound = ModelResult<WorkspaceBoardsResponse>.Failure("User could not be identified");
+        var permissionDenied = ModelResult<WorkspaceBoardsResponse>.Failure("You do not have permission to access this workspace");
+        
+        if (userId is null)
+        {
+            return userNotFound;
+        }
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(u => u.Id == userId.Value);
 
+        if (user is null)
+        {
+            return userNotFound;
+        }
+
+        var isMember = await _authService.IsMemberAsync(user.Id, workspaceId);
+        
+        if (!isMember)
+        {
+            return permissionDenied;
+        }
+        
+        var membership = await _dbContext.WorkspaceMembers
+            .FirstOrDefaultAsync(m => m.WorkspaceId == workspaceId && m.UserId == user.Id);
+        
+        if (membership is null)
+        {
+            return permissionDenied;
+        }
+        
+        var workspace = await _dbContext.Workspaces
+            .Include(workspace => workspace.Boards)
+            .Include(workspace => workspace.Members)
+            .Include(workspace => workspace.Invitations)
+            .FirstOrDefaultAsync(w => w.Id == workspaceId);
+
+        if (workspace is null)
+        {
+            return permissionDenied;
+        }
+
+        var boardSummaries = workspace.Boards
+            .Select(board => new BoardSummaryResponse
+            {
+                BoardId = board.Id, 
+                Name = board.Name, 
+                ImageUrl = board.ImageUrl, 
+                Position = board.Position,
+            })
+            .ToList();
+
+        var workspaceMembers = workspace.Members
+            .Select(member => _memberService.ToResponse(member)).ToList();
+        
+        var isAdminOrOwner = membership.Role is WorkspaceRole.Admin or WorkspaceRole.Owner;
+        var potentialInvitations = new List<WorkspaceInvitationResponse>();
+        if (isAdminOrOwner)
+        {
+            var invitationResponse = workspace.Invitations
+                .Select(invite => new WorkspaceInvitationResponse
+                {
+                    Id = invite.Id,
+                    WorkspaceId = workspaceId,
+                    CreatedByUserId = invite.CreatedByUserId,
+                    CreatedAtUtc = invite.CreatedAtUtc,
+                    ExpiresAtUtc = invite.ExpiresAtUtc,
+                    RevokedAtUtc = invite.RevokedAtUtc,
+                    RedeemedCount = invite.RedeemedCount,
+                    MaxUses = invite.MaxUses
+                }).ToList();
+            
+            potentialInvitations.AddRange(invitationResponse);
+        }
+        
+        var permissions = GetPermissions(membership.Role);
+        var workspaceBoards = new WorkspaceBoardsResponse
+        {
+            WorkspaceId = workspaceId,
+            Name = workspace.Name,
+            CreatedAt = workspace.CreatedAt,
+            ImageUrl = workspace.ImageUrl,
+            Role = membership.Role,
+            Boards = boardSummaries,
+            Members = workspaceMembers,
+            Invitations = potentialInvitations,
+            Permissions = permissions,
+        };
+
+        return ModelResult<WorkspaceBoardsResponse>.Success(workspaceBoards);
+    }
+    
+    
     public async Task<ModelResult<WorkspaceResponse>> CreateWorkspaceAsync(string name)
     {
         var userId = _currentUser.UserId();

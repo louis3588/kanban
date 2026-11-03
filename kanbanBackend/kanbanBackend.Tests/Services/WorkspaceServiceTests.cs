@@ -4,8 +4,10 @@ using kanbanBackend.Models;
 using kanbanBackend.Models.Enum;
 using kanbanBackend.Services.Auth;
 using kanbanBackend.Services.Dashboard;
+using kanbanBackend.Services.Dashboard.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace kanbanBackend.Tests.Services;
 
@@ -72,13 +74,15 @@ public class WorkspaceServiceTests
         int? userId)
     {
         var currentUser = CreateCurrentUserService(userId);
+        var memberService = new Mock<IWorkspaceMemberInterface>();
 
         var authService = new WorkspaceAuthService(dbContext);
 
         return new WorkspaceService(
             dbContext,
             currentUser,
-            authService);
+            authService,
+            memberService.Object);
     }
 
     [Fact]

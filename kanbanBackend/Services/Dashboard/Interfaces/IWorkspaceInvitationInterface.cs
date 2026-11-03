@@ -1,4 +1,4 @@
-using kanbanBackend.DTOs.Dashboard;
+using kanbanBackend.DTOs.Dashboard.Workspaces;
 using kanbanBackend.Util;
 
 namespace kanbanBackend.Services.Dashboard.Interfaces;

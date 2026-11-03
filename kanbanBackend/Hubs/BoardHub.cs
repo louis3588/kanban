@@ -1,7 +1,7 @@
-using kanbanBackend.DTOs.Dashboard;
+using kanbanBackend.DTOs.Dashboard.Boards;
+using kanbanBackend.DTOs.Dashboard.Workspaces;
 using kanbanBackend.DTOs.Profile;
 using kanbanBackend.Models.Enum;
-using kanbanBackend.Services.Auth;
 using kanbanBackend.Services.Auth.Interfaces;
 using kanbanBackend.Services.Dashboard;
 using kanbanBackend.Services.Dashboard.Interfaces;
@@ -238,4 +238,16 @@ public class BoardHub : Hub
         }
         return result.Value!;
     }
+
+    public async Task<WorkspaceBoardsResponse> GetWorkspaceById(int workspaceId)
+    {
+        var result = await _workspaceService.GetWorkspaceAsync(workspaceId);
+        if (!result.IsSuccess)
+        {
+            throw new HubException(result.ErrorMessage);
+        }
+
+        return result.Value!;
+    }
+    
 }
