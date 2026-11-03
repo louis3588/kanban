@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using kanbanBackend.Data;
+using kanbanBackend.DTOs.Dashboard.Workspaces;
 using kanbanBackend.Models;
 using kanbanBackend.Models.Enum;
 using kanbanBackend.Services.Auth;
@@ -573,5 +574,449 @@ public class WorkspaceServiceTests
             .FindAsync(workspace.Id);
 
         Assert.NotNull(existingWorkspace);
+    }
+
+
+    [Fact]
+    public async Task GetWorkspaceAsync_FailsWhenUserIsNotAuthenticated()
+    {
+        using var fixture = new WorkspaceOverviewFixture();
+
+        var result = await fixture.As(null)
+            .GetWorkspaceAsync(OverviewWorkspaceId);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(
+            "User could not be identified",
+            result.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task GetWorkspaceAsync_FailsWhenUserDoesNotExist()
+    {
+        using var fixture = new WorkspaceOverviewFixture();
+
+        await fixture.SeedAsync();
+
+        var result = await fixture.As(999)
+            .GetWorkspaceAsync(OverviewWorkspaceId);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(
+            "User could not be identified",
+            result.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task GetWorkspaceAsync_RejectsNonMember()
+    {
+        using var fixture = new WorkspaceOverviewFixture();
+
+        await fixture.SeedAsync();
+
+        var result = await fixture.As(OutsiderId)
+            .GetWorkspaceAsync(OverviewWorkspaceId);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(
+            "You do not have permission to access this workspace",
+            result.ErrorMessage);
+
+        fixture.MemberService.Verify(
+            s => s.ToResponse(It.IsAny<WorkspaceMember>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task GetWorkspaceAsync_ReturnsWorkspaceMetadata()
+    {
+        using var fixture = new WorkspaceOverviewFixture();
+
+        await fixture.SeedAsync();
+
+        var result = await fixture.As(OwnerId)
+            .GetWorkspaceAsync(OverviewWorkspaceId);
+
+        Assert.True(result.IsSuccess, result.ErrorMessage);
+        Assert.NotNull(result.Value);
+
+        var workspace = result.Value!;
+
+        Assert.Equal(OverviewWorkspaceId, workspace.WorkspaceId);
+        Assert.Equal("John Smith Development", workspace.Name);
+
+        Assert.Equal(
+            new DateTime(2026, 11, 1, 12, 0, 0, DateTimeKind.Utc),
+            workspace.CreatedAt);
+
+        Assert.Equal(
+            "https://example.com/workspace.png",
+            workspace.ImageUrl);
+
+        Assert.Equal(WorkspaceRole.Owner, workspace.Role);
+    }
+
+    [Fact]
+    public async Task GetWorkspaceAsync_ReturnsOnlyWorkspaceBoardsInPositionOrder()
+    {
+        using var fixture = new WorkspaceOverviewFixture();
+
+        await fixture.SeedAsync();
+
+        var result = await fixture.As(OwnerId)
+            .GetWorkspaceAsync(OverviewWorkspaceId);
+
+        Assert.True(result.IsSuccess, result.ErrorMessage);
+
+        var boards = result.Value!.Boards;
+
+        Assert.Equal(3, boards.Count);
+
+        Assert.Equal(
+            new[] { 101, 102, 100 },
+            boards.Select(b => b.BoardId));
+
+        Assert.Equal(
+            new[] { 0, 1, 2 },
+            boards.Select(b => b.Position));
+
+        Assert.Equal(
+            new[] { "Frontend", "Testing", "Backend" },
+            boards.Select(b => b.Name));
+
+        var backendBoard = Assert.Single(
+            boards,
+            b => b.BoardId == 100);
+
+        Assert.Equal(
+            "https://example.com/backend.png",
+            backendBoard.ImageUrl);
+
+        Assert.DoesNotContain(boards, b => b.BoardId == 200);
+    }
+
+    [Fact]
+    public async Task GetWorkspaceAsync_LoadsWorkspaceMembersWithUsers()
+    {
+        using var fixture = new WorkspaceOverviewFixture();
+
+        await fixture.SeedAsync();
+
+        var result = await fixture.As(OwnerId)
+            .GetWorkspaceAsync(OverviewWorkspaceId);
+
+        Assert.True(result.IsSuccess, result.ErrorMessage);
+
+        Assert.Equal(2, result.Value!.Members.Count);
+
+        fixture.MemberService.Verify(
+            s => s.ToResponse(It.IsAny<WorkspaceMember>()),
+            Times.Exactly(2));
+    }
+
+    [Theory]
+    [InlineData(WorkspaceRole.Owner, true, true, true, true)]
+    [InlineData(WorkspaceRole.Admin, true, true, false, true)]
+    [InlineData(WorkspaceRole.Member, true, false, false, false)]
+    [InlineData(WorkspaceRole.Viewer, false, false, false, false)]
+    public async Task GetWorkspaceAsync_ReturnsPermissionsForRole(
+        WorkspaceRole role,
+        bool canEditTasks,
+        bool canManageBoards,
+        bool canManageAdmins,
+        bool canManageInvitations)
+    {
+        using var fixture = new WorkspaceOverviewFixture();
+
+        await fixture.SeedAsync();
+
+        var membership = await fixture.Db.WorkspaceMembers
+            .SingleAsync(m =>
+                m.WorkspaceId == OverviewWorkspaceId &&
+                m.UserId == OwnerId);
+
+        membership.Role = role;
+        await fixture.Db.SaveChangesAsync();
+
+        var result = await fixture.As(OwnerId)
+            .GetWorkspaceAsync(OverviewWorkspaceId);
+
+        Assert.True(result.IsSuccess, result.ErrorMessage);
+
+        var response = result.Value!;
+        var permissions = response.Permissions;
+
+        Assert.Equal(role, response.Role);
+
+        Assert.Equal(canEditTasks, permissions.CanEditTasks);
+        Assert.Equal(canManageBoards, permissions.CanManageBoards);
+        Assert.Equal(canManageAdmins, permissions.CanManageAdmins);
+        Assert.Equal(
+            canManageInvitations,
+            permissions.CanManageInvitations);
+
+        Assert.Equal(
+            role is WorkspaceRole.Owner or WorkspaceRole.Admin,
+            permissions.CanManageMembers);
+
+        Assert.Equal(
+            role == WorkspaceRole.Owner,
+            permissions.CanEditWorkspace);
+
+        Assert.Equal(
+            role == WorkspaceRole.Owner,
+            permissions.CanTransferOwnership);
+
+        if (canManageInvitations)
+        {
+            var invitation = Assert.Single(response.Invitations);
+
+            Assert.Equal(300, invitation.Id);
+            Assert.Equal(OverviewWorkspaceId, invitation.WorkspaceId);
+            Assert.Equal(5, invitation.MaxUses);
+        }
+        else
+        {
+            Assert.Empty(response.Invitations);
+        }
+    }
+
+    [Fact]
+    public async Task GetWorkspaceAsync_ReturnsEmptyCollectionsWhenWorkspaceHasNone()
+    {
+        using var fixture = new WorkspaceOverviewFixture();
+
+        await fixture.SeedAsync();
+
+        fixture.Db.Boards.RemoveRange(
+            fixture.Db.Boards.Where(b => b.WorkspaceId == OverviewWorkspaceId));
+
+        var invitation = await fixture.Db
+            .Set<WorkspaceInvitation>()
+            .SingleAsync(i =>
+                i.WorkspaceId == OverviewWorkspaceId);
+
+        fixture.Db.Remove(invitation);
+
+        await fixture.Db.SaveChangesAsync();
+
+        var result = await fixture.As(OwnerId)
+            .GetWorkspaceAsync(OverviewWorkspaceId);
+
+        Assert.True(result.IsSuccess, result.ErrorMessage);
+        Assert.Empty(result.Value!.Boards);
+        Assert.Empty(result.Value.Invitations);
+
+        Assert.Equal(2, result.Value.Members.Count);
+    }
+
+
+    private const int OverviewWorkspaceId = 10;
+    private const int OtherWorkspaceId = 20;
+
+    private const int OwnerId = 1;
+    private const int MemberId = 2;
+    private const int OutsiderId = 3;
+
+    private sealed class WorkspaceOverviewFixture : IDisposable
+    {
+        public KanbanDbContext Db { get; }
+
+        public Mock<IWorkspaceMemberInterface> MemberService { get; }
+            = new();
+
+        public WorkspaceOverviewFixture()
+        {
+            var options = new DbContextOptionsBuilder<KanbanDbContext>()
+                .UseInMemoryDatabase(
+                    $"WorkspaceOverview_{Guid.NewGuid():N}")
+                .Options;
+
+            Db = new KanbanDbContext(options);
+
+            // Mock only the member-response mapping dependency.
+            MemberService
+                .Setup(s => s.ToResponse(It.IsAny<WorkspaceMember>()))
+                .Returns((WorkspaceMember member) =>
+                {
+
+                    Assert.NotNull(member.User);
+
+                    return new WorkspaceMemberResponse();
+                });
+        }
+
+        public WorkspaceService As(int? userId)
+        {
+            var claims = userId.HasValue
+                ? new[]
+                {
+                    new Claim("sub", userId.Value.ToString())
+                }
+                : Array.Empty<Claim>();
+
+            var httpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(
+                    new ClaimsIdentity(claims, "TestAuth"))
+            };
+
+            var currentUser = new CurrentUserService(
+                new HttpContextAccessor
+                {
+                    HttpContext = httpContext
+                });
+
+            var authService = new WorkspaceAuthService(Db);
+
+            return new WorkspaceService(
+                Db,
+                currentUser,
+                authService,
+                MemberService.Object);
+        }
+
+        public async Task SeedAsync()
+        {
+            var createdAt = new DateTime(
+                2026, 11, 1, 12, 0, 0, DateTimeKind.Utc);
+
+            Db.Users.AddRange(
+                new User
+                {
+                    Id = OwnerId,
+                    Username = "johnsmith",
+                    FirstName = "John",
+                    LastName = "Smith",
+                    Email = "john@example.com",
+                    PasswordHash = "test-hash",
+                    IsEmailVerified = true
+                },
+                new User
+                {
+                    Id = MemberId,
+                    Username = "alex",
+                    FirstName = "Alex",
+                    LastName = "Taylor",
+                    Email = "alex@example.com",
+                    PasswordHash = "test-hash",
+                    IsEmailVerified = true
+                },
+                new User
+                {
+                    Id = OutsiderId,
+                    Username = "outsider",
+                    FirstName = "Outside",
+                    LastName = "User",
+                    Email = "outside@example.com",
+                    PasswordHash = "test-hash",
+                    IsEmailVerified = true
+                }
+            );
+
+            Db.Workspaces.AddRange(
+                new Workspace
+                {
+                    Id = OverviewWorkspaceId,
+                    Name = "John Smith Development",
+                    ImageUrl = "https://example.com/workspace.png",
+                    CreatedAt = createdAt
+                },
+                new Workspace
+                {
+                    Id = OtherWorkspaceId,
+                    Name = "Other Workspace",
+                    CreatedAt = createdAt
+                }
+            );
+
+            Db.WorkspaceMembers.AddRange(
+                new WorkspaceMember
+                {
+                    WorkspaceId = OverviewWorkspaceId,
+                    UserId = OwnerId,
+                    Role = WorkspaceRole.Owner,
+                    JoinedAt = createdAt
+                },
+                new WorkspaceMember
+                {
+                    WorkspaceId = OverviewWorkspaceId,
+                    UserId = MemberId,
+                    Role = WorkspaceRole.Member,
+                    JoinedAt = createdAt
+                },
+                new WorkspaceMember
+                {
+                    WorkspaceId = OtherWorkspaceId,
+                    UserId = OwnerId,
+                    Role = WorkspaceRole.Owner,
+                    JoinedAt = createdAt
+                }
+            );
+
+            Db.Boards.AddRange(
+                new Board
+                {
+                    Id = 100,
+                    WorkspaceId = OverviewWorkspaceId,
+                    Name = "Backend",
+                    Position = 2,
+                    ImageUrl = "https://example.com/backend.png"
+                },
+                new Board
+                {
+                    Id = 101,
+                    WorkspaceId = OverviewWorkspaceId,
+                    Name = "Frontend",
+                    Position = 0
+                },
+                new Board
+                {
+                    Id = 102,
+                    WorkspaceId = OverviewWorkspaceId,
+                    Name = "Testing",
+                    Position = 1
+                },
+                new Board
+                {
+                    Id = 200,
+                    WorkspaceId = OtherWorkspaceId,
+                    Name = "Other Board",
+                    Position = 0
+                }
+            );
+
+            Db.AddRange(
+                new WorkspaceInvitation
+                {
+                    Id = 300,
+                    WorkspaceId = OverviewWorkspaceId,
+                    CreatedByUserId = OwnerId,
+                    CodeHash = "test-code-hash",
+                    CreatedAtUtc = createdAt,
+                    ExpiresAtUtc = createdAt.AddDays(7),
+                    RedeemedCount = 0,
+                    MaxUses = 5
+                },
+                new WorkspaceInvitation
+                {
+                    Id = 301,
+                    WorkspaceId = OtherWorkspaceId,
+                    CreatedByUserId = OwnerId,
+                    CodeHash = "other-code-hash",
+                    CreatedAtUtc = createdAt,
+                    ExpiresAtUtc = createdAt.AddDays(7),
+                    RedeemedCount = 0,
+                    MaxUses = 5
+                }
+            );
+
+            await Db.SaveChangesAsync();
+        }
+
+        public void Dispose()
+        {
+            Db.Dispose();
+        }
     }
 }

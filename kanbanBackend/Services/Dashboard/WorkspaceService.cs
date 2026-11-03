@@ -98,11 +98,21 @@ public class WorkspaceService
             return permissionDenied;
         }
         
-        var workspace = await _dbContext.Workspaces
+        var isAdminOrOwner = membership.Role is WorkspaceRole.Admin or WorkspaceRole.Owner;
+        
+        var query = _dbContext.Workspaces
+            .AsNoTracking()
+            .AsSplitQuery()
             .Include(workspace => workspace.Boards)
             .Include(workspace => workspace.Members)
-            .Include(workspace => workspace.Invitations)
-            .FirstOrDefaultAsync(w => w.Id == workspaceId);
+                .ThenInclude(m => m.User)
+            .AsQueryable();
+
+        if (isAdminOrOwner)
+        {
+            query = query.Include(w => w.Invitations);
+        }
+        var workspace = await query.FirstOrDefaultAsync(w => w.Id == workspaceId);
 
         if (workspace is null)
         {
@@ -110,6 +120,8 @@ public class WorkspaceService
         }
 
         var boardSummaries = workspace.Boards
+            .OrderBy(b => b.Position)
+            .ThenBy(b => b.Id)
             .Select(board => new BoardSummaryResponse
             {
                 BoardId = board.Id, 
@@ -122,7 +134,6 @@ public class WorkspaceService
         var workspaceMembers = workspace.Members
             .Select(member => _memberService.ToResponse(member)).ToList();
         
-        var isAdminOrOwner = membership.Role is WorkspaceRole.Admin or WorkspaceRole.Owner;
         var potentialInvitations = new List<WorkspaceInvitationResponse>();
         if (isAdminOrOwner)
         {
