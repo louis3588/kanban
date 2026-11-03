@@ -32,7 +32,7 @@ export interface CreateInvitationRequest{
     maxUses?: number;
 }
 
-export interface WorkspaceInvitation{
+export interface WorkspaceInvitationResponse{
     id: number;
     workspaceId: number;
     createdByUserId?: number;
@@ -43,9 +43,38 @@ export interface WorkspaceInvitation{
     maxUses?: number;
 }
 
-export interface CreatedWorkspaceInvitation extends WorkspaceInvitation{
+export interface CreatedWorkspaceInvitation extends WorkspaceInvitationResponse{
     code: string;
     inviteUrl: string;
+}
+
+export interface BoardSummaryResponse {
+    boardId: number;
+    name: string;
+    imageUrl: string | null;
+    position: number;
+}
+
+export interface BoardsPermissionsResponse{
+    canEditTasks: boolean;
+    canManageBoards: boolean;
+    canManageMembers: boolean;
+    canManageAdmins: boolean;
+    canManageInvitations: boolean;
+    canEditWorkspace: boolean;
+    canTransferOwnership: boolean;
+}
+
+export interface WorkspaceBoardResponse{
+    workspaceId: number;
+    name: string;
+    createdAt: string;
+    imageUrl: string | null;
+    role: WorkspaceRole;
+    boards: BoardSummaryResponse[];
+    members: WorkspaceMemberResponse[];
+    invitations: WorkspaceInvitationResponse[];
+    permissions: BoardsPermissionsResponse;
 }
 
 export async function getWorkspaces(token: string): Promise<WorkspaceResponse[]> {
@@ -73,9 +102,9 @@ export async function createWorkspaceInvitation(token: string, request: CreateIn
     return await connection.invoke<CreatedWorkspaceInvitation>("CreateWorkspaceInvitation", request);
 }
 
-export async function getWorkspaceInvitations(token: string, workspaceId: number): Promise<WorkspaceInvitation[]>{
+export async function getWorkspaceInvitations(token: string, workspaceId: number): Promise<WorkspaceInvitationResponse[]>{
     const connection = await getConnection(token);
-    return await connection.invoke<WorkspaceInvitation[]>("GetWorkspaceInvitations", workspaceId);
+    return await connection.invoke<WorkspaceInvitationResponse[]>("GetWorkspaceInvitations", workspaceId);
 }
 
 export async function revokeWorkspaceInvitation(token: string, workspaceId: number, invitationId: number): Promise<boolean> {
@@ -86,4 +115,9 @@ export async function revokeWorkspaceInvitation(token: string, workspaceId: numb
 export async function joinWorkspace(token: string, code: string): Promise<WorkspaceResponse>{
     const connection = await getConnection(token);
     return await connection.invoke<WorkspaceResponse>("JoinWorkspace", code);
+}
+
+export async function getWorkspace(token: string, workspaceId: number): Promise<WorkspaceBoardResponse> {
+    const connection = await getConnection(token);
+    return await connection.invoke<WorkspaceBoardResponse>("GetWorkspaceById", workspaceId);
 }
