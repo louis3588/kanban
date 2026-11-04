@@ -102,11 +102,6 @@ export async function createWorkspaceInvitation(token: string, request: CreateIn
     return await connection.invoke<CreatedWorkspaceInvitation>("CreateWorkspaceInvitation", request);
 }
 
-export async function getWorkspaceInvitations(token: string, workspaceId: number): Promise<WorkspaceInvitationResponse[]>{
-    const connection = await getConnection(token);
-    return await connection.invoke<WorkspaceInvitationResponse[]>("GetWorkspaceInvitations", workspaceId);
-}
-
 export async function revokeWorkspaceInvitation(token: string, workspaceId: number, invitationId: number): Promise<boolean> {
     const connection = await getConnection(token);
     return await connection.invoke<boolean>("RevokeWorkspaceInvitation", workspaceId, invitationId);
@@ -120,4 +115,19 @@ export async function joinWorkspace(token: string, code: string): Promise<Worksp
 export async function getWorkspace(token: string, workspaceId: number): Promise<WorkspaceBoardResponse> {
     const connection = await getConnection(token);
     return await connection.invoke<WorkspaceBoardResponse>("GetWorkspaceById", workspaceId);
+}
+
+export async function updateWorkspaceMemberRole(token: string, workspaceId: number, userId: number, role: WorkspaceRole): Promise<void> {
+    const connection = await getConnection(token);
+    await connection.invoke("UpdateWorkspaceMemberRole", workspaceId, userId, role);
+}
+
+export async function removeWorkspaceMember(token: string, workspaceId: number, userId: number): Promise<void> {
+    const connection = await getConnection(token);
+    await connection.invoke("RemoveWorkspaceMember", workspaceId, userId);
+}
+
+export async function transferWorkspaceOwnership(token: string, workspaceId: number, newOwnerId: number): Promise<void> {
+    const connection = await getConnection(token);
+    await connection.invoke("TransferWorkspaceOwnership", workspaceId, newOwnerId);
 }

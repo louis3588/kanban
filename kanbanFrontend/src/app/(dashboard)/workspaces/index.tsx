@@ -441,130 +441,126 @@ export default function WorkspacesScreen() {
                                                 key={workspace.id}
                                                 testID={`workspace-card-${workspace.id}`}
                                                 onPress={() => {goToWorkspace(workspace.id)}}
+                                                className="min-h-56 justify-between rounded-2xl border p-5"
+                                                style={{
+                                                    width: cardWidth,
+                                                    backgroundColor: colours.surface,
+                                                    borderColor: colours.border,
+                                                }}
                                             >
+                                                <View>
+                                                    <View className="mb-6 flex-row items-center justify-between gap-2">
+                                                        <View
+                                                            className="h-12 w-12 items-center justify-center rounded-2xl"
+                                                            style={{
+                                                                backgroundColor: colours.primary,
+                                                            }}
+                                                        >
+                                                            <Text
+                                                                className="text-xl font-bold"
+                                                                style={{
+                                                                    color: colours.textLight,
+                                                                }}
+                                                            >
+                                                                {workspace.name
+                                                                    .trim()
+                                                                    .charAt(0)
+                                                                    .toUpperCase()}
+                                                            </Text>
+                                                        </View>
+
+                                                        <View
+                                                            className="rounded-full px-3 py-1.5"
+                                                            style={{
+                                                                backgroundColor: colours.backgroundDark,
+                                                            }}
+                                                        >
+                                                            <Text
+                                                                className="text-xs font-semibold"
+                                                                style={{
+                                                                    color: isDarkBackground
+                                                                        ? colours.textLight
+                                                                        : colours.text,
+                                                                }}
+                                                            >
+                                                                {workspace.role}
+                                                            </Text>
+                                                        </View>
+                                                    </View>
+
+                                                    <Text
+                                                        className="text-xl font-bold"
+                                                        numberOfLines={2}
+                                                        style={{
+                                                            color: colours.text,
+                                                        }}
+                                                    >
+                                                        {workspace.name}
+                                                    </Text>
+
+                                                    <View className="mt-3 flex-row items-center gap-2">
+                                                        <Ionicons
+                                                            name="calendar-outline"
+                                                            size={14}
+                                                            color={colours.textMuted}
+                                                        />
+                                                        <Text
+                                                            className="text-xs"
+                                                            style={{
+                                                                color: colours.textMuted,
+                                                            }}
+                                                        >
+                                                            Created{" "}
+                                                            {formatDate(workspace.createdAt)}
+                                                        </Text>
+                                                    </View>
+                                                </View>
+
                                                 <View
-                                                    key={workspace.id}
-                                                    className="min-h-56 justify-between rounded-2xl border p-5"
+                                                    className="mt-6 flex-row items-center justify-between border-t pt-4"
                                                     style={{
-                                                        width: cardWidth,
-                                                        backgroundColor: colours.surface,
                                                         borderColor: colours.border,
                                                     }}
                                                 >
-                                                    <View>
-                                                        <View className="mb-6 flex-row items-center justify-between gap-2">
-                                                            <View
-                                                                className="h-12 w-12 items-center justify-center rounded-2xl"
-                                                                style={{
-                                                                    backgroundColor: colours.primary,
-                                                                }}
-                                                            >
-                                                                <Text
-                                                                    className="text-xl font-bold"
-                                                                    style={{
-                                                                        color: colours.textLight,
-                                                                    }}
-                                                                >
-                                                                    {workspace.name
-                                                                        .trim()
-                                                                        .charAt(0)
-                                                                        .toUpperCase()}
-                                                                </Text>
-                                                            </View>
-
-                                                            <View
-                                                                className="rounded-full px-3 py-1.5"
-                                                                style={{
-                                                                    backgroundColor: colours.backgroundDark,
-                                                                }}
-                                                            >
-                                                                <Text
-                                                                    className="text-xs font-semibold"
-                                                                    style={{
-                                                                        color: isDarkBackground
-                                                                            ? colours.textLight
-                                                                            : colours.text,
-                                                                    }}
-                                                                >
-                                                                    {workspace.role}
-                                                                </Text>
-                                                            </View>
-                                                        </View>
-
+                                                    <View className="flex-row items-center gap-2">
+                                                        <Ionicons
+                                                            name="layers-outline"
+                                                            size={16}
+                                                            color={colours.textMuted}
+                                                        />
                                                         <Text
-                                                            className="text-xl font-bold"
-                                                            numberOfLines={2}
+                                                            className="text-xs"
                                                             style={{
-                                                                color: colours.text,
+                                                                color: colours.textMuted,
                                                             }}
                                                         >
-                                                            {workspace.name}
+                                                            Workspace
                                                         </Text>
-
-                                                        <View className="mt-3 flex-row items-center gap-2">
-                                                            <Ionicons
-                                                                name="calendar-outline"
-                                                                size={14}
-                                                                color={colours.textMuted}
-                                                            />
-                                                            <Text
-                                                                className="text-xs"
-                                                                style={{
-                                                                    color: colours.textMuted,
-                                                                }}
-                                                            >
-                                                                Created{" "}
-                                                                {formatDate(workspace.createdAt)}
-                                                            </Text>
-                                                        </View>
                                                     </View>
 
-                                                    <View
-                                                        className="mt-6 flex-row items-center justify-between border-t pt-4"
-                                                        style={{
-                                                            borderColor: colours.border,
-                                                        }}
-                                                    >
-                                                        <View className="flex-row items-center gap-2">
+                                                    {canInvite(workspace.role) && (
+                                                        <Pressable
+                                                            accessibilityLabel={`Invite to ${workspace.name}`}
+                                                            className="flex-row items-center gap-2 rounded-lg p-2"
+                                                            onPress={() =>
+                                                                setShareWorkspace(workspace)
+                                                            }
+                                                        >
                                                             <Ionicons
-                                                                name="layers-outline"
-                                                                size={16}
-                                                                color={colours.textMuted}
+                                                                name="link-outline"
+                                                                size={17}
+                                                                color={colours.primary}
                                                             />
                                                             <Text
-                                                                className="text-xs"
+                                                                className="text-xs font-bold"
                                                                 style={{
-                                                                    color: colours.textMuted,
+                                                                    color: colours.primary,
                                                                 }}
                                                             >
-                                                                Workspace
+                                                                Invite
                                                             </Text>
-                                                        </View>
-
-                                                        {canInvite(workspace.role) && (
-                                                            <Pressable
-                                                                accessibilityLabel={`Invite to ${workspace.name}`}
-                                                                className="flex-row items-center gap-2 rounded-lg p-2"
-                                                                onPress={() =>
-                                                                    setShareWorkspace(workspace)
-                                                                }
-                                                            >
-                                                                <Ionicons
-                                                                    name="link-outline"
-                                                                    size={17}
-                                                                    color={colours.primary}
-                                                                />
-                                                                <Text
-                                                                    className="text-xs font-bold"
-                                                                    style={{
-                                                                        color: colours.primary,
-                                                                    }}
-                                                                >
-                                                                    Invite
-                                                                </Text>
-                                                            </Pressable>
-                                                        )}
-                                                    </View>
+                                                        </Pressable>
+                                                    )}
                                                 </View>
                                             </Pressable>
                                         ))}
