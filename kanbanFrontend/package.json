@@ -11,7 +11,11 @@
     "build:web": "expo export --platform web",
     "lint": "expo lint",
     "test": "jest",
-    "test:coverage": "jest --ci --coverage --runInBand"
+    "test:coverage": "jest --ci --coverage --runInBand --reporters=default --reporters=jest-junit"
+  },
+  "jest-junit": {
+    "outputDirectory": "./coverage",
+    "outputName": "junit.xml"
   },
   "jest": {
     "preset": "jest-expo",
@@ -37,7 +41,6 @@
       "cobertura"
     ]
   },
-
   "dependencies": {
     "@expo/ui": "~57.0.21",
     "@expo/vector-icons": "^15.1.1",
@@ -78,6 +81,7 @@
     "@types/react": "~19.2.2",
     "jest": "~29.7.0",
     "jest-expo": "~57.0.5",
+    "jest-junit": "^17.0.0",
     "prettier-plugin-tailwindcss": "^0.5.14",
     "tailwindcss": "^3.4.19",
     "typescript": "~6.0.3"
