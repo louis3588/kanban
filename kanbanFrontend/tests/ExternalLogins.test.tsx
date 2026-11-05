@@ -141,7 +141,7 @@ describe.each(providers)("external login callback", ({
             );
 
             expect(router.replace).toHaveBeenCalledWith(
-                "/(dashboard)/workspaces",
+                "/workspaces",
             );
         });
 
