@@ -43,12 +43,14 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage"
 
-      - name: Upload backend coverage
-        if: github.event_name == 'push' && success()
+      - name: Upload backend reports
+        if: ${{ always() && github.event_name == 'push' }}
         uses: actions/upload-artifact@v4
         with:
           name: backend-coverage
-          path: kanbanBackend/**/TestResults/**/coverage.cobertura.xml
+          path: |
+            kanbanBackend/**/TestResults/**/coverage.cobertura.xml
+            kanbanBackend/**/TestResults/**/junit.xml
           if-no-files-found: error
           retention-days: 7
 
@@ -87,12 +89,14 @@ jobs:
           JWTSECRET: ${{ secrets.JWT_SECRET }}
         run: npm run test:coverage
 
-      - name: Upload frontend coverage
-        if: github.event_name == 'push' && success()
+      - name: Upload frontend reports
+        if: ${{ always() && github.event_name == 'push' }}
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
-          path: kanbanFrontend/coverage/cobertura-coverage.xml
+          path: |
+            kanbanFrontend/coverage/cobertura-coverage.xml
+            kanbanFrontend/coverage/junit.xml
           if-no-files-found: error
           retention-days: 7
 
