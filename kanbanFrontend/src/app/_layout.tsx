@@ -33,6 +33,12 @@ export default function RootLayout() {
                       headerShown: false,
                   }}
               />
+              <Stack.Screen
+                name="join"
+                options={{
+                    headerShown: false,
+                }}
+              />
           </Stack>
       </AuthProvider>
   );

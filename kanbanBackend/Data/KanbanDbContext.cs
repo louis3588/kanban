@@ -169,11 +169,32 @@ public class KanbanDbContext : DbContext
             entity.Property(b => b.Name)
                 .IsRequired()
                 .HasMaxLength(100);
+            
+            entity.Property(b => b.Position)
+                .IsRequired()
+                .HasDefaultValue(0);
+
+            entity.Property(b => b.ImageUrl)
+                .HasMaxLength(2048)
+                .IsRequired(false);
 
             entity.HasOne(b => b.Workspace)
                 .WithMany(w => w.Boards)
                 .HasForeignKey(b => b.WorkspaceId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(b => new
+            {
+                b.WorkspaceId, b.Position
+            });
+            
+            entity.ToTable(table =>
+            {
+                table.HasCheckConstraint(
+                    "CK_Boards_Position",
+                    "\"Position\" >= 0"
+                );
+            });
         });
         
         //External Login

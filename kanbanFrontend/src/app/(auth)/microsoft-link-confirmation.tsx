@@ -3,6 +3,7 @@ import {useAuth} from "@/context/AuthContext";
 import {useState} from "react";
 import {confirmMicrosoftLink} from "@/client/api/apiClient";
 import {ActivityIndicator, Pressable, Text, View} from "react-native";
+import {continueAfterAuthentication} from "@/context/utils/pendingInvitation";
 
 
 export default function MicrosoftLinkConfirmation(){
@@ -24,7 +25,7 @@ export default function MicrosoftLinkConfirmation(){
 
         try{
             const response = await confirmMicrosoftLink(token)
-            login(response.token, {
+            await login(response.token, {
                 id: Number.parseInt(response.userId),
                 username: response.username,
                 firstName: response.firstName,
@@ -32,7 +33,7 @@ export default function MicrosoftLinkConfirmation(){
                 email: response.email,
             });
 
-            router.replace("/(dashboard)/workspaces");
+            await continueAfterAuthentication();
         } catch (e) {
             setError(
                 e instanceof Error ? e.message : "Unable to confirm the microsoft account link"

@@ -26,6 +26,7 @@ import {
 
 import CreateWorkspaceModal from "@/components/workspaces/CreateWorkspaceModal";
 import JoinWorkspaceModal from "@/components/workspaces/JoinWorkspaceModal";
+import {router} from "expo-router";
 
 export default function WorkspacesScreen() {
     const { token, preferences } = useAuth();
@@ -179,6 +180,15 @@ export default function WorkspacesScreen() {
         setShowJoinModal(false);
         setShowCreateModal(true);
     };
+
+
+    const goToWorkspace = (id: number) => {
+        router.push({
+            pathname: "/workspaces/[workspaceId]", params: {
+                workspaceId: String(id),
+            }
+        })
+    }
 
     const canInvite = (role: WorkspaceRole) =>
         role === WorkspaceRole.Owner ||
@@ -426,8 +436,10 @@ export default function WorkspacesScreen() {
 
                                     <View className="flex-row flex-wrap gap-4">
                                         {workspaces.map(workspace => (
-                                            <View
+                                            <Pressable
                                                 key={workspace.id}
+                                                testID={`workspace-card-${workspace.id}`}
+                                                onPress={() => {goToWorkspace(workspace.id)}}
                                                 className="min-h-56 justify-between rounded-2xl border p-5"
                                                 style={{
                                                     width: cardWidth,
@@ -549,7 +561,7 @@ export default function WorkspacesScreen() {
                                                         </Pressable>
                                                     )}
                                                 </View>
-                                            </View>
+                                            </Pressable>
                                         ))}
                                     </View>
                                 </>

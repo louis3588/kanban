@@ -248,7 +248,7 @@ describe("Login", () => {
 
         await waitFor(() => {
             expect(mockedRouter.replace).toHaveBeenCalledWith(
-                "/(dashboard)/workspaces"
+                "/workspaces"
             );
         });
     });
