@@ -214,27 +214,27 @@ pipeline {
                 )
             }
         }
+        stage('Publish Backend Test Results') {
+                steps {
+                    junit(
+                        testResults: 'reports/normalized/backend-tests.xml',
+                        allowEmptyResults: false,
+                        skipPublishingChecks: true
+                    )
+                }
+            }
+
+            stage('Publish Frontend Test Results') {
+                steps {
+                    junit(
+                        testResults: 'reports/normalized/frontend-tests.xml',
+                        allowEmptyResults: false,
+                        skipPublishingChecks: true
+                    )
+                }
+            }
     }
 
 
-    stage('Publish Backend Test Results') {
-        steps {
-            junit(
-                testResults: 'reports/normalized/backend-tests.xml',
-                allowEmptyResults: false,
-                skipPublishingChecks: true
-            )
-        }
-    }
-
-    stage('Publish Frontend Test Results') {
-        steps {
-            junit(
-                testResults: 'reports/normalized/frontend-tests.xml',
-                allowEmptyResults: false,
-                skipPublishingChecks: true
-            )
-        }
-    }
 
 }
