@@ -9,7 +9,7 @@ pipeline {
     }
 
     environment {
-        GITHUB_REPO = 'YOUR_USERNAME/YOUR_REPOSITORY'
+        GITHUB_REPO = 'louis3588/kanban'
     }
 
     stages {
