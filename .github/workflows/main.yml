@@ -31,12 +31,26 @@ jobs:
 
       - name: Build
         run: dotnet build --no-restore --configuration Release
-
       - name: Test
+        if: github.event_name == 'pull_request'
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: dotnet test --no-build --configuration Release
+        
+      - name: Test with coverage
+        if: github.event_name == 'push'
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        run: dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage"
 
+      - name: Upload backend coverage
+        if: github.event_name == 'push' && success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: kanbanBackend/**/TestResults/**/coverage.cobertura.xml
+          if-no-files-found: error
+          retention-days: 7
 
   frontend:
     name: Frontend - Test and Build
@@ -61,13 +75,29 @@ jobs:
         run: npm ci
 
       - name: Test
+        if: github.event_name == 'pull_request'
         env:
           JWTSECRET: ${{ secrets.JWT_SECRET }}
         run: npm test -- --runInBand
 
+      # Generate coverage only when main is updated
+      - name: Test with coverage
+        if: github.event_name == 'push'
+        env:
+          JWTSECRET: ${{ secrets.JWT_SECRET }}
+        run: npm run test:coverage
+
+      - name: Upload frontend coverage
+        if: github.event_name == 'push' && success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: kanbanFrontend/coverage/cobertura-coverage.xml
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Build Expo web application
         run: npx expo export --platform web
-
 
   docker:
     name: Docker - Build and Push Backend
@@ -76,6 +106,8 @@ jobs:
     needs:
       - backend
       - frontend
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout repository
