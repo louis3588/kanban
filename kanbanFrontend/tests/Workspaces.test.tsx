@@ -19,7 +19,7 @@ import {
     WorkspaceRole
 } from "@/client/signalr/workspaceClient";
 import {useAuth} from "@/context/AuthContext";
-import WorkspacesScreen from "@/app/(dashboard)/workspaces";
+import WorkspacesScreen from "@/app/(dashboard)/workspaces/index";
 import {RefreshControl} from "react-native";
 jest.mock("@expo/vector-icons", () => ({
     Ionicons: () => null,

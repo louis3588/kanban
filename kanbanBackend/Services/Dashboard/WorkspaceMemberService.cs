@@ -1,6 +1,7 @@
 using System.Data;
 using kanbanBackend.Data;
 using kanbanBackend.DTOs.Dashboard;
+using kanbanBackend.DTOs.Dashboard.Workspaces;
 using kanbanBackend.DTOs.Profile;
 using kanbanBackend.Models;
 using kanbanBackend.Models.Enum;
@@ -27,7 +28,7 @@ public class WorkspaceMemberService : IWorkspaceMemberInterface
         _userNotFound = ModelResult<WorkspaceMemberResponse>.Failure("User could not be found");
     }
 
-    private static WorkspaceMemberResponse ToResponse(WorkspaceMember member)
+    public WorkspaceMemberResponse ToResponse(WorkspaceMember member)
     {
         var user = member.User;
         return new WorkspaceMemberResponse

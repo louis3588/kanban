@@ -1,4 +1,4 @@
-namespace kanbanBackend.DTOs.Dashboard;
+namespace kanbanBackend.DTOs.Dashboard.Workspaces;
 
 public class CreatedWorkspaceInvitation : WorkspaceInvitationResponse
 {

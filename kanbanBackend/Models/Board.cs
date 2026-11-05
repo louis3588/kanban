@@ -7,6 +7,9 @@ public class Board
     public string Name { get; set; } = string.Empty;
 
     public int WorkspaceId { get; set; }
+    
+    public int Position { get; set; } = 0;
+    public string? ImageUrl { get; set; } = null!;
 
     public Workspace Workspace { get; set; } = null!;
 

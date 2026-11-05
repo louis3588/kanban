@@ -1,17 +1,17 @@
 import { useState } from "react";
 import {
     ActivityIndicator,
-    Image, Platform,
+    Platform,
     Pressable,
     Text,
     View
 } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
-import { router } from "expo-router";
 import {SvgUri}from 'react-native-svg'
 import { useAuth } from "@/context/AuthContext";
 import { googleLoginUrl, googleLoginClient } from "@/client/api/apiClient";
+import {continueAfterAuthentication} from "@/context/utils/pendingInvitation"
 
 type GoogleAuthButtonProps = {
     isLogin: boolean;
@@ -67,7 +67,7 @@ export default function GoogleAuthButton({
 
             const response = await googleLoginClient(ticket);
 
-            login(response.token, {
+            await login(response.token, {
                 id: Number.parseInt(response.userId, 10),
                 username: response.username,
                 firstName: response.firstName,
@@ -75,7 +75,7 @@ export default function GoogleAuthButton({
                 email: response.email
             });
 
-            router.replace("/(dashboard)/workspaces");
+            await continueAfterAuthentication()
         } catch (e) {
             onError(
                 e instanceof Error

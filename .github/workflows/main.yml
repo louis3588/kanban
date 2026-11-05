@@ -41,7 +41,7 @@ jobs:
         if: github.event_name == 'push'
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        run: dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage"
+        run: dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --logger:"junit;LogFileName=junit.xml;StoreConsoleOutput=false"
 
       - name: Upload backend reports
         if: ${{ always() && github.event_name == 'push' }}
