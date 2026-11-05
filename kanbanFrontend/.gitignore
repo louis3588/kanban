@@ -43,3 +43,4 @@ example
 /android
 /.env
 /.idea/inspectionProfiles/Project_Default.xml
+/coverage/
