@@ -27,6 +27,13 @@ export default function ConfirmActionModal({
         setError(null);
     }, [action]);
 
+    const close = () => {
+        if (busy) return;
+
+        action?.onCancel?.();
+        onClose();
+    };
+
     const confirm = async () => {
         if(!action || busy) return;
 

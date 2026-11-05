@@ -477,6 +477,7 @@ export default function WorkspaceBoardsScreen() {
             style={{ backgroundColor: colours.background }}
         >
             <ScrollView
+                testID="workspace-scroll"
                 className="flex-1"
                 refreshControl={
                     <RefreshControl
