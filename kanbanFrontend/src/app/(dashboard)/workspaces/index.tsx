@@ -183,7 +183,6 @@ export default function WorkspacesScreen() {
 
 
     const goToWorkspace = (id: number) => {
-        // @ts-ignore
         router.push({
             pathname: "/workspaces/[workspaceId]", params: {
                 workspaceId: String(id),

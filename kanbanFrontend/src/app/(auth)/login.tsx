@@ -18,6 +18,7 @@ import GoogleAuthButton from "@/components/ui/externals/GoogleAuthButton";
 import GitHubAuthButton from "@/components/ui/externals/GitHubAuthButton";
 import MicrosoftAuthButton from "@/components/ui/externals/MicrosoftAuthButton";
 import {AppTheme, themes} from "@/theme/themes";
+import {continueAfterAuthentication} from "@/context/utils/pendingInvitation";
 
 export default function Login() {
     const {login} = useAuth();
@@ -51,7 +52,7 @@ export default function Login() {
             setIsLoading(true);
 
             const response = await loginClient(username, password);
-            login(response.token, {
+            await login(response.token, {
                 id: Number.parseInt(response.userId),
                 username: response.username,
                 firstName: response.firstName,
@@ -59,7 +60,7 @@ export default function Login() {
                 email: response.email
             });
 
-            router.replace("/(dashboard)/workspaces")
+            await continueAfterAuthentication()
         } catch (e) {
             if (e instanceof Error) {
                 setError(e.message)

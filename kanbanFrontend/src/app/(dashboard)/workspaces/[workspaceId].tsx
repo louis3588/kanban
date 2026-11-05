@@ -112,6 +112,8 @@ export default function WorkspaceBoardsScreen() {
 
                 setWorkspace(data);
                 setDraftName(data.name);
+
+                console.log("WorkspaceMembers:", JSON.stringify(data.members, null, 2));
             })
             .catch(err => {
                 if (active) {
@@ -121,6 +123,7 @@ export default function WorkspaceBoardsScreen() {
             .finally(() => {
                 if (active) setLoading(false);
             });
+
 
         return () => {
             active = false;

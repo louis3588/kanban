@@ -84,64 +84,70 @@ export default function WorkspaceMembersPanel({
                         style={{ borderColor: colours.border }}
                     >
                         <View className="flex-row items-center gap-3">
-                            {member.user.profileImage ? (
-                                <Image
-                                    source={{
-                                        uri: member.user.profileImage,
-                                    }}
-                                    className="h-10 w-10 rounded-full"
-                                />
-                            ) : (
-                                <View
-                                    className="h-10 w-10 items-center justify-center rounded-full"
-                                    style={{
-                                        backgroundColor: colours.primary,
-                                    }}
-                                >
-                                    <Text
-                                        className="font-bold"
-                                        style={{ color: colours.textLight }}
-                                    >
-                                        {member.user.username
-                                            .slice(0, 2)
-                                            .toUpperCase()}
-                                    </Text>
+                            {member.user && (
+                                <View>
+                                    {member.user.profileImage ? (
+                                        <Image
+                                            source={{
+                                                uri: member.user.profileImage,
+                                            }}
+                                            className="h-10 w-10 rounded-full"
+                                        />
+                                    ) : (
+                                        <View
+                                            className="h-10 w-10 items-center justify-center rounded-full"
+                                            style={{
+                                                backgroundColor: colours.primary,
+                                            }}
+                                        >
+                                            {member.user.username ? (
+                                                <Text
+                                                    className="font-bold"
+                                                    style={{ color: colours.textLight }}
+                                                >
+                                                    {member.user?.username
+                                                        .slice(0, 2)
+                                                        .toUpperCase()}
+                                                </Text>
+                                            ) : null}
+                                        </View>
+                                    )}
+
+                                    <View className="min-w-0 flex-1">
+                                        <Text
+                                            numberOfLines={1}
+                                            className="font-semibold"
+                                            style={{ color: colours.text }}
+                                        >
+                                            {name}
+                                        </Text>
+
+                                        <Text
+                                            className="text-xs"
+                                            style={{ color: colours.textMuted }}
+                                        >
+                                            @{member.user.username} · {member.role}
+                                        </Text>
+                                    </View>
+
+                                    {canManage(member) && (
+                                        <Pressable
+                                            accessibilityLabel={`Manage ${member.user.username}`}
+                                            onPress={() =>
+                                                setExpandedId(
+                                                    expanded ? null : id
+                                                )
+                                            }
+                                            className="rounded-lg p-2"
+                                        >
+                                            <Ionicons
+                                                name="ellipsis-horizontal"
+                                                size={22}
+                                                color={colours.text}
+                                            />
+                                        </Pressable>
+                                    )}
                                 </View>
-                            )}
-
-                            <View className="min-w-0 flex-1">
-                                <Text
-                                    numberOfLines={1}
-                                    className="font-semibold"
-                                    style={{ color: colours.text }}
-                                >
-                                    {name}
-                                </Text>
-
-                                <Text
-                                    className="text-xs"
-                                    style={{ color: colours.textMuted }}
-                                >
-                                    @{member.user.username} · {member.role}
-                                </Text>
-                            </View>
-
-                            {canManage(member) && (
-                                <Pressable
-                                    accessibilityLabel={`Manage ${member.user.username}`}
-                                    onPress={() =>
-                                        setExpandedId(
-                                            expanded ? null : id
-                                        )
-                                    }
-                                    className="rounded-lg p-2"
-                                >
-                                    <Ionicons
-                                        name="ellipsis-horizontal"
-                                        size={22}
-                                        color={colours.text}
-                                    />
-                                </Pressable>
                             )}
                         </View>
 
