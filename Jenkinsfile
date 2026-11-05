@@ -124,7 +124,6 @@ pipeline {
                             --name frontend-coverage \
                             --dir reports/frontend
 
-                        # Locate the actual XML files.
                         BACKEND_XML=$(find reports/backend \
                             -type f -name coverage.cobertura.xml \
                             -print -quit)
@@ -133,16 +132,37 @@ pipeline {
                             -type f -name cobertura-coverage.xml \
                             -print -quit)
 
-                        if [ -z "$BACKEND_XML" ] || [ -z "$FRONTEND_XML" ]; then
-                            echo "Missing coverage XML."
+                        mkdir -p reports/normalized
+
+                        if [ -n "$BACKEND_XML" ]; then
+                            cp "$BACKEND_XML" reports/normalized/backend.xml
+                            echo "Backend coverage report found."
+                        else
+                            echo "Backend coverage is unavailable."
+                        fi
+
+                        if [ -n "$FRONTEND_XML" ]; then
+                            cp "$FRONTEND_XML" reports/normalized/frontend.xml
+                            echo "Frontend coverage report found."
+                        else
+                            echo "Frontend coverage is unavailable."
+                        fi
+
+                        BACKEND_TEST_XML=$(find reports/backend \
+                            -type f -name junit.xml -print -quit)
+
+                        FRONTEND_TEST_XML=$(find reports/frontend \
+                            -type f -name junit.xml -print -quit)
+
+                        if [ -z "$BACKEND_TEST_XML" ] || [ -z "$FRONTEND_TEST_XML" ]; then
+                            echo "JUnit test reports were not found."
                             exit 1
                         fi
 
-                        # Normalise paths for the Jenkins Coverage plugin.
-                        mkdir -p reports/normalized
+                        cp "$BACKEND_TEST_XML" reports/normalized/backend-tests.xml
+                        cp "$FRONTEND_TEST_XML" reports/normalized/frontend-tests.xml
 
-                        cp "$BACKEND_XML" reports/normalized/backend.xml
-                        cp "$FRONTEND_XML" reports/normalized/frontend.xml
+                        echo "JUnit test reports downloaded successfully."
 
                         echo "Both coverage reports downloaded successfully."
                     '''
@@ -151,6 +171,12 @@ pipeline {
         }
 
         stage('Publish Backend Coverage') {
+            when {
+                expression {
+                    fileExists('reports/normalized/backend.xml')
+                }
+            }
+
             steps {
                 recordCoverage(
                     tools: [[
@@ -167,6 +193,13 @@ pipeline {
         }
 
         stage('Publish Frontend Coverage') {
+
+            when {
+                expression {
+                    fileExists('reports/normalized/frontend.xml')
+                }
+            }
+
             steps {
                 recordCoverage(
                     tools: [[
@@ -182,4 +215,26 @@ pipeline {
             }
         }
     }
+
+
+    stage('Publish Backend Test Results') {
+        steps {
+            junit(
+                testResults: 'reports/normalized/backend-tests.xml',
+                allowEmptyResults: false,
+                skipPublishingChecks: true
+            )
+        }
+    }
+
+    stage('Publish Frontend Test Results') {
+        steps {
+            junit(
+                testResults: 'reports/normalized/frontend-tests.xml',
+                allowEmptyResults: false,
+                skipPublishingChecks: true
+            )
+        }
+    }
+
 }
