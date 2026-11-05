@@ -10,14 +10,34 @@
     "web": "expo start --web",
     "build:web": "expo export --platform web",
     "lint": "expo lint",
-    "test": "jest"
+    "test": "jest",
+    "test:coverage": "jest --ci --coverage --runInBand"
   },
   "jest": {
     "preset": "jest-expo",
     "setupFiles": [
       "./jest.setup.ts"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "!src/**/*.d.ts",
+      "!src/**/*.test.{ts,tsx}",
+      "!src/**/*.spec.{ts,tsx}",
+      "!src/**/__mocks__/**"
+    ],
+    "testMatch": [
+      "<rootDir>/tests/**/*.test.{ts,tsx}",
+      "<rootDir>/tests/**/*.spec.{ts,tsx}"
+    ],
+    "coverageProvider": "babel",
+    "coverageDirectory": "<rootDir>/coverage",
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "cobertura"
     ]
   },
+
   "dependencies": {
     "@expo/ui": "~57.0.21",
     "@expo/vector-icons": "^15.1.1",
