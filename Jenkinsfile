@@ -261,4 +261,43 @@ pipeline {
             }
         }
     }
+
+    post {
+        always {
+            script {
+                def jobName = env.JOB_NAME.replaceAll(
+                    '[^A-Za-z0-9_-]', '_'
+                )
+
+                def success = currentBuild.currentResult == 'SUCCESS' ? 1 : 0
+                def duration = currentBuild.duration
+
+                env.LINE = "jenkins_job,job=${jobName} " +
+                           "success=${success},duration_ms=${duration}"
+            }
+
+            withCredentials([
+                usernamePassword(
+                    credentialsId: 'grafana-cloud',
+                    usernameVariable: 'GC_USER',
+                    passwordVariable: 'GC_TOKEN'
+                )
+            ]) {
+                sh '''
+                    set +x
+
+                    curl --fail --silent --show-error \
+                        --connect-timeout 10 \
+                        --max-time 30 \
+                        --retry 2 \
+                        --user "$GC_USER:$GC_TOKEN" \
+                        --header "Content-Type: text/plain" \
+                        --data-binary "$LINE" \
+                        "https://prometheus-prod-55-prod-gb-south-1.grafana.net/api/v1/push/influx/write" \
+                        || echo "WARNING: Grafana metrics upload failed."
+                '''
+            }
+        }
+    }
+
 }
