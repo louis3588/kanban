@@ -1,4 +1,6 @@
 using kanbanBackend.DTOs.Dashboard;
+using kanbanBackend.DTOs.Dashboard.Workspaces;
+using kanbanBackend.Models;
 using kanbanBackend.Models.Enum;
 using kanbanBackend.Util;
 
@@ -6,6 +8,7 @@ namespace kanbanBackend.Services.Dashboard.Interfaces;
 
 public interface IWorkspaceMemberInterface
 {
+    WorkspaceMemberResponse ToResponse(WorkspaceMember member);
     Task<ModelResult<List<WorkspaceMemberResponse>>> GetWorkspaceMembersAsync(int workspaceId,
         int? requestUserId = null);
 

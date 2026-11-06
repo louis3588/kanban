@@ -12,10 +12,11 @@ import { confirmEmail } from "@/client/api/apiClient";
 import { useAuth} from "@/context/AuthContext";
 // @ts-ignore
 import CreateProfile from "../../components/profile/CreateProfile";
+import {DEFAULT_THEME, themes} from "@/theme/themes";
 
 export default function EmailConfirmedScreen() {
     const { login } = useAuth();
-
+    const colours = themes[DEFAULT_THEME];
     const { userId, token } = useLocalSearchParams<{
         userId: string;
         token: string;
@@ -107,21 +108,57 @@ export default function EmailConfirmedScreen() {
         );
     }
 
+    if (showCreateProfile) {
+        return (
+            <CreateProfile
+                onComplete={() => {
+                    setShowCreateProfile(false);
+                    router.replace("/(dashboard)/workspaces");
+                }}
+                onSkip={() => {
+                    setShowCreateProfile(false);
+                    skipProfileCreation();
+                }}
+            />
+        );
+    }
+
     return (
-        <View className="flex-1 items-center justify-center bg-theme-background px-6">
-            <View className="w-full max-w-lg rounded-2xl border border-theme-border bg-theme-surfaceLight p-8">
+        <View
+            className="flex-1 items-center justify-center px-6"
+            style={{ backgroundColor: colours.background }}
+        >
+            <View
+                className="w-full max-w-lg rounded-2xl border p-8"
+                style={{
+                    backgroundColor: colours.surface,
+                    borderColor: colours.border,
+                }}
+            >
                 <View className="items-center">
-                    <View className="h-16 w-16 items-center justify-center rounded-full bg-theme-success">
-                        <Text className="text-2xl font-bold text-theme-textLight">
+                    <View
+                        className="h-16 w-16 items-center justify-center rounded-full"
+                        style={{ backgroundColor: colours.success }}
+                    >
+                        <Text
+                            className="text-2xl font-bold"
+                            style={{ color: colours.textLight }}
+                        >
                             ✓
                         </Text>
                     </View>
 
-                    <Text className="mt-6 text-center text-3xl font-bold text-theme-text">
+                    <Text
+                        className="mt-6 text-center text-3xl font-bold"
+                        style={{ color: colours.text }}
+                    >
                         Your email has been confirmed
                     </Text>
 
-                    <Text className="mt-4 text-center text-base leading-6 text-theme-textMuted">
+                    <Text
+                        className="mt-4 text-center text-base leading-6"
+                        style={{ color: colours.textMuted }}
+                    >
                         Your account is ready. You can set up your profile
                         now, or skip this step and do it later.
                     </Text>
@@ -130,9 +167,13 @@ export default function EmailConfirmedScreen() {
                 <View className="mt-8">
                     <Pressable
                         onPress={() => setShowCreateProfile(true)}
-                        className="min-h-12 items-center justify-center rounded-xl bg-theme-primary px-5"
+                        className="min-h-12 items-center justify-center rounded-xl px-5"
+                        style={{ backgroundColor: colours.primary }}
                     >
-                        <Text className="font-bold text-theme-textLight">
+                        <Text
+                            className="font-bold"
+                            style={{ color: colours.textLight }}
+                        >
                             Set up profile
                         </Text>
                     </Pressable>
@@ -141,25 +182,15 @@ export default function EmailConfirmedScreen() {
                         onPress={skipProfileCreation}
                         className="mt-2 min-h-12 items-center justify-center rounded-xl px-5"
                     >
-                        <Text className="font-semibold text-theme-textMuted">
+                        <Text
+                            className="font-semibold"
+                            style={{ color: colours.textMuted }}
+                        >
                             Skip for now
                         </Text>
                     </Pressable>
                 </View>
             </View>
-
-            {showCreateProfile && (
-                <CreateProfile
-                    onComplete={() => {
-                        setShowCreateProfile(false);
-                        router.replace("/(dashboard)/workspaces");
-                    }}
-                    onSkip={() => {
-                        setShowCreateProfile(false);
-                        skipProfileCreation();
-                    }}
-                />
-            )}
         </View>
     );
 }

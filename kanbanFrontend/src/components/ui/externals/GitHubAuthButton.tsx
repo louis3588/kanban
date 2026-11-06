@@ -18,6 +18,7 @@ import {
     githubLoginClient
 } from "@/client/api/apiClient";
 import { SvgUri } from "react-native-svg";
+import {continueAfterAuthentication} from "@/context/utils/pendingInvitation";
 
 type GitHubAuthButtonProps = {
     isLogin: boolean;
@@ -73,7 +74,7 @@ export default function GitHubAuthButton({
 
             const response = await githubLoginClient(ticket);
 
-            login(response.token, {
+            await login(response.token, {
                 id: Number.parseInt(response.userId, 10),
                 username: response.username,
                 firstName: response.firstName,
@@ -81,7 +82,7 @@ export default function GitHubAuthButton({
                 email: response.email
             });
 
-            router.replace("/(dashboard)/workspaces");
+            await continueAfterAuthentication();
         } catch (e) {
             onError(
                 e instanceof Error

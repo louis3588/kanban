@@ -1,5 +1,6 @@
 using kanbanBackend.Data;
 using kanbanBackend.DTOs.Dashboard;
+using kanbanBackend.DTOs.Dashboard.Workspaces;
 using kanbanBackend.Models;
 using kanbanBackend.Models.Enum;
 using kanbanBackend.Services.Auth;

@@ -1,6 +1,6 @@
 using kanbanBackend.Models.Enum;
 
-namespace kanbanBackend.DTOs.Dashboard;
+namespace kanbanBackend.DTOs.Dashboard.Workspaces;
 
 public class WorkspaceResponse
 {

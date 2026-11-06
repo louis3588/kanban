@@ -5,6 +5,7 @@ import { router, useLocalSearchParams } from "expo-router";
 
 import { useAuth } from "@/context/AuthContext";
 import { googleLoginClient } from "@/client/api/apiClient";
+import {continueAfterAuthentication} from "@/context/utils/pendingInvitation";
 
 export default function GoogleCallback() {
     const { ticket } = useLocalSearchParams<{ ticket: string }>();
@@ -25,7 +26,7 @@ export default function GoogleCallback() {
 
                 if (cancelled) return;
 
-                login(response.token, {
+                await login(response.token, {
                     id: Number.parseInt(response.userId, 10),
                     username: response.username,
                     firstName: response.firstName,
@@ -33,7 +34,7 @@ export default function GoogleCallback() {
                     email: response.email
                 });
 
-                router.replace("/(dashboard)/workspaces");
+                await continueAfterAuthentication();
             } catch (e) {
                 if (cancelled) return;
 

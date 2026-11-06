@@ -4,6 +4,7 @@ import { ActivityIndicator, Text, View } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { microsoftLoginClient } from "@/client/api/apiClient";
+import {continueAfterAuthentication} from "@/context/utils/pendingInvitation";
 
 export default function MicrosoftCallback() {
     const { ticket } = useLocalSearchParams<{ ticket: string }>();
@@ -24,7 +25,7 @@ export default function MicrosoftCallback() {
 
                 if (cancelled) return;
 
-                login(response.token, {
+                await login(response.token, {
                     id: Number.parseInt(response.userId),
                     username: response.username,
                     firstName: response.firstName,
@@ -32,7 +33,7 @@ export default function MicrosoftCallback() {
                     email: response.email,
                 });
 
-                router.replace("/(dashboard)/workspaces");
+                await continueAfterAuthentication();
             } catch (err) {
                 if (!cancelled) {
                     setError(
