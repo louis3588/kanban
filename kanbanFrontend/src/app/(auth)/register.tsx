@@ -103,7 +103,6 @@ export default function RegisterScreen() {
                 password
             );
 
-
             router.replace({
                 pathname: "/(auth)/confirm-email",
                 params: {
