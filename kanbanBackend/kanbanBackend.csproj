@@ -31,8 +31,9 @@
         <None Remove="kanbanBackend.Tests/**/*" />
     </ItemGroup>
     <ItemGroup>
-  	<Content Update="EmailTemplates\**\*.html">
-    	   <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    	</Content>
-    </ItemGroup>
+    <None Update="EmailTemplates/**/*.html">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+</ItemGroup>
 </Project>
